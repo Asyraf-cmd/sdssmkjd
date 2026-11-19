@@ -1,6 +1,6 @@
 /* Sistem Demerit Murid — Service Worker
    Tukar nombor versi CACHE setiap kali index.html dikemas kini supaya telefon mendapat versi baharu. */
-const CACHE = 'demerit-v4';
+const CACHE = 'demerit-v5';
 const SHELL = [
   './',
   './index.html',
@@ -20,6 +20,9 @@ self.addEventListener('install', e => {
   );
 });
 
+// Butang "Muat Semula" pada banner kemas kini mengaktifkan service worker baharu serta-merta
+self.addEventListener('message', e => { if (e.data === 'SKIP_WAITING') self.skipWaiting(); });
+
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -37,8 +40,8 @@ self.addEventListener('fetch', e => {
   // Halaman: cuba rangkaian dahulu, guna cache jika luar talian
   if (req.mode === 'navigate' || url.pathname.endsWith('.html')) {
     e.respondWith(
-      fetch(req)
-        .then(res => { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return res; })
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })   // sentiasa semak versi terkini di pelayan
+        .then(res => { if (res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return res; })
         .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
     );
     return;
