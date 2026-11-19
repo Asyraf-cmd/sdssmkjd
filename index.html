@@ -381,8 +381,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '6.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
-const BACKEND_VERSI = 6;
+const APP_VERSI = '7.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const BACKEND_VERSI = 7;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -662,9 +662,9 @@ function printTind(){
   const F=S.tindFilter||{}, L=S.tind||[];
   if(!L.length) return toast('Tiada tindakan untuk dicetak.','err');
   const stLbl={BUKA:'Belum selesai','':'Semua'}[F.status]??(STATUS[F.status]||F.status);
-  printDoc(pdHead('Senarai Tindakan Susulan Disiplin','',[['Status',stLbl],['Kelas',F.kelas||'Semua kelas'],['Carian',F.q||'-'],['Jumlah',String(L.length)]])+
-    `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th class="c">Tahap</th><th class="c">Status</th><th>Catatan tindakan</th></tr></thead><tbody>
-    ${L.map((t,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(t.TarikhWujud.slice(0,10))}</td><td>${esc(t.NamaPenuh)}<br><small>${esc(t.NoDaftar)}</small></td><td class="nw">${esc(t.Kelas)}</td><td class="c">${pdTag(t.Tahap)}</td><td class="c">${pdTag(t.Status)}</td><td>${esc(t.Catatan)||'-'}${t.DikemaskiniOleh?`<br><small>${esc(t.DikemaskiniOleh)}, ${fmtD(t.DikemaskiniPada.slice(0,10))}</small>`:''}</td></tr>`).join('')}
+  printDoc(pdHead('Senarai Tindakan Susulan Disiplin','',[['Status',stLbl],['Kelas',F.kelas||'Semua kelas'],['Jenis tindakan',F.jenis||'Semua'],['Carian',F.q||'-'],['Jumlah',String(L.length)]])+
+    `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th class="c">Tahap</th><th class="c">Status</th><th>Tindakan diambil</th></tr></thead><tbody>
+    ${L.map((t,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(t.TarikhWujud.slice(0,10))}</td><td>${esc(t.NamaPenuh)}<br><small>${esc(t.NoDaftar)}</small></td><td class="nw">${esc(t.Kelas)}</td><td class="c">${pdTag(t.Tahap)}</td><td class="c">${pdTag(t.Status)}</td><td>${t.JenisTindakan?`<b>${esc(t.JenisTindakan.split(';').map(x=>x.trim()).join(', '))}</b>${t.TarikhTindakan?` <small>(${fmtD(t.TarikhTindakan)})</small>`:''}<br>`:''}${esc(t.Catatan)||(t.JenisTindakan?'':'-')}${t.DikemaskiniOleh?`<br><small>${esc(t.DikemaskiniOleh)}, ${fmtD(t.DikemaskiniPada.slice(0,10))}</small>`:''}</td></tr>`).join('')}
     </tbody></table>
     ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
 }
@@ -695,6 +695,7 @@ function printReport(){
     <table class="pd-tbl"><thead><tr><th>Status</th><th class="r">Bilangan</th></tr></thead><tbody>
       <tr><td>${STATUS.BELUM}</td><td class="r">${d.tindakan.BELUM}</td></tr><tr><td>${STATUS.PROSES}</td><td class="r">${d.tindakan.PROSES}</td></tr><tr><td>${STATUS.SELESAI}</td><td class="r">${d.tindakan.SELESAI}</td></tr></tbody>
       <tfoot><tr><td>JUMLAH</td><td class="r">${tT}</td></tr></tfoot></table>
+    <div style="margin-top:8px">${simple('Jenis tindakan diambil',d.ikutJenisTindakan||[]).replace('<th class="r">%</th>','<th class="r">% kes</th>')}</div>
     <h4>I. Analisis Waktu Kejadian</h4>
     <div class="pd-note" style="font-style:normal;margin-bottom:4px">Sesi pagi (sebelum 1:00 ptg): <b>${d.sesi.Pagi}</b> · Sesi petang: <b>${d.sesi.Petang}</b></div>
     ${vchart(d.ikutJam.map(x=>({label:x.label,bil:x.bil})),'jam')}
@@ -1315,27 +1316,28 @@ function vTindakan(){
     <div class="row">
       <div><label>Status</label><select id="tS"><option value="BUKA">Belum selesai</option><option value="BELUM">Belum diambil tindakan</option><option value="PROSES">Dalam proses</option><option value="SELESAI">Selesai</option><option value="">Semua</option></select></div>
       <div><label>Kelas</label><select id="tK">${optKelas('','Semua')}</select></div>
+      <div><label>Jenis tindakan</label><select id="tJ"><option value="">Semua</option>${(S.set.JenisTindakan||[]).map(j=>`<option>${esc(j)}</option>`).join('')}</select></div>
       <div><label>Carian</label><input id="tQ" placeholder="Nama, no. pendaftaran, catatan…"></div>
       <button class="btn" id="tGo">🔍 Cari</button>
       <button class="btn sec" id="tPrt">🖨 Cetak</button>
     </div>
   </div>
   <div class="card"><div class="tw" id="tTbl"></div></div>`;
-  $('#tGo').onclick=loadTind; $('#tPrt').onclick=printTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
+  $('#tGo').onclick=loadTind; $('#tPrt').onclick=printTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tJ').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
   loadTind();
 }
 async function loadTind(){
   $('#tTbl').innerHTML='<div class="muted">Memuatkan…</div>';
   try{
-    const F={status:$('#tS').value,kelas:$('#tK').value,q:$('#tQ').value.trim()};
+    const F={status:$('#tS').value,kelas:$('#tK').value,jenis:$('#tJ').value,q:$('#tQ').value.trim()};
     const r=await api('listTindakan',F);
     S.tind=r.list; S.tindFilter=F;
     setOpenCount(r.buka);
-    $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Catatan tindakan</th><th></th></tr></thead><tbody>
+    $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Tindakan diambil</th><th></th></tr></thead><tbody>
       ${r.list.map(t=>`<tr><td class="nowrap">${fmtD(t.TarikhWujud)}<div class="muted">Tempoh: ${esc(t.Tempoh==='SEMUA'?'Keseluruhan':t.Tempoh)}</div></td>
       <td><a href="#" data-no="${esc(t.NoDaftar)}">${esc(t.NamaPenuh)}</a><div class="muted">${esc(t.NoDaftar)}</div></td><td>${esc(t.Kelas)}</td>
       <td>${badge(t.Tahap)}</td><td>${sBadge(t.Status)}</td>
-      <td>${esc(t.Catatan)||'<span class="muted">—</span>'}${t.DikemaskiniOleh?`<div class="muted">${esc(t.DikemaskiniOleh)} · ${fmtD(t.DikemaskiniPada)}</div>`:''}</td>
+      <td>${t.JenisTindakan?`<div class="qk" style="margin:0 0 4px">${t.JenisTindakan.split(';').map(j=>`<span class="badge b-on" style="font-weight:600">${esc(j.trim())}</span>`).join(' ')}</div>`:''}${t.TarikhTindakan?`<div class="muted">Tarikh tindakan: ${fmtD(t.TarikhTindakan)}</div>`:''}${esc(t.Catatan)||(t.JenisTindakan?'':'<span class="muted">—</span>')}${t.DikemaskiniOleh?`<div class="muted">${esc(t.DikemaskiniOleh)} · ${fmtD(t.DikemaskiniPada)}</div>`:''}</td>
       <td><button class="btn sm" data-id="${esc(t.ID)}">Kemas kini</button></td></tr>`).join('')}</tbody></table>`
       : '<div class="muted">Tiada tindakan bagi tapisan ini.</div>';
     $('#tTbl').querySelectorAll('[data-no]').forEach(a=>a.onclick=e=>{ e.preventDefault(); S.profilNo=a.dataset.no; go('profil'); });
@@ -1344,9 +1346,14 @@ async function loadTind(){
       modal('Kemas Kini Tindakan',`
         <div class="info" style="margin-bottom:6px"><b>${esc(t.NamaPenuh)}</b> · ${esc(t.Kelas)} · ${badge(t.Tahap)}</div>
         <label>Status</label><select id="uS">${Object.keys(STATUS).map(k=>`<option value="${k}" ${t.Status===k?'selected':''}>${STATUS[k]}</option>`).join('')}</select>
-        <label>Catatan tindakan</label><textarea id="uC" maxlength="1000" placeholder="Cth: Kaunseling oleh Pn. Aminah pada 20/11; ibu bapa dihubungi.">${esc(t.Catatan)}</textarea>`,[
+        <label>Jenis tindakan yang diambil <span class="muted">(boleh pilih lebih daripada satu)</span></label>
+        <div style="display:grid;gap:6px;margin-top:4px">${(()=>{ const ada=(t.JenisTindakan||'').split(';').map(x=>x.trim()).filter(Boolean); const all=(S.set.JenisTindakan||[]).concat(ada.filter(x=>!(S.set.JenisTindakan||[]).includes(x)));
+          return all.map(j=>`<label style="display:flex;gap:8px;align-items:center;font-weight:500;margin:0"><input type="checkbox" class="uJ" value="${esc(j)}" ${ada.includes(j)?'checked':''}> ${esc(j)}</label>`).join(''); })()}</div>
+        <label>Tarikh tindakan diambil</label><input type="date" id="uT" value="${esc(t.TarikhTindakan||today())}" max="${today()}">
+        <label>Catatan tindakan</label><textarea id="uC" maxlength="1000" placeholder="Cth: Kaunseling oleh Pn. Aminah; ibu bapa dihubungi dan bersetuju memantau.">${esc(t.Catatan)}</textarea>
+        <div class="muted" style="margin-top:6px">Status <b>Selesai</b> memerlukan sekurang-kurangnya satu jenis tindakan.</div>`,[
         {t:'Batal',cls:'sec'},
-        {t:'Simpan',fn:async()=>{ await api('updateTindakan',{ID:t.ID,Status:$('#uS').value,Catatan:$('#uC').value}); toast('Tindakan dikemas kini.','ok'); loadTind(); }}
+        {t:'Simpan',fn:async()=>{ await api('updateTindakan',{ID:t.ID,Status:$('#uS').value,Jenis:[...document.querySelectorAll('.uJ:checked')].map(c=>c.value),TarikhTindakan:$('#uT').value,Catatan:$('#uC').value}); toast('Tindakan dikemas kini.','ok'); loadTind(); }}
       ]);
     });
   }catch(e){ $('#tTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
@@ -1609,6 +1616,7 @@ async function genReport(){
         <div class="sp"><span>${sBadge('BELUM')}</span><b>${d.tindakan.BELUM}</b></div>
         <div class="sp" style="margin-top:6px"><span>${sBadge('PROSES')}</span><b>${d.tindakan.PROSES}</b></div>
         <div class="sp" style="margin-top:6px"><span>${sBadge('SELESAI')}</span><b>${d.tindakan.SELESAI}</b></div>
+        <h3 style="margin-top:18px">Jenis Tindakan Diambil (dalam tempoh ini)</h3>${bars(d.ikutJenisTindakan||[],'Tiada tindakan direkodkan.')}
       </div>
     </div>
 `;
@@ -1626,6 +1634,7 @@ function exportReport(){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKelas.map(k=>({'Kelas':k.label,'Murid terlibat':k.bilMurid,'Ringan':k.Ringan,'Sederhana':k.Sederhana,'Berat':k.Berat,'Jumlah':k.bil}))),'Ikut Kelas');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKesalahan.map(k=>({'Kesalahan':k.label,'Bilangan':k.bil}))),'Ikut Kesalahan');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.topMurid.map((m,i)=>({'#':i+1,'No. Pendaftaran':m.NoDaftar,'Nama':m.NamaPenuh,'Kelas':m.Kelas,'Bilangan':m.bil,'Tahap terkini':m.tahap}))),'Murid Kerap');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.ikutJenisTindakan||[]).map(k=>({'Jenis tindakan':k.label,'Bilangan':k.bil})).concat((d.ikutJenisTindakan||[]).length?[]:[{'Jenis tindakan':'(tiada)','Bilangan':0}])),'Jenis Tindakan');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.trend.map(t=>({'Tempoh':d.trendHarian?fmtD(t.label):t.label,'Bilangan':t.bil}))),'Trend');
   XLSX.writeFile(wb,`Laporan_Demerit_${d.dari}_${d.hingga}.xlsx`);
 }
@@ -1665,11 +1674,11 @@ function vAkaun(){
    TETAPAN (GURU PENTADBIR)
    ===================================================================== */
 const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],
-  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['jawatan','🎖️ Jawatan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['log','📜 Log Aktiviti']];
+  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['jawatan','🎖️ Jawatan'],['jenistindakan','🛠️ Jenis Tindakan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['kesihatan','🩺 Kesihatan Sistem'],['log','📜 Log Aktiviti']];
 function vTetapan(){
   $('#view').innerHTML = `<div class="tabs">${TABS.map(([k,t])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${t}</button>`).join('')}</div><div id="tBody"></div>`;
   $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; vTetapan(); });
-  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,sistem:tSistem,tahunbaru:tTahunBaru,log:tLog})[S.tab]();
+  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,sistem:tSistem,tahunbaru:tTahunBaru,kesihatan:tKesihatan,jenistindakan:tJenisTindakan,log:tLog})[S.tab]();
 }
 
 /* ---------- Umum & Logo ---------- */
@@ -2163,6 +2172,58 @@ function tJawatan(){
   };
 }
 
+/* ---------- Jenis tindakan ---------- */
+function tJenisTindakan(){
+  const L=(S.set.JenisTindakan||[]).slice();
+  $('#tBody').innerHTML=`<div class="card" style="max-width:720px"><h3>🛠️ Jenis Tindakan Susulan</h3>
+    <div class="info" style="margin-bottom:12px">Senarai ini dipilih oleh guru semasa mengemas kini tindakan susulan, dan digunakan dalam laporan untuk mengira jenis tindakan yang telah diambil. Menukar atau memadam jenis tidak mengubah rekod tindakan lama.</div>
+    <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Jenis tindakan</th><th></th></tr></thead><tbody id="jtB"></tbody></table></div>
+    <div class="toolbar" style="margin-top:10px;justify-content:space-between"><button class="btn sec" id="jtAdd">+ Tambah jenis</button><button class="btn" id="jtSave">💾 Simpan</button></div></div>`;
+  const draw=()=>{
+    $('#jtB').innerHTML=L.map((j,i)=>`<tr><td>${i+1}</td><td><input data-i="${i}" value="${esc(j)}"></td><td class="nowrap right"><button class="btn sm sec" data-m="${i}|-1" ${i?'':'disabled'}>↑</button> <button class="btn sm sec" data-m="${i}|1" ${i<L.length-1?'':'disabled'}>↓</button> <button class="btn sm red" data-x="${i}">✕</button></td></tr>`).join('');
+    $('#jtB').querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[+el.dataset.i]=el.value; });
+    $('#jtB').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ const [i,d]=b.dataset.m.split('|').map(Number); const t=L[i]; L.splice(i,1); L.splice(i+d,0,t); draw(); });
+    $('#jtB').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ L.splice(+b.dataset.x,1); draw(); });
+  };
+  draw();
+  $('#jtAdd').onclick=()=>{ L.push(''); draw(); const ins=$('#jtB').querySelectorAll('input'); ins[ins.length-1].focus(); };
+  $('#jtSave').onclick=async()=>{ try{ const r=await api('saveSettings',{JenisTindakan:JSON.stringify(L)}); S.set=r.settings; toast('Senarai jenis tindakan disimpan.','ok'); tJenisTindakan(); }catch(e){ toast(e.message,'err'); } };
+}
+
+/* ---------- Kesihatan sistem ---------- */
+async function tKesihatan(){
+  $('#tBody').innerHTML='<div class="card muted">Menjalankan semakan kesihatan sistem…</div>';
+  let d; const t0=Date.now();
+  try{ d=await api('systemHealth'); }catch(e){ if($('#tBody')) $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
+  if(!$('#tBody')) return;
+  const ms=Date.now()-t0;
+  const ic={OK:'✅',AMARAN:'⚠️',KRITIKAL:'⛔'}, cl={OK:'ringan',AMARAN:'sederhana',KRITIKAL:'berat'};
+  const ringkas={OK:'Sistem berada dalam keadaan baik.',AMARAN:'Terdapat perkara yang perlu diberi perhatian.',KRITIKAL:'Terdapat isu penting yang perlu diselesaikan segera.'}[d.tahap];
+  const vf=APP_VERSI, vb=d.info.versi;
+  $('#tBody').innerHTML=`
+  <div class="hero" style="background:linear-gradient(125deg,${d.tahap==='OK'?'#14532d,#16a34a':d.tahap==='AMARAN'?'#7c2d12,#ea7a0c':'#7f1d1d,#e3222b'})"><h2>${ic[d.tahap]} Status Keseluruhan: ${d.tahap==='OK'?'Baik':d.tahap==='AMARAN'?'Perlu Perhatian':'Kritikal'}</h2>
+    <p>${ringkas} · Disemak ${fmtD(d.info.masa)} · Masa respons pelayan ${(ms/1000).toFixed(1)} saat</p></div>
+  <div class="toolbar"><button class="btn" id="hR">🔄 Semak Semula</button><button class="btn sec" id="hC">🧹 Kosongkan Cache</button></div>
+  <div class="grid g2">${d.semak.map(x=>`<div class="stat ${cl[x.tahap]}" style="padding:16px"><div class="sp" style="align-items:flex-start"><b style="font-size:14.5px">${ic[x.tahap]} ${esc(x.tajuk)}</b>
+    <span class="badge b-${x.tahap==='OK'?'Ringan':x.tahap==='AMARAN'?'Sederhana':'Berat'}">${x.tahap==='OK'?'OK':x.tahap==='AMARAN'?'Amaran':'Kritikal'}</span></div>
+    <div class="muted" style="margin-top:6px">${esc(x.butiran)}</div>${x.cadangan?`<div style="margin-top:6px;font-size:13px">👉 ${esc(x.cadangan)}</div>`:''}</div>`).join('')}</div>
+  <div class="grid g2">
+    <div class="card"><h3>📦 Saiz Helaian</h3><div class="tw"><table class="tbl"><thead><tr><th>Helaian</th><th class="right">Baris data</th><th class="right">Sel</th></tr></thead><tbody>
+      ${d.helaian.map(h=>`<tr><td>${esc(h.nama)}</td><td class="right">${h.baris.toLocaleString()}</td><td class="right">${h.sel.toLocaleString()}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="card"><h3>ℹ️ Maklumat Sistem</h3>
+      ${[['Versi frontend',vf+(String(vf).split('.')[0]!=String(vb)?' ⚠️ tidak sepadan dengan backend':'')],['Versi backend',vb],['Fail Google Sheet',d.info.fail],['Zon waktu',d.info.zon],['Masa pelayan',fmtD(d.info.masa)],
+         ['Cache permintaan ini',`${d.info.cache.hit} dari cache · ${d.info.cache.miss} dari helaian`],['Pengguna berdaftar',d.info.pengguna],['Murid aktif',d.info.murid],
+         ['Mod',S.latihan?'Latihan':'Sebenar'],['Rekod luar talian belum dihantar (peranti ini)',qGet().length]]
+        .map(([k,v])=>`<div class="sp" style="padding:5px 0;border-bottom:1px solid var(--line)"><span class="muted">${esc(k)}</span><b style="text-align:right">${esc(v)}</b></div>`).join('')}
+      <div style="margin-top:10px"><a class="btn sec sm" href="${esc(d.info.url)}" target="_blank" rel="noopener">📄 Buka Google Sheet</a></div>
+    </div>
+  </div>
+  <div class="card"><h3>🧾 Ralat & Amaran Terkini (7 hari)</h3>${d.ralat.length?`<div class="tw"><table class="tbl"><thead><tr><th>Masa</th><th>Jenis</th><th>Butiran</th></tr></thead><tbody>
+    ${d.ralat.map(r=>`<tr><td class="nowrap">${fmtD(r.Masa)}</td><td class="nowrap"><b>${esc(r.Tindakan)}</b></td><td style="word-break:break-word">${esc(r.Butiran)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">🎉 Tiada ralat direkodkan dalam 7 hari lepas.</div>'}</div>`;
+  $('#hR').onclick=tKesihatan;
+  $('#hC').onclick=async()=>{ try{ await api('clearCache'); toast('Cache dikosongkan. Data akan dibaca semula dari Google Sheet.','ok'); tKesihatan(); }catch(e){ toast(e.message,'err'); } };
+}
+
 /* ---------- Notifikasi ---------- */
 async function tNotif(){
   $('#tBody').innerHTML='<div class="card muted">Memuatkan…</div>';
@@ -2306,7 +2367,7 @@ function tLog(){
     <div class="row" style="margin-bottom:10px">
       <div><input id="lgQ" placeholder="Cari pengguna, tindakan atau butiran…"></div>
       <div style="flex:0 0 220px"><select id="lgT"><option value="">Semua tindakan</option>
-        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI JAWATAN','SAHKAN REKOD','TOLAK REKOD','BATAL REKOD','KEMAS KINI NOTIFIKASI','RALAT NOTIFIKASI','LOG MASUK (GOOGLE)','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
+        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI JAWATAN','SAHKAN REKOD','TOLAK REKOD','BATAL REKOD','KEMAS KINI NOTIFIKASI','RALAT NOTIFIKASI','LOG MASUK (GOOGLE)','RALAT SISTEM','AMARAN PRESTASI','KOSONGKAN CACHE','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
           .map(t=>`<option>${t}</option>`).join('')}</select></div>
       <button class="btn" id="lgGo">🔍 Cari</button>
     </div>
