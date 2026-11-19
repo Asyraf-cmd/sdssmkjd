@@ -1,6 +1,6 @@
 /* Sistem Demerit Murid — Service Worker
    Tukar nombor versi CACHE setiap kali index.html dikemas kini supaya telefon mendapat versi baharu. */
-const CACHE = 'demerit-v5';
+const CACHE = 'demerit-v6';
 const SHELL = [
   './',
   './index.html',
@@ -37,13 +37,19 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (/script\.google(usercontent)?\.com$/.test(url.hostname)) return;
 
-  // Halaman: cuba rangkaian dahulu, guna cache jika luar talian
+  // Semakan versi oleh aplikasi (index.html?_v=...): sentiasa dari rangkaian
+  if (url.searchParams.has('_v')) { e.respondWith(fetch(req.url, { cache: 'no-store' })); return; }
+
+  // Halaman aplikasi: papar salinan tersimpan SERTA-MERTA, kemas kini salinan di latar belakang.
+  // Versi baharu dikesan oleh aplikasi dan banner "Muat Semula" dipaparkan.
   if (req.mode === 'navigate' || url.pathname.endsWith('.html')) {
+    const net = fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
+      .then(res => { if (res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); } return res; });
     e.respondWith(
-      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })   // sentiasa semak versi terkini di pelayan
-        .then(res => { if (res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return res; })
-        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+      caches.match('./index.html').then(cached => cached || net)
+        .catch(() => net)
     );
+    e.waitUntil(net.catch(() => {}));
     return;
   }
 
