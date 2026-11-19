@@ -56,14 +56,17 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .uinfo span{opacity:.8}
 .uinfo button,.instbtn{margin-top:4px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:600;transition:background .2s}
 .uinfo button:hover,.instbtn:hover{background:rgba(255,255,255,.26)}
-nav{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;position:sticky;top:66px;z-index:19;scrollbar-width:none;
- background:rgba(255,255,255,.58);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--glass-bd);box-shadow:0 4px 16px rgba(11,29,77,.06)}
+nav{display:flex;gap:4px;overflow-x:auto;padding:6px 10px calc(6px + env(safe-area-inset-bottom));position:fixed;left:0;right:0;bottom:0;z-index:30;scrollbar-width:none;justify-content:safe center;
+ background:rgba(255,255,255,.72);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-top:1px solid var(--glass-bd);box-shadow:0 -8px 28px rgba(11,29,77,.12)}
 nav::-webkit-scrollbar{display:none}
-nav button{border:0;background:none;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;font:inherit;font-size:14px;font-weight:600;color:var(--mut);transition:all .2s}
+nav button{position:relative;flex:0 0 auto;min-width:76px;border:0;background:none;padding:7px 10px 6px;border-radius:14px;cursor:pointer;font:inherit;color:var(--mut);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ni{font-size:20px;line-height:1.1}
+nav button .nl{font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.1px}
 nav button:hover{background:rgba(42,91,215,.08);color:var(--pri)}
 nav button.on{background:linear-gradient(135deg,var(--pri2),var(--pri));color:#fff;box-shadow:0 6px 16px rgba(42,91,215,.35)}
+nav button .dot{position:absolute;top:2px;right:10px;margin:0}
 .dot{display:inline-block;min-width:19px;padding:0 6px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:700;margin-left:6px;text-align:center;line-height:18px;box-shadow:0 2px 6px rgba(227,34,43,.4)}
-main{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+main{max-width:1180px;margin:0 auto;padding:20px 16px calc(100px + env(safe-area-inset-bottom))}
 
 /* ---------- Kad kaca ---------- */
 .card{background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--glass-bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:16px}
@@ -157,7 +160,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
 .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
+#toast{position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
 .toast{background:rgba(11,29,77,.88);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 12px 28px rgba(11,29,77,.3);animation:pop .2s}
 .toast.err{background:rgba(227,34,43,.92)}.toast.ok{background:rgba(22,163,74,.92)}
 #loader{position:fixed;top:0;left:0;height:3px;width:0;z-index:70;transition:width .4s;background:linear-gradient(90deg,var(--pri2),var(--red),var(--yel))}
@@ -181,11 +184,53 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
 .rpt-head{display:flex;gap:14px;align-items:center;border-bottom:3px solid var(--pri);padding-bottom:12px;margin-bottom:14px}
 .rpt-head img{width:66px;height:66px;object-fit:contain}
 .print-only{display:none}
+/* ---------- Dokumen cetakan rasmi ---------- */
+#printArea{display:none}
+.pd{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:10pt;line-height:1.38;padding:0 2px}
+.pd-lh{display:flex;align-items:center;gap:16px;padding-bottom:8px;border-bottom:3px solid #1d3f94;position:relative;margin-bottom:10px}
+.pd-lh::after{content:"";position:absolute;left:0;right:0;bottom:-6px;border-bottom:1px solid #1d3f94}
+.pd-lh img{width:74px;height:82px;object-fit:contain;flex:0 0 auto}
+.pd-lh .tx{flex:1;text-align:center;padding-right:74px}
+.pd-sch{font-size:14pt;font-weight:700;color:#0b1d4d;text-transform:uppercase;letter-spacing:.4px;line-height:1.2}
+.pd-addr{font-size:9pt;color:#111;margin-top:2px}
+.pd-title{text-align:center;font-size:12.5pt;font-weight:700;text-transform:uppercase;margin:18px 0 2px;letter-spacing:.6px;color:#0b1d4d}
+.pd-sub{text-align:center;font-size:10pt;margin-bottom:4px}
+.pd-meta{width:100%;border-collapse:collapse;margin:10px 0 6px;font-size:9.5pt}
+.pd-meta td{padding:2px 4px;vertical-align:top}.pd-meta td.k{width:17%;font-weight:700;white-space:nowrap}.pd-meta td.s{width:2%}
+.pd h4{font-size:10pt;margin:16px 0 6px;color:#0b1d4d;text-transform:uppercase;letter-spacing:.3px;border-left:4px solid #1d3f94;padding-left:7px;break-after:avoid}
+.pd-tbl{width:100%;border-collapse:collapse;font-size:9pt}
+.pd-tbl th,.pd-tbl td{border:1px solid #7a8394;padding:4px 6px;vertical-align:top;text-align:left}
+.pd-tbl th{background:#dfe7f8;color:#0b1d4d;font-weight:700;font-size:8.5pt;text-transform:uppercase}
+.pd-tbl thead{display:table-header-group}.pd-tbl tr{break-inside:avoid}
+.pd-tbl .c{text-align:center}.pd-tbl .r{text-align:right}.pd-tbl .nw{white-space:nowrap}
+.pd-tbl tfoot td{font-weight:700;background:#f0f4fb}
+.pd-tbl small{color:#444}
+.pd-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tg{display:inline-block;padding:0 6px;border:1px solid;border-radius:3px;font-size:8pt;font-weight:700;white-space:nowrap}
+.tg-Ringan{color:#15803d}.tg-Sederhana{color:#c2410c}.tg-Berat{color:#c1121f}.tg-none{color:#555}
+.tg-BELUM{color:#c1121f}.tg-PROSES{color:#a16207}.tg-SELESAI{color:#15803d}
+.cb{display:inline-block;width:11px;height:11px;border:1px solid #000;vertical-align:-1px;margin-right:2px;font-size:9px;line-height:10px;text-align:center;font-weight:700}
+.pd-tbl tr.tall td{padding-top:9px;padding-bottom:9px}
+.pd-break{break-before:page;height:0}
+.pd-tbl tr.grp td{border-top:2px solid #1d3f94}
+.pd-sm{font-size:8pt}.pd-sm th{font-size:7.5pt}.pd-sm td,.pd-sm th{padding:3px 4px}
+.pd-in{width:100%;border-collapse:collapse}.pd-in td{border:0;border-bottom:1px dotted #9aa3b5;padding:3px 3px;vertical-align:top}.pd-in tr:last-child td{border-bottom:0}
+.fill{margin-top:9px;display:flex;gap:4px;align-items:flex-end;white-space:nowrap}.fill .dl{flex:1;border-bottom:1px dotted #000;min-width:40px;height:12px}
+.pd-note{font-size:8.5pt;color:#333;margin-top:6px;font-style:italic}
+.pd-sign{display:flex;gap:28px;margin-top:34px;break-inside:avoid}
+.pd-sign>div{flex:1;font-size:9.5pt}
+.pd-sign .ln{border-bottom:1px dotted #000;height:46px;margin:4px 0 4px}
+.pd-end{text-align:center;font-size:8pt;color:#555;margin-top:22px}
+.pd .vchart{height:130px;border-bottom:1px solid #7a8394}.pd .vchart i{background:#2a5bd7}.pd .vchart b,.pd .vlabels span{color:#333}
+.pd *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
  .card,.stat,.tabs button{background:rgba(255,255,255,.95)}nav{background:rgba(255,255,255,.97)}.login-box{background:#fff}
 }
-@media(max-width:600px){.uinfo span{display:none}main{padding:12px 10px 32px}.stat .n{font-size:23px}.card{padding:15px}.hero{padding:16px}.hero h2{font-size:17px}}
+@media(max-width:600px){.uinfo span{display:none}main{padding:12px 10px calc(96px + env(safe-area-inset-bottom))}nav button{min-width:68px;padding:6px 8px 5px}.stat .n{font-size:23px}.card{padding:15px}.hero{padding:16px}.hero h2{font-size:17px}}
 @media print{
+  body.pdoc>*:not(#printArea){display:none!important}
+  body.pdoc #printArea{display:block}
+  body.pdoc{background:#fff}
   .topbar,nav,.toolbar,.noprint,#toast,#loader{display:none!important}
   body{background:#fff;font-size:12px}body::before{display:none}
   .card,.stat{box-shadow:none;border:1px solid #ccd5e8;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;break-inside:avoid}
@@ -243,8 +288,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
     <button class="instbtn hidden" id="btnInstall">📲 Pasang</button>
     <div class="uinfo"><b id="hdUser"></b><br><span id="hdRole"></span><br><button id="btnOut">Log Keluar</button></div>
   </header>
-  <nav id="nav"></nav>
   <main id="view"></main>
+  <nav id="nav"></nav>
 </div>
 
 <!-- ========== MODAL ========== -->
@@ -256,6 +301,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
   </div>
 </div>
 <div id="toast"></div>
+<div id="printArea"></div>
+<style id="pgStyle"></style>
 <input type="file" id="fileIn" accept=".xlsx,.xls,.csv" class="hidden">
 
 <script>
@@ -263,6 +310,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
+const BACKEND_VERSI = 4;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -274,7 +322,7 @@ const LS = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 const S = {token:LS.get('dm_token')||'', user:null, set:{}, logo:'', kelas:[], murid:[], muridArkib:[], kes:[], users:[],
-  tindakanBuka:0, tahunArkib:[], view:'dashboard', tab:'umum', pick:[], recs:[], rpt:null};
+  tindakanBuka:0, moeisBelum:0, tahunArkib:[], view:'dashboard', tab:'umum', pick:[], recs:[], rpt:null};
 const $ = s => document.querySelector(s);
 const esc = v => String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SVG_LOGO = 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 4 8 12v18c0 15 10 26 24 30 14-4 24-15 24-30V12z" fill="#1d3f94"/><path d="M22 32l7 7 13-14" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
@@ -384,6 +432,195 @@ function applyBrand(school, sys, logo){
 }
 
 /* =====================================================================
+   DOKUMEN CETAKAN RASMI
+   ===================================================================== */
+function pageStyle(land){
+  const q=v=>String(v||'').replace(/["\\\n]/g,' ');
+  const f='font-family:Arial,Helvetica,sans-serif;font-size:8pt;color:#444;';
+  const sulit=S.set.CetakSulit!=='TIDAK';
+  $('#pgStyle').textContent=`@page{size:A4 ${land?'landscape':'portrait'};margin:${land?'12mm 12mm 14mm':'15mm 14mm 17mm 14mm'};
+    @bottom-left{content:"${q(S.set.NamaSistem)}";${f}}
+    @bottom-right{content:"Halaman " counter(page) " / " counter(pages);${f}}
+    ${sulit?`@top-center{content:"SULIT";${f}font-size:9pt;font-weight:bold;color:#000;letter-spacing:2px}
+    @bottom-center{content:"SULIT";${f}font-size:9pt;font-weight:bold;color:#000;letter-spacing:2px}`:''}}`;
+}
+function pdTag(t){ return t?`<span class="tg tg-${esc(t)}">${esc(STATUS[t]?STATUS[t]:t)}</span>`:'<span class="tg tg-none">Tiada</span>'; }
+function pdHead(title, sub, meta){
+  const s=S.set;
+  const kontak=[s.NoTelefon?'Tel: '+s.NoTelefon:'', s.Emel?'E-mel: '+s.Emel:'', s.KodSekolah?'Kod Sekolah: '+s.KodSekolah:''].filter(Boolean).join('   |   ');
+  const all=(meta||[]).concat([['Dicetak oleh',S.user.Nama],['Tarikh cetak',fmtD(today())+' '+nowHM()]]);
+  let rows=''; for(let i=0;i<all.length;i+=2){ const a=all[i], b=all[i+1];
+    rows+=`<tr><td class="k">${esc(a[0])}</td><td class="s">:</td><td>${esc(a[1])}</td>${b?`<td class="k">${esc(b[0])}</td><td class="s">:</td><td>${esc(b[1])}</td>`:'<td></td><td></td><td></td>'}</tr>`; }
+  return `<div class="pd-lh"><img src="${S.logo||DEF_LOGO}" alt=""><div class="tx"><div class="pd-sch">${esc(s.NamaSekolah)}</div>
+      ${s.AlamatSekolah?`<div class="pd-addr">${esc(s.AlamatSekolah).replace(/\n/g,', ')}</div>`:''}${kontak?`<div class="pd-addr">${esc(kontak)}</div>`:''}</div></div>
+    <div class="pd-title">${esc(title)}</div>${sub?`<div class="pd-sub">${esc(sub)}</div>`:''}
+    <table class="pd-meta">${rows}</table>`;
+}
+function pdSign(list){
+  return `<div class="pd-sign">${list.map(x=>`<div>${esc(x[0])}:<div class="ln"></div>Nama: ${x[1]?esc(x[1]):'..........................................'}<br>${x[2]?'Jawatan: '+esc(x[2])+'<br>':''}Tarikh: ...............................</div>`).join('')}</div>`;
+}
+async function printDoc(html, noEnd, land){
+  const a=$('#printArea');
+  a.innerHTML=`<div class="pd">${html}${noEnd?'':`<div class="pd-end">— Dokumen ini dijana oleh ${esc(S.set.NamaSistem||'Sistem Demerit Murid')} —</div>`}</div>`;
+  pageStyle(land); document.body.classList.add('pdoc');
+  await Promise.all([...a.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r;})));
+  setTimeout(()=>window.print(),80);
+}
+window.addEventListener('afterprint',()=>document.body.classList.remove('pdoc'));
+function skopLabel(){ return S.set.SkopKiraan==='SEMUA'?'Keseluruhan (terkumpul)':'Tahun '+today().slice(0,4); }
+
+const mLbl={SUDAH:'Sudah dimasukkan',BELUM:'Belum dimasukkan'};
+function mBadge(st){ return st==='SUDAH'?'<span class="badge b-SELESAI">Sudah dimasukkan</span>':'<span class="badge b-BELUM">Belum dimasukkan</span>'; }
+function moeisPrint(P){
+  const L=P.moeis||[], N=S.set.MoeisSetiap||3, jenis=S.set.MoeisSkop==='SEMUA'?'rekod kesalahan':'rekod kesalahan ringan';
+  const cb=on=>`<span class="cb">${on?'✓':''}</span>`;
+  return `<h4>C. Rekod Kemasukan Sistem MOEIS <span style="text-transform:none;font-weight:400">(diisi oleh Guru Disiplin)</span></h4>
+    <div class="pd-note" style="margin:0 0 6px;font-style:normal">Setiap ${esc(N)} ${jenis} perlu dimasukkan ke dalam sistem MOEIS.</div>
+    <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Kumpulan rekod</th><th class="c" style="width:16%">Dimasukkan ke MOEIS?</th><th style="width:24%">Nama guru yang memasukkan</th><th style="width:12%">Tarikh</th><th style="width:13%">Tandatangan</th></tr></thead><tbody>
+    ${L.length?L.map((x,i)=>`<tr class="tall"><td class="c">${i+1}</td><td>${esc(x.Julat)}<br><small>${esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '))}${x.Tempoh&&x.Tempoh!=='SEMUA'?' · Tahun '+esc(x.Tempoh):''}</small></td>
+      <td class="nw">${cb(x.Status==='SUDAH')} Sudah &nbsp; ${cb(false)} Belum</td><td>${x.Status==='SUDAH'?esc(x.DimasukkanOleh):''}</td><td>${x.Status==='SUDAH'?fmtD(x.TarikhMasuk):''}</td><td></td></tr>`).join('')
+      :`<tr><td colspan="6" class="c">Murid belum mencapai ${esc(N)} ${jenis}. Tiada kemasukan MOEIS diperlukan setakat ini.</td></tr>`}
+    </tbody></table>`;
+}
+function printProfil(){ if(S.prof) printDoc(profilHtml(S.prof)); }
+function profilHtml(P){
+  const {a,b}=had(), c=P.c, m=P.m;
+  const recs=P.recs.slice().sort((x,y)=>(x.Tarikh+x.Masa).localeCompare(y.Tarikh+y.Masa));
+  return (pdHead('Profil Demerit Murid','Rekod Kesalahan Disiplin Ringan',[
+      ['Nama murid',m.NamaPenuh],['No. pendaftaran',m.NoDaftar],['Kelas',m.Kelas],['Status murid',P.arkib?'Arkib':'Aktif']])+
+    `<h4>A. Ringkasan Demerit (${esc(skopLabel())})</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Jumlah kesalahan</th><th class="c">Ringan (ke-1 – ${a})</th><th class="c">Sederhana (ke-${a+1} – ${a+b})</th><th class="c">Berat (ke-${a+b+1} ke atas)</th><th class="c">Tahap semasa</th></tr></thead>
+    <tbody><tr><td class="c"><b>${c}</b></td><td class="c">${Math.min(c,a)} / ${a}</td><td class="c">${Math.max(0,Math.min(c-a,b))} / ${b}</td><td class="c">${Math.max(0,c-a-b)}</td><td class="c">${pdTag(tahapOf(c))}</td></tr></tbody></table>
+    <h4>B. Sejarah Kesalahan</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Tarikh / Masa</th><th>Kesalahan</th><th>Catatan</th><th class="c">Ke-</th><th class="c">Tahap</th><th>Direkod oleh</th></tr></thead><tbody>
+    ${recs.length?recs.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}</td><td>${esc(r.Catatan)||'-'}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}<br><small>${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</small></td></tr>`).join(''):'<tr><td colspan="7" class="c">Tiada rekod kesalahan.</td></tr>'}
+    </tbody></table>
+    ${ownOnly()?'<div class="pd-note">Nota: Hanya rekod yang dimasukkan oleh pengguna ini dipaparkan.</div>':''}
+    ${isGuru()?moeisPrint(P):''}
+    ${pdSign([['Disediakan oleh','','Guru Disiplin'],['Disahkan oleh','','Pengetua / PK HEM / PK Petang / Ketua Guru Disiplin*'],['Ibu Bapa / Penjaga','','']])}
+    <div class="pd-note">* Potong yang tidak berkenaan.</div>`);
+}
+async function printBulk(nos){
+  if(!nos.length) return toast('Tiada murid dipilih.','err');
+  try{
+    toast(`Menyediakan ${nos.length} profil…`);
+    const r=await api('bulkProfiles',{noList:nos});
+    const html=r.order.map((no,i)=>(i?'<div class="pd-break"></div>':'')+profilHtml(r.profiles[no])).join('');
+    printDoc(html, true);
+  }catch(e){ toast(e.message,'err'); }
+}
+function printMoeis(){
+  if(!(S.moeisList||[]).length) return toast('Tiada rekod untuk dicetak.','err');
+  modal('Cetak Senarai Semakan MOEIS',`
+    <p class="muted" style="margin-top:0">Senarai mengandungi butiran setiap kesalahan (tarikh, masa, kesalahan, butiran, tahap) untuk memudahkan pengisian sistem MOEIS.</p>
+    <label>Orientasi kertas</label>
+    <div class="row">
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600;margin:0"><input type="radio" name="moO" value="P"> Potret (A4 tegak)</label>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600;margin:0"><input type="radio" name="moO" value="L" checked> Landskap (A4 melintang)</label>
+    </div>
+    <div class="muted" style="margin-top:8px">Potret: butiran kesalahan disusun dalam satu lajur. Landskap: setiap kesalahan dalam baris sendiri dengan lajur penuh.</div>`,[
+    {t:'Batal',cls:'sec'},
+    {t:'🖨 Cetak',fn:async()=>{ const land=document.querySelector('input[name="moO"]:checked').value==='L'; await printMoeisDoc(land); }}
+  ]);
+}
+async function printMoeisDoc(land){
+  const F=S.moeisFilter||{};
+  const r=await api('listMoeis',Object.assign({},F,{detail:true}));
+  const L=r.list;
+  if(!L.length) return toast('Tiada rekod untuk dicetak.','err');
+  const cb=on=>`<span class="cb">${on?'✓':''}</span>`;
+  const trk=x=>esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '));
+  const head=pdHead('Senarai Semakan Kemasukan MOEIS','Butiran kesalahan untuk diisi ke dalam sistem MOEIS',[
+    ['Status',F.status==='SUDAH'?'Sudah dimasukkan':F.status==='BELUM'?'Belum dimasukkan':'Semua'],['Kelas',F.kelas||'Semua kelas'],
+    ['Jumlah kumpulan',String(L.length)],['Jumlah kesalahan',String(L.reduce((n,x)=>n+(x.rekod||[]).length,0))]]);
+  let body;
+  if(land){
+    body=`<table class="pd-tbl pd-sm" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Nama murid</th><th>Kelas</th><th>Tarikh</th><th>Masa</th><th>Kesalahan</th><th>Butiran</th><th>Catatan</th><th class="c">Tahap</th><th class="c">Ke-</th><th>Direkod oleh</th><th class="c">Dimasukkan?</th><th style="width:13%">Nama guru yang memasukkan</th><th style="width:7%">Tarikh</th><th style="width:7%">T/tangan</th></tr></thead><tbody>
+    ${L.map((x,i)=>{ const rr=x.rekod&&x.rekod.length?x.rekod:[{}]; const n=rr.length;
+      return rr.map((r,k)=>`<tr class="${k===0?'grp':''}">${k===0?`<td class="c" rowspan="${n}">${i+1}</td><td rowspan="${n}"><b>${esc(x.NamaPenuh)}</b><br><small>${esc(x.NoDaftar)}<br>${esc(x.Julat)}</small></td><td class="nw" rowspan="${n}">${esc(x.Kelas)}</td>`:''}
+        <td class="nw">${fmtD(r.Tarikh)}</td><td class="nw">${esc(r.Masa||'')}</td><td>${esc(r.Kesalahan||'')}</td><td>${esc(r.Butiran||'-')}</td><td>${esc(r.Catatan||'-')}</td><td class="c">${r.Tahap?pdTag(r.Tahap):''}</td><td class="c">${esc(r.Bilangan||'')}</td><td>${esc(r.DirekodOleh||'')}</td>
+        ${k===0?`<td class="nw" rowspan="${n}">${cb(x.Status==='SUDAH')} Sudah<br>${cb(false)} Belum</td><td rowspan="${n}">${x.Status==='SUDAH'?esc(x.DimasukkanOleh):''}</td><td rowspan="${n}">${x.Status==='SUDAH'?fmtD(x.TarikhMasuk):''}</td><td rowspan="${n}"></td>`:''}</tr>`).join(''); }).join('')}
+    </tbody></table>`;
+  }else{
+    body=`<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th style="width:24%">Maklumat murid</th><th>Butiran kesalahan</th><th style="width:27%">Kemasukan MOEIS</th></tr></thead><tbody>
+    ${L.map((x,i)=>`<tr class="grp"><td class="c">${i+1}</td>
+      <td><b>${esc(x.NamaPenuh)}</b><br><small>No. pendaftaran: ${esc(x.NoDaftar)}<br>Kelas: ${esc(x.Kelas)}<br>${esc(x.Julat)}<br>${trk(x)}</small></td>
+      <td><table class="pd-in">${(x.rekod||[]).map((r,k)=>`<tr><td class="nw">${k+1}.</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td><b>${esc(r.Kesalahan)}</b>${r.Butiran?` – ${esc(r.Butiran)}`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}<br><small>Ke-${esc(r.Bilangan)} · ${esc(r.DirekodOleh)}</small></td><td class="nw">${pdTag(r.Tahap)}</td></tr>`).join('')||'<tr><td>-</td></tr>'}</table></td>
+      <td>${cb(x.Status==='SUDAH')} Sudah &nbsp; ${cb(false)} Belum
+        <div class="fill">Nama guru: ${x.Status==='SUDAH'?`<b>${esc(x.DimasukkanOleh)}</b>`:'<span class="dl"></span>'}</div>
+        <div class="fill">Tarikh: ${x.Status==='SUDAH'?fmtD(x.TarikhMasuk):'<span class="dl"></span>'}</div>
+        <div class="fill">T/tangan: <span class="dl"></span></div></td></tr>`).join('')}
+    </tbody></table>`;
+  }
+  printDoc(head+body+pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin']]), false, land);
+}
+function moeisModal(ids, after){
+  modal(ids.length>1?`Kemas Kini MOEIS (${ids.length} item)`:'Kemas Kini MOEIS',`
+    <label>Status</label><select id="moS"><option value="SUDAH">Sudah dimasukkan ke MOEIS</option><option value="BELUM">Belum dimasukkan</option></select>
+    <div id="moW"><label>Nama guru yang memasukkan</label><input id="moN" value="${esc(S.user.Nama)}">
+    <label>Tarikh dimasukkan</label><input type="date" id="moT" value="${today()}" max="${today()}"></div>`,[
+    {t:'Batal',cls:'sec'},
+    {t:'Simpan',fn:async()=>{
+      const r=await api('updateMoeis',{IDs:ids,Status:$('#moS').value,DimasukkanOleh:$('#moN').value,TarikhMasuk:$('#moT').value});
+      setMoeisCount(r.belum); toast(`${r.dikemaskini} item dikemas kini.`,'ok'); after();
+    }}
+  ]);
+  $('#moS').onchange=()=>$('#moW').classList.toggle('hidden',$('#moS').value!=='SUDAH');
+}
+
+function printRecs(){
+  const F=S.recFilter||{}, L=S.recs||[];
+  if(!L.length) return toast('Tiada rekod untuk dicetak.','err');
+  printDoc(pdHead('Senarai Rekod Kesalahan Murid','',[
+      ['Tempoh',(F.dari?fmtD(F.dari):'-')+' hingga '+(F.hingga?fmtD(F.hingga):'-')],['Kelas',F.kelas||'Semua kelas'],
+      ['Tahap',F.tahap||'Semua tahap'],['Carian',F.q||'-'],['Jumlah rekod',String(L.length)+(S.recTotal>L.length?' daripada '+S.recTotal:'')]])+
+    `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th>Kesalahan</th><th class="c">Ke-</th><th class="c">Tahap</th><th>Direkod oleh</th></tr></thead><tbody>
+    ${L.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.NamaPenuh)}<br><small>${esc(r.NoDaftar)}</small></td><td class="nw">${esc(r.Kelas)}</td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}</td></tr>`).join('')}
+    </tbody></table>
+    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin']])}`);
+}
+
+function printTind(){
+  const F=S.tindFilter||{}, L=S.tind||[];
+  if(!L.length) return toast('Tiada tindakan untuk dicetak.','err');
+  const stLbl={BUKA:'Belum selesai','':'Semua'}[F.status]??(STATUS[F.status]||F.status);
+  printDoc(pdHead('Senarai Tindakan Susulan Disiplin','',[['Status',stLbl],['Kelas',F.kelas||'Semua kelas'],['Carian',F.q||'-'],['Jumlah',String(L.length)]])+
+    `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th class="c">Tahap</th><th class="c">Status</th><th>Catatan tindakan</th></tr></thead><tbody>
+    ${L.map((t,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(t.TarikhWujud.slice(0,10))}</td><td>${esc(t.NamaPenuh)}<br><small>${esc(t.NoDaftar)}</small></td><td class="nw">${esc(t.Kelas)}</td><td class="c">${pdTag(t.Tahap)}</td><td class="c">${pdTag(t.Status)}</td><td>${esc(t.Catatan)||'-'}${t.DikemaskiniOleh?`<br><small>${esc(t.DikemaskiniOleh)}, ${fmtD(t.DikemaskiniPada.slice(0,10))}</small>`:''}</td></tr>`).join('')}
+    </tbody></table>
+    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
+}
+
+function printReport(){
+  const d=S.rpt; if(!d) return;
+  const pct=n=>d.jumlah?(n/d.jumlah*100).toFixed(1)+'%':'0.0%';
+  const tot=d.ikutKelas.reduce((o,k)=>{o.m+=k.bilMurid;o.r+=k.Ringan;o.s+=k.Sederhana;o.b+=k.Berat;o.j+=k.bil;return o;},{m:0,r:0,s:0,b:0,j:0});
+  const tT=d.tindakan.BELUM+d.tindakan.PROSES+d.tindakan.SELESAI;
+  const simple=(h1,list)=>`<table class="pd-tbl"><thead><tr><th>${h1}</th><th class="r">Bilangan</th><th class="r">%</th></tr></thead><tbody>${list.length?list.map(x=>`<tr><td>${esc(x.label)}</td><td class="r">${x.bil}</td><td class="r">${pct(x.bil)}</td></tr>`).join(''):'<tr><td colspan="3" class="c">Tiada data.</td></tr>'}</tbody></table>`;
+  printDoc(pdHead(d.tajuk,'Laporan Kesalahan Disiplin Ringan Murid',[['Tempoh',fmtD(d.dari)+' hingga '+fmtD(d.hingga)],['Dijana',fmtD(d.dijana)]])+
+    `<h4>A. Ringkasan</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Jumlah kesalahan</th><th class="c">Murid terlibat</th><th class="c">Ringan</th><th class="c">Sederhana</th><th class="c">Berat</th><th class="c">Tindakan selesai</th></tr></thead>
+    <tbody><tr><td class="c"><b>${d.jumlah}</b></td><td class="c">${d.muridUnik}</td><td class="c">${d.tahap.Ringan} (${pct(d.tahap.Ringan)})</td><td class="c">${d.tahap.Sederhana} (${pct(d.tahap.Sederhana)})</td><td class="c">${d.tahap.Berat} (${pct(d.tahap.Berat)})</td><td class="c">${d.tindakan.SELESAI} / ${tT}</td></tr></tbody></table>
+    <h4>B. Trend ${d.trendHarian?'Harian':'Bulanan'}</h4>${vchart(d.trend,d.trendHarian)}
+    <h4>C. Ringkasan Mengikut Kelas</h4>
+    <table class="pd-tbl"><thead><tr><th>Kelas</th><th class="r">Murid terlibat</th><th class="r">Ringan</th><th class="r">Sederhana</th><th class="r">Berat</th><th class="r">Jumlah</th></tr></thead><tbody>
+    ${d.ikutKelas.length?d.ikutKelas.map(k=>`<tr><td>${esc(k.label)}</td><td class="r">${k.bilMurid}</td><td class="r">${k.Ringan}</td><td class="r">${k.Sederhana}</td><td class="r">${k.Berat}</td><td class="r"><b>${k.bil}</b></td></tr>`).join(''):'<tr><td colspan="6" class="c">Tiada data.</td></tr>'}
+    </tbody>${d.ikutKelas.length?`<tfoot><tr><td>JUMLAH</td><td class="r">${tot.m}</td><td class="r">${tot.r}</td><td class="r">${tot.s}</td><td class="r">${tot.b}</td><td class="r">${tot.j}</td></tr></tfoot>`:''}</table>
+    <h4>D. Kesalahan Mengikut Jenis</h4>${simple('Kesalahan',d.ikutKesalahan)}
+    <h4>E. Murid Paling Kerap (20 Teratas)</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Nama murid</th><th>No. pendaftaran</th><th>Kelas</th><th class="r">Kesalahan</th><th class="c">Tahap terkini</th></tr></thead><tbody>
+    ${d.topMurid.length?d.topMurid.map((m,i)=>`<tr><td class="c">${i+1}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.NoDaftar)}</td><td>${esc(m.Kelas)}</td><td class="r">${m.bil}</td><td class="c">${pdTag(m.tahap)}</td></tr>`).join(''):'<tr><td colspan="6" class="c">Tiada data.</td></tr>'}
+    </tbody></table>
+    <div class="pd-2col"><div><h4>F. Mengikut Hari</h4>${simple('Hari',d.ikutHari.filter(x=>x.bil||(x.label!=='Sabtu'&&x.label!=='Ahad')))}</div>
+      <div><h4>G. Direkod Oleh</h4>${simple('Pegawai',d.ikutPegawai)}</div></div>
+    <h4>H. Status Tindakan Susulan (diwujudkan dalam tempoh ini)</h4>
+    <table class="pd-tbl"><thead><tr><th>Status</th><th class="r">Bilangan</th></tr></thead><tbody>
+      <tr><td>${STATUS.BELUM}</td><td class="r">${d.tindakan.BELUM}</td></tr><tr><td>${STATUS.PROSES}</td><td class="r">${d.tindakan.PROSES}</td></tr><tr><td>${STATUS.SELESAI}</td><td class="r">${d.tindakan.SELESAI}</td></tr></tbody>
+      <tfoot><tr><td>JUMLAH</td><td class="r">${tT}</td></tr></tfoot></table>
+    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin'],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
+}
+
+/* =====================================================================
    PWA
    ===================================================================== */
 let installEvt=null;
@@ -397,13 +634,26 @@ $('#btnInstall').onclick=async()=>{ if(!installEvt) return; installEvt.prompt();
 /* =====================================================================
    PERMULAAN, LOG MASUK & TUKAR KATA LALUAN
    ===================================================================== */
+function setLoginBg(data, overlay){
+  const o=Math.max(0,Math.min(90,+overlay||0))/100;
+  ['#login','#pwc'].forEach(id=>{ const el=$(id);
+    el.style.backgroundImage = data ? `linear-gradient(160deg,rgba(11,29,77,${o}),rgba(29,63,148,${Math.max(0,o-.1)})), url("${data}")` : '';
+    el.style.backgroundSize = data ? 'cover' : ''; el.style.backgroundPosition = data ? 'center' : ''; });
+}
+async function applyLoginBg(id, overlay){
+  if(!id){ LS.del('dm_bg'); LS.del('dm_bg_id'); setLoginBg('',0); return; }
+  if(LS.get('dm_bg_id')===id && LS.get('dm_bg')){ setLoginBg(LS.get('dm_bg'), overlay); return; }
+  try{ const r=await api('loginBg'); if(r.data){ setLoginBg(r.data, overlay); LS.set('dm_bg',r.data); LS.set('dm_bg_id',r.id); } }catch(e){}
+}
+// paparkan latar tersimpan serta-merta (sebelum pelayan menjawab)
+if(LS.get('dm_bg')) setLoginBg(LS.get('dm_bg'), LS.get('dm_bg_ov')||35);
 async function init(){
   if(S.token){
     try{ await boot(); return; }
-    catch(e){ if(e.code==='PWCHANGE'){ api('info').then(i=>applyBrand(i.NamaSekolah,i.NamaSistem,i.logo)).catch(()=>{}); return; } }
+    catch(e){ if(e.code==='PWCHANGE'){ api('info').then(i=>{ applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); }).catch(()=>{}); return; } }
   }
   showLogin();
-  try{ const i=await api('info'); applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); }
+  try{ const i=await api('info'); applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); }
   catch(e){ $('#lgErr').textContent=e.message; applyBrand('','',''); }
 }
 function showOnly(id){ ['#login','#pwc','#app'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
@@ -437,35 +687,37 @@ $('#btnOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSessi
 
 async function boot(){
   const d = await api('bootstrap');
-  S.user=d.user; S.set=d.settings; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
-  S.kes=d.kesalahan; S.users=d.users||[]; S.tindakanBuka=d.tindakanBuka||0; S.tahunArkib=d.tahunArkib||[];
+  S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
+  S.kes=d.kesalahan; S.users=d.users||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[];
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
   $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=roleName(S.user);
   showOnly('#app');
   renderNav(); go(S.view);
+  if((d.versi||1)<BACKEND_VERSI && isAdmin()) modal('⚠️ Backend Perlu Dikemas Kini',`<p>Frontend ini memerlukan <b>Code.gs Versi ${BACKEND_VERSI}</b>, tetapi Apps Script masih menjalankan versi ${d.versi||1}. Sesetengah fungsi (Tetapan, Tindakan, Laporan, Sandaran) tidak akan berfungsi.</p><ol><li>Ganti seluruh Code.gs dengan fail backend terkini dan simpan.</li><li>Jalankan fungsi <b>setup</b> sekali.</li><li>Deploy → Manage deployments → Edit → Version: <b>New version</b> → Deploy.</li></ol>`);
 }
 
 /* =====================================================================
    NAVIGASI
    ===================================================================== */
 function navItems(){
-  const it=[['dashboard','📊 Papan Pemuka']];
-  if(isGuru() || S.set.PengawasRekod==='YA') it.push(['rekod','✍️ Rekod Kesalahan']);
-  it.push(['senarai','📋 Senarai Rekod'],['profil','👤 Profil Murid']);
-  if(isGuru()) it.push(['tindakan','🛎️ Tindakan'],['laporan','📑 Laporan']);
+  const it=[['dashboard','📊 Utama']];
+  if(isGuru() || S.set.PengawasRekod==='YA') it.push(['rekod','✍️ Rekod']);
+  it.push(['senarai','📋 Senarai'],['profil','👤 Profil']);
+  if(isGuru()) it.push(['tindakan','🛎️ Tindakan'],['moeis','🗂️ MOEIS'],['laporan','📑 Laporan']);
   if(isAdmin()) it.push(['tetapan','⚙️ Tetapan']);
-  it.push(['akaun','🔑 Akaun Saya']);
+  it.push(['akaun','🔑 Akaun']);
   return it;
 }
 function renderNav(){
-  $('#nav').innerHTML = navItems().map(([k,t])=>`<button data-v="${k}" class="${S.view===k?'on':''}">${t}${k==='tindakan'&&S.tindakanBuka?`<span class="dot">${S.tindakanBuka}</span>`:''}</button>`).join('');
+  $('#nav').innerHTML = navItems().map(([k,t])=>{ const sp=t.indexOf(' '); return `<button data-v="${k}" class="${S.view===k?'on':''}" title="${esc(t.slice(sp+1))}"><span class="ni">${t.slice(0,sp)}</span><span class="nl">${esc(t.slice(sp+1))}</span>${k==='tindakan'&&S.tindakanBuka?`<span class="dot">${S.tindakanBuka}</span>`:''}${k==='moeis'&&S.moeisBelum?`<span class="dot">${S.moeisBelum}</span>`:''}</button>`; }).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 }
 function setOpenCount(n){ S.tindakanBuka=n; renderNav(); }
+function setMoeisCount(n){ S.moeisBelum=n; renderNav(); }
 async function go(v){
   if(!navItems().some(x=>x[0]===v)) v='dashboard';
   S.view=v; renderNav(); window.scrollTo(0,0);
-  const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun}[v];
+  const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,moeis:vMoeis,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun}[v];
   try{ await fn(); }catch(e){ $('#view').innerHTML=`<div class="card"><div class="err">${esc(e.message)}</div></div>`; }
 }
 
@@ -482,6 +734,7 @@ async function vDashboard(){
   const v=$('#view'); v.innerHTML='<div class="card muted">Memuatkan…</div>';
   const d=await api('dashboard');
   if(d.tindakanBuka!=null) setOpenCount(d.tindakanBuka);
+  if(d.moeisBelum!=null) setMoeisCount(d.moeisBelum);
   const jam=new Date().getHours(), salam=jam<12?'Selamat pagi':jam<15?'Selamat tengah hari':jam<19?'Selamat petang':'Selamat malam';
   const tkh=new Date().toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   v.innerHTML = `
@@ -493,6 +746,7 @@ async function vDashboard(){
   ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g6" style="margin:0">
     ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat')}
     ${d.tindakanBuka!=null?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
+    ${d.moeisBelum!=null?stat('Belum dimasukkan ke MOEIS',d.moeisBelum,'berat click','id="dMoe"'):''}
   </div></div>`:''}
   <div class="grid g2">
     ${d.topMurid?`<div class="card"><h3>10 Murid Paling Kerap</h3><div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Kelas</th><th class="right">Bil</th><th>Tahap</th></tr></thead><tbody>
@@ -504,6 +758,7 @@ async function vDashboard(){
   </div>`;
   v.querySelectorAll('tr[data-no]').forEach(tr=>tr.onclick=()=>{ S.profilNo=tr.dataset.no; go('profil'); });
   if($('#dTind')) $('#dTind').onclick=()=>go('tindakan');
+  if($('#dMoe')) $('#dMoe').onclick=()=>go('moeis');
 }
 
 /* =====================================================================
@@ -608,12 +863,14 @@ async function saveRekod(){
   const btn=$('#rSave'); btn.disabled=true;
   try{
     const res=await api('recordOffence',{noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value});
-    const out=res.records;
+    const out=Array.isArray(res)?res:res.records;
     if(res.tindakanBaru && isGuru()) setOpenCount(S.tindakanBuka+res.tindakanBaru);
+    if(res.moeisBaru && isGuru()) setMoeisCount(S.moeisBelum+res.moeisBaru);
     modal('✅ Rekod Disimpan', `<p>${out.length} rekod berjaya disimpan.</p><div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Kesalahan ke-</th><th>Tahap</th></tr></thead><tbody>
       ${out.map(r=>`<tr><td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.Kelas)}</div></td><td>${esc(r.Bilangan)}</td><td>${badge(r.Tahap)}</td></tr>`).join('')}</tbody></table></div>
       ${res.tindakanBaru?`<p class="info warn" style="margin-top:12px">${res.tindakanBaru} tindakan susulan baharu telah diwujudkan dalam menu <b>Tindakan</b> kerana murid mencapai tahap Sederhana/Berat.</p>`
-        :(out.some(r=>r.Tahap!=='Ringan')?'<p class="info warn" style="margin-top:12px">Terdapat murid di tahap Sederhana/Berat. Sila maklumkan kepada guru disiplin / guru kelas.</p>':'')}`);
+        :(out.some(r=>r.Tahap!=='Ringan')?'<p class="info warn" style="margin-top:12px">Terdapat murid di tahap Sederhana/Berat. Sila maklumkan kepada guru disiplin / guru kelas.</p>':'')}
+      ${res.moeisBaru?`<p class="info" style="margin-top:10px;background:rgba(227,34,43,.08);border-color:rgba(227,34,43,.3);color:#9f1239">📌 <b>${res.moeisBaru} kemasukan MOEIS diperlukan.</b> Murid telah mencapai ${esc(S.set.MoeisSetiap||3)} rekod ${S.set.MoeisSkop==='SEMUA'?'kesalahan':'kesalahan ringan'}. Sila masukkan ke dalam sistem MOEIS${isGuru()?' dan tandakan dalam menu <b>MOEIS</b>':' (maklumkan kepada guru disiplin)'}.</p>`:''}`);
     S.pick=[]; $('#rCat').value=''; renderChips(); renderPickList();
   }catch(e){ toast(e.message,'err'); }
   finally{ btn.disabled=false; }
@@ -637,18 +894,20 @@ function vSenarai(){
       <div><input id="fQ" placeholder="Carian nama, no. pendaftaran, kesalahan, pegawai…"></div>
       <button class="btn" id="fGo">🔍 Cari</button>
       <button class="btn grn" id="fXls">⬇ Eksport Excel</button>
+      <button class="btn sec" id="fPrt">🖨 Cetak</button>
     </div>
   </div>
   <div class="card"><div id="fInfo" class="muted" style="margin-bottom:8px"></div><div class="tw" id="fTbl"></div></div>`;
   $('#fGo').onclick=loadRecs; $('#fQ').onkeydown=e=>{if(e.key==='Enter')loadRecs();};
-  $('#fXls').onclick=exportRecs;
+  $('#fXls').onclick=exportRecs; $('#fPrt').onclick=printRecs;
   loadRecs();
 }
 async function loadRecs(){
   $('#fTbl').innerHTML='<div class="muted">Memuatkan…</div>';
   try{
-    const r=await api('listRecords',{dari:$('#fDari').value,hingga:$('#fHingga').value,kelas:$('#fKelas').value,tahap:$('#fTahap').value,q:$('#fQ').value.trim()});
-    S.recs=r.records;
+    const F={dari:$('#fDari').value,hingga:$('#fHingga').value,kelas:$('#fKelas').value,tahap:$('#fTahap').value,q:$('#fQ').value.trim()};
+    const r=await api('listRecords',F);
+    S.recs=r.records; S.recFilter=F; S.recTotal=r.total;
     $('#fInfo').textContent = `${r.total} rekod dijumpai`+(r.total>r.records.length?` (dipaparkan ${r.records.length} terkini)`:'');
     $('#fTbl').innerHTML = recTable(r.records, isGuru());
     bindRecActions($('#fTbl'), r.records, loadRecs);
@@ -731,19 +990,25 @@ async function showProfil(no){
   const arkib=S.muridArkib.some(x=>x.NoDaftar===no);
   const out=$('#pOut'); out.innerHTML='<div class="card muted">Memuatkan…</div>';
   try{
-    const [st,lr]=await Promise.all([api('studentStatus',{noDaftarList:[no]}), api('listRecords',{noDaftar:no})]);
+    const [st,lr,mo]=await Promise.all([api('studentStatus',{noDaftarList:[no]}), api('listRecords',{noDaftar:no}), isGuru()?api('listMoeis',{noDaftar:no}):Promise.resolve({list:[]})]);
     const c=st[no].count;
     out.innerHTML = `
     <div class="card">
-      <div class="print-only rpt-head"><img src="${S.logo||DEF_LOGO}"><div><b>${esc(S.set.NamaSekolah)}</b><br>Profil Demerit Murid · dicetak ${fmtD(today())}</div></div>
       <div class="sp" style="align-items:flex-start"><div><h3 style="margin:0">${esc(m.NamaPenuh)} ${arkib?'<span class="badge b-arkib">Arkib</span>':''}</h3><div class="muted">No. Pendaftaran: ${esc(m.NoDaftar)} · Kelas: ${esc(m.Kelas)}</div></div>
-      <button class="btn sec sm noprint" onclick="window.print()">🖨 Cetak</button></div>
+      <button class="btn sec sm noprint" id="pPrt">🖨 Cetak Profil</button></div>
       <div style="margin-top:14px" class="sp"><span>Jumlah kesalahan (${S.set.SkopKiraan==='SEMUA'?'keseluruhan':'tahun '+today().slice(0,4)}): <b>${c}</b></span><span>Tahap semasa: ${badge(tahapOf(c))}</span></div>
       ${lvlBar(c)}
       ${arkib?'':`<div class="muted" style="margin-top:6px">Kesalahan seterusnya akan direkod sebagai kesalahan ke-${c+1}: ${badge(tahapOf(c+1))}</div>`}
     </div>
     <div class="card"><h3>Sejarah Kesalahan</h3>${ownOnly()?'<div class="info" style="margin-bottom:10px">Hanya rekod yang dimasukkan oleh akaun anda dipaparkan.</div>':''}
-      <div class="tw" id="pTbl">${recTable(lr.records, isGuru())}</div></div>`;
+      <div class="tw" id="pTbl">${recTable(lr.records, isGuru())}</div></div>
+    ${isGuru()?`<div class="card"><h3>🗂️ Kemasukan MOEIS</h3><div class="muted" style="margin-bottom:8px">Setiap ${esc(S.set.MoeisSetiap||3)} ${S.set.MoeisSkop==='SEMUA'?'rekod kesalahan':'rekod kesalahan ringan'} perlu dimasukkan ke dalam sistem MOEIS.</div>
+      ${mo.list.length?`<div class="tw"><table class="tbl"><thead><tr><th>Kumpulan rekod</th><th>Status</th><th>Dimasukkan oleh</th><th></th></tr></thead><tbody>
+      ${mo.list.map(x=>`<tr><td>${esc(x.Julat)}<div class="muted">${esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '))}</div></td><td>${mBadge(x.Status)}</td><td>${x.Status==='SUDAH'?esc(x.DimasukkanOleh)+`<div class="muted">${fmtD(x.TarikhMasuk)}</div>`:'<span class="muted">—</span>'}</td><td class="right"><button class="btn sm" data-mo="${esc(x.ID)}">Kemas kini</button></td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="muted">Belum ada kemasukan MOEIS diperlukan.</div>'}</div>`:''}`;
+    S.prof={m,c,recs:lr.records,arkib,moeis:mo.list};
+    out.querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>moeisModal([b.dataset.mo],()=>showProfil(no)));
+    $('#pPrt').onclick=printProfil;
     bindRecActions($('#pTbl'), lr.records, ()=>showProfil(no));
     out.scrollIntoView({behavior:'smooth'});
   }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
@@ -762,16 +1027,19 @@ function vTindakan(){
       <div><label>Kelas</label><select id="tK">${optKelas('','Semua')}</select></div>
       <div><label>Carian</label><input id="tQ" placeholder="Nama, no. pendaftaran, catatan…"></div>
       <button class="btn" id="tGo">🔍 Cari</button>
+      <button class="btn sec" id="tPrt">🖨 Cetak</button>
     </div>
   </div>
   <div class="card"><div class="tw" id="tTbl"></div></div>`;
-  $('#tGo').onclick=loadTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
+  $('#tGo').onclick=loadTind; $('#tPrt').onclick=printTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
   loadTind();
 }
 async function loadTind(){
   $('#tTbl').innerHTML='<div class="muted">Memuatkan…</div>';
   try{
-    const r=await api('listTindakan',{status:$('#tS').value,kelas:$('#tK').value,q:$('#tQ').value.trim()});
+    const F={status:$('#tS').value,kelas:$('#tK').value,q:$('#tQ').value.trim()};
+    const r=await api('listTindakan',F);
+    S.tind=r.list; S.tindFilter=F;
     setOpenCount(r.buka);
     $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Catatan tindakan</th><th></th></tr></thead><tbody>
       ${r.list.map(t=>`<tr><td class="nowrap">${fmtD(t.TarikhWujud)}<div class="muted">Tempoh: ${esc(t.Tempoh==='SEMUA'?'Keseluruhan':t.Tempoh)}</div></td>
@@ -795,6 +1063,48 @@ async function loadTind(){
 }
 
 /* =====================================================================
+   MOEIS (GURU)
+   ===================================================================== */
+function vMoeis(){
+  $('#view').innerHTML = `
+  <div class="card"><h3>🗂️ Kemasukan Sistem MOEIS</h3>
+    <div class="info" style="margin-bottom:10px">Setiap kali murid mencapai <b>${esc(S.set.MoeisSetiap||3)} ${S.set.MoeisSkop==='SEMUA'?'rekod kesalahan':'rekod kesalahan ringan'}</b>, satu kemasukan MOEIS diwujudkan secara automatik.
+      Selepas memasukkan ke dalam sistem MOEIS, tandakan <b>Sudah</b> beserta nama guru yang memasukkan. Senarai semakan juga boleh dicetak untuk diisi secara manual.</div>
+    <div class="row">
+      <div><label>Status</label><select id="moF"><option value="BELUM">Belum dimasukkan</option><option value="SUDAH">Sudah dimasukkan</option><option value="">Semua</option></select></div>
+      <div><label>Kelas</label><select id="moK">${optKelas('','Semua')}</select></div>
+      <div><label>Carian</label><input id="moQ" placeholder="Nama, no. pendaftaran, nama guru…"></div>
+      <button class="btn" id="moGo">🔍 Cari</button>
+      <button class="btn sec" id="moPrt">🖨 Cetak Senarai Semakan</button>
+    </div>
+  </div>
+  <div class="card"><div class="toolbar"><button class="btn grn" id="moBulk" disabled>✓ Kemas kini terpilih (0)</button></div><div class="tw" id="moTbl"></div></div>`;
+  $('#moGo').onclick=loadMoeis; $('#moF').onchange=loadMoeis; $('#moK').onchange=loadMoeis; $('#moQ').onkeydown=e=>{if(e.key==='Enter')loadMoeis();};
+  $('#moPrt').onclick=printMoeis;
+  loadMoeis();
+}
+async function loadMoeis(){
+  $('#moTbl').innerHTML='<div class="muted">Memuatkan…</div>';
+  try{
+    const F={status:$('#moF').value,kelas:$('#moK').value,q:$('#moQ').value.trim()};
+    const r=await api('listMoeis',F);
+    S.moeisList=r.list; S.moeisFilter=F; setMoeisCount(r.belum);
+    $('#moTbl').innerHTML = r.list.length?`<table class="tbl"><thead><tr><th><input type="checkbox" id="moAll"></th><th>Murid</th><th>Kelas</th><th>Kumpulan rekod</th><th>Status</th><th>Dimasukkan oleh</th><th></th></tr></thead><tbody>
+      ${r.list.map(x=>`<tr><td><input type="checkbox" class="moC" value="${esc(x.ID)}"></td><td><a href="#" data-no="${esc(x.NoDaftar)}">${esc(x.NamaPenuh)}</a><div class="muted">${esc(x.NoDaftar)}</div></td><td>${esc(x.Kelas)}</td>
+      <td>${esc(x.Julat)}<div class="muted">${esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '))}</div></td><td>${mBadge(x.Status)}</td>
+      <td>${x.Status==='SUDAH'?esc(x.DimasukkanOleh)+`<div class="muted">${fmtD(x.TarikhMasuk)}</div>`:'<span class="muted">—</span>'}</td>
+      <td><button class="btn sm" data-mo="${esc(x.ID)}">Kemas kini</button></td></tr>`).join('')}</tbody></table>`
+      :'<div class="muted">Tiada rekod bagi tapisan ini.</div>';
+    const upd=()=>{ const n=document.querySelectorAll('.moC:checked').length; $('#moBulk').disabled=!n; $('#moBulk').textContent=`✓ Kemas kini terpilih (${n})`; };
+    if($('#moAll')) $('#moAll').onchange=e=>{ document.querySelectorAll('.moC').forEach(c=>c.checked=e.target.checked); upd(); };
+    document.querySelectorAll('.moC').forEach(c=>c.onchange=upd); upd();
+    $('#moBulk').onclick=()=>moeisModal([...document.querySelectorAll('.moC:checked')].map(c=>c.value),loadMoeis);
+    $('#moTbl').querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>moeisModal([b.dataset.mo],loadMoeis));
+    $('#moTbl').querySelectorAll('[data-no]').forEach(a=>a.onclick=e=>{ e.preventDefault(); S.profilNo=a.dataset.no; go('profil'); });
+  }catch(e){ $('#moTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+}
+
+/* =====================================================================
    LAPORAN (GURU)
    ===================================================================== */
 function vLaporan(){
@@ -811,12 +1121,39 @@ function vLaporan(){
       <button class="btn" id="lGo">Jana Laporan</button>
     </div>
   </div>
+  <div class="card noprint"><h3>🖨️ Cetak Profil Murid Secara Pukal</h3>
+    <div class="muted" style="margin-bottom:6px">Pilih murid mengikut tahap semasa (${esc(skopLabel())}), kelas atau status MOEIS. Setiap profil dicetak pada halaman berasingan.</div>
+    <div class="row">
+      <div><label>Tahap semasa</label><select id="bT"><option value="">Semua tahap</option><option>Ringan</option><option>Sederhana</option><option>Berat</option></select></div>
+      <div><label>Kelas</label><select id="bK">${optKelas('','Semua kelas')}</select></div>
+      <div><label>MOEIS</label><select id="bM"><option value="">Semua</option><option value="BELUM">Ada yang belum dimasukkan</option></select></div>
+      <button class="btn" id="bGo">Senarai Murid</button>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="bA"> Termasuk murid arkib</label>
+    <div id="bOut" style="margin-top:10px"></div>
+  </div>
   <div id="lOut"></div>`;
   $('#lJ').onchange=()=>{ const j=$('#lJ').value;
     $('#lBW').classList.toggle('hidden',j!=='BULAN'); $('#lTW').classList.toggle('hidden',j!=='TAHUN');
     $('#lD1').classList.toggle('hidden',j!=='JULAT'); $('#lD2').classList.toggle('hidden',j!=='JULAT'); };
   $('#lGo').onclick=genReport;
+  $('#bGo').onclick=loadBulkList;
   genReport();
+}
+async function loadBulkList(){
+  const o=$('#bOut'); o.innerHTML='<div class="muted">Memuatkan…</div>';
+  try{
+    const L=await api('studentSummary',{tahap:$('#bT').value,kelas:$('#bK').value,moeis:$('#bM').value,termasukArkib:$('#bA').checked});
+    if(!L.length){ o.innerHTML='<div class="muted">Tiada murid sepadan.</div>'; return; }
+    o.innerHTML=`<div class="toolbar" style="align-items:center"><button class="btn" id="bPrt">🖨 Cetak Profil Terpilih (${Math.min(L.length,300)})</button><span class="muted">${L.length} murid${L.length>300?' · maksimum 300 profil setiap cetakan':''}</span></div>
+      <div class="tw" style="max-height:380px;overflow:auto"><table class="tbl"><thead><tr><th><input type="checkbox" id="bAll" checked></th><th>Murid</th><th>Kelas</th><th class="right">Kesalahan</th><th>Tahap</th><th class="right">MOEIS belum</th></tr></thead><tbody>
+      ${L.map((m,i)=>`<tr><td><input type="checkbox" class="bC" value="${esc(m.NoDaftar)}" ${i<300?'checked':''}></td><td>${esc(m.NamaPenuh)}${m.Arkib?' <span class="badge b-arkib">Arkib</span>':''}<div class="muted">${esc(m.NoDaftar)}</div></td><td>${esc(m.Kelas)}</td><td class="right"><b>${m.count}</b></td><td>${badge(m.tahap)}</td><td class="right">${m.moeisBelum?`<span class="badge b-BELUM">${m.moeisBelum}</span>`:'<span class="muted">—</span>'}</td></tr>`).join('')}
+      </tbody></table></div>`;
+    const upd=()=>{ const n=document.querySelectorAll('.bC:checked').length; $('#bPrt').textContent=`🖨 Cetak Profil Terpilih (${n})`; $('#bPrt').disabled=!n||n>300; };
+    $('#bAll').onchange=e=>{ document.querySelectorAll('.bC').forEach((c,i)=>c.checked=e.target.checked&&i<300); upd(); };
+    document.querySelectorAll('.bC').forEach(c=>c.onchange=upd); upd();
+    $('#bPrt').onclick=()=>printBulk([...document.querySelectorAll('.bC:checked')].map(c=>c.value));
+  }catch(e){ o.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 function rptRange(){
   const j=$('#lJ').value;
@@ -842,7 +1179,7 @@ async function genReport(){
     d.tajuk=R.tajuk; S.rpt=d;
     const pct=n=>d.jumlah?Math.round(n/d.jumlah*100)+'%':'0%';
     out.innerHTML=`
-    <div class="toolbar"><button class="btn sec" onclick="window.print()">🖨 Cetak / Simpan PDF</button><button class="btn grn" id="lXls">⬇ Eksport Excel</button></div>
+    <div class="toolbar"><button class="btn sec" id="lPrt">🖨 Cetak / Simpan PDF</button><button class="btn grn" id="lXls">⬇ Eksport Excel</button></div>
     <div class="card">
       <div class="rpt-head"><img src="${S.logo||DEF_LOGO}"><div><b style="font-size:16px">${esc(d.sekolah)}</b><br>${esc(d.tajuk)}<br><span class="muted">Tempoh: ${fmtD(d.dari)} – ${fmtD(d.hingga)} · Dijana: ${fmtD(d.dijana)}</span></div></div>
       <div class="grid g6" style="margin:0">
@@ -870,8 +1207,8 @@ async function genReport(){
         <div class="sp" style="margin-top:6px"><span>${sBadge('SELESAI')}</span><b>${d.tindakan.SELESAI}</b></div>
       </div>
     </div>
-    <div class="print-only" style="margin-top:30px"><div style="display:flex;justify-content:space-between"><div>Disediakan oleh:<br><br><br>.............................<br>${esc(S.user.Nama)}</div><div>Disemak oleh:<br><br><br>.............................<br>Guru Disiplin / PK HEM</div></div></div>`;
-    $('#lXls').onclick=exportReport;
+`;
+    $('#lXls').onclick=exportReport; $('#lPrt').onclick=printReport;
   }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
 function exportReport(){
@@ -927,6 +1264,17 @@ function tUmum(){
   <div class="card"><h3>Maklumat Sekolah</h3>
     <label>Nama sekolah</label><input id="sSek" value="${esc(s.NamaSekolah)}">
     <label>Nama sistem</label><input id="sSys" value="${esc(s.NamaSistem)}">
+    <label>Alamat sekolah</label><textarea id="sAlm" style="min-height:60px" placeholder="Jalan …, Poskod Bandar, Negeri">${esc(s.AlamatSekolah)}</textarea>
+    <div class="row">
+      <div><label>No. telefon</label><input id="sTel" value="${esc(s.NoTelefon)}"></div>
+      <div><label>E-mel</label><input id="sEml" value="${esc(s.Emel)}"></div>
+      <div><label>Kod sekolah</label><input id="sKod" value="${esc(s.KodSekolah)}"></div>
+    </div>
+    <div class="row">
+      <div><label>Jawatan pengesah dokumen</label><input id="sJwt" value="${esc(s.JawatanPengesah||'Penolong Kanan HEM')}"></div>
+      <div><label>Tanda "SULIT" pada cetakan</label><select id="sSlt"><option value="YA" ${s.CetakSulit!=='TIDAK'?'selected':''}>Ya</option><option value="TIDAK" ${s.CetakSulit==='TIDAK'?'selected':''}>Tidak</option></select></div>
+    </div>
+    <div class="muted" style="margin-top:6px">Maklumat ini dipaparkan pada kepala surat semua dokumen cetakan.</div>
     <h3 style="margin-top:20px">Logo Sekolah</h3>
     <div class="row" style="align-items:center">
       <img class="logo-prev" id="sLogo" src="${S.logo||DEF_LOGO}" style="flex:0 0 110px">
@@ -934,6 +1282,16 @@ function tUmum(){
         <div class="muted" style="margin-top:6px">PNG berlatar telus disyorkan. Imej akan dikecilkan secara automatik.</div>
         <button class="btn sec sm" id="sLogoDel" style="margin-top:8px">Buang logo</button></div>
     </div>
+  </div>
+  <div class="card"><h3>Latar Belakang Log Masuk</h3>
+    <div id="bgPrev" style="height:150px;border-radius:14px;border:1px solid var(--glass-bd);background:linear-gradient(150deg,#0b1d4d,#1d3f94 60%,#14306f);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;text-shadow:0 2px 6px rgba(0,0,0,.4)">Pratonton</div>
+    <div class="toolbar" style="margin-top:10px;align-items:center">
+      <input type="file" id="bgIn" accept="image/png,image/jpeg,image/webp" style="flex:1;min-width:200px">
+      <button class="btn sec sm" id="bgDel">Guna latar asal</button>
+    </div>
+    <label>Kegelapan lapisan biru di atas gambar: <span id="bgOvV">${esc(s.LoginOverlay||35)}</span>%</label>
+    <input type="range" id="bgOv" min="0" max="90" step="5" value="${esc(s.LoginOverlay||35)}" style="padding:0">
+    <div class="muted" style="margin-top:6px">Gambar landskap beresolusi tinggi disyorkan. Gambar akan dikecilkan secara automatik (maks. 1920 piksel). Tekan <b>Simpan Tetapan</b> untuk menyimpan kegelapan lapisan.</div>
   </div>
   <div class="card"><h3>Peraturan Demerit</h3>
     <div class="row">
@@ -944,6 +1302,11 @@ function tUmum(){
     <select id="sSkop"><option value="TAHUN" ${s.SkopKiraan!=='SEMUA'?'selected':''}>Bermula semula setiap tahun</option><option value="SEMUA" ${s.SkopKiraan==='SEMUA'?'selected':''}>Terkumpul (sepanjang persekolahan)</option></select>
     <div class="info" id="sPrev" style="margin-top:10px"></div>
     <div class="muted" style="margin-top:6px">Jika had atau skop diubah, semua rekod sedia ada akan dikira semula secara automatik.</div>
+    <h3 style="margin-top:20px">Kemasukan MOEIS</h3>
+    <div class="row">
+      <div><label>Perlu dimasukkan ke MOEIS setiap</label><input type="number" id="sMN" min="1" max="20" value="${esc(s.MoeisSetiap||3)}"></div>
+      <div><label>Rekod yang dikira</label><select id="sMS"><option value="RINGAN" ${s.MoeisSkop!=='SEMUA'?'selected':''}>Kesalahan Ringan sahaja</option><option value="SEMUA" ${s.MoeisSkop==='SEMUA'?'selected':''}>Semua kesalahan</option></select></div>
+    </div>
     <h3 style="margin-top:20px">Kebenaran Pengawas</h3>
     <label>Pengawas boleh merekod kesalahan</label>
     <select id="sPR"><option value="YA" ${s.PengawasRekod==='YA'?'selected':''}>Ya</option><option value="TIDAK" ${s.PengawasRekod!=='YA'?'selected':''}>Tidak</option></select>
@@ -956,9 +1319,11 @@ function tUmum(){
   $('#sA').oninput=prev; $('#sB').oninput=prev; prev();
   $('#sSave').onclick=async()=>{
     try{
-      const r=await api('saveSettings',{NamaSekolah:$('#sSek').value,NamaSistem:$('#sSys').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,
+      const r=await api('saveSettings',{NamaSekolah:$('#sSek').value,NamaSistem:$('#sSys').value,
+        AlamatSekolah:$('#sAlm').value,NoTelefon:$('#sTel').value,Emel:$('#sEml').value,KodSekolah:$('#sKod').value,
+        JawatanPengesah:$('#sJwt').value,CetakSulit:$('#sSlt').value,MoeisSetiap:$('#sMN').value,MoeisSkop:$('#sMS').value,LoginOverlay:$('#bgOv').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,
         SkopKiraan:$('#sSkop').value,PengawasRekod:$('#sPR').value,PengawasLihat:$('#sPL').value});
-      S.set=r.settings; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
+      S.set=(r&&r.settings)||r||S.set; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
       toast('Tetapan disimpan.'+(r.berubah?` ${r.berubah} rekod dikira semula.`:''),'ok');
     }catch(e){ toast(e.message,'err'); }
   };
@@ -971,13 +1336,33 @@ function tUmum(){
     }catch(err){ toast(err.message,'err'); }
     e.target.value='';
   };
+  const bgShow=()=>{ const d=LS.get('dm_bg_id')===S.set.LoginBgId?LS.get('dm_bg'):''; const o=(+$('#bgOv').value)/100;
+    $('#bgPrev').style.backgroundImage = d?`linear-gradient(160deg,rgba(11,29,77,${o}),rgba(29,63,148,${Math.max(0,o-.1)})), url("${d}")`:''; };
+  if(S.set.LoginBgId && LS.get('dm_bg_id')!==S.set.LoginBgId){ applyLoginBg(S.set.LoginBgId,S.set.LoginOverlay).then(bgShow); } else bgShow();
+  $('#bgOv').oninput=()=>{ $('#bgOvV').textContent=$('#bgOv').value; bgShow(); LS.set('dm_bg_ov',$('#bgOv').value); };
+  $('#bgIn').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{
+      toast('Memuat naik gambar…');
+      const url=await resizeImage(f,1920,'image/jpeg',0.82);
+      const r=await api('uploadLoginBg',{dataUrl:url});
+      S.set.LoginBgId=r.id; LS.set('dm_bg',url); LS.set('dm_bg_id',r.id); setLoginBg(url,$('#bgOv').value); bgShow();
+      toast('Latar log masuk dikemas kini.','ok');
+    }catch(err){ toast(err.message,'err'); }
+    e.target.value='';
+  };
+  $('#bgDel').onclick=async()=>{
+    if(!await ask('Buang gambar latar dan guna latar asal?','Buang')) return;
+    try{ await api('removeLoginBg'); S.set.LoginBgId=''; LS.del('dm_bg'); LS.del('dm_bg_id'); setLoginBg('',0); bgShow(); toast('Latar asal digunakan.','ok'); }
+    catch(e){ toast(e.message,'err'); }
+  };
   $('#sLogoDel').onclick=async()=>{
     if(!await ask('Buang logo sekolah?','Buang')) return;
     try{ await api('removeLogo'); S.logo=''; $('#sLogo').src=DEF_LOGO; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,''); toast('Logo dibuang.','ok'); }
     catch(e){ toast(e.message,'err'); }
   };
 }
-function resizeImage(file,max){
+function resizeImage(file,max,type,q){
   return new Promise((ok,ko)=>{
     const rd=new FileReader();
     rd.onerror=()=>ko(new Error('Gagal membaca fail imej.'));
@@ -988,7 +1373,7 @@ function resizeImage(file,max){
         const sc=Math.min(1,max/Math.max(img.width,img.height));
         const c=document.createElement('canvas'); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
         c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-        ok(c.toDataURL('image/png'));
+        ok(c.toDataURL(type||'image/png',q));
       };
       img.src=rd.result;
     };
@@ -1384,7 +1769,7 @@ function tLog(){
     <div class="row" style="margin-bottom:10px">
       <div><input id="lgQ" placeholder="Cari pengguna, tindakan atau butiran…"></div>
       <div style="flex:0 0 220px"><select id="lgT"><option value="">Semua tindakan</option>
-        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI LOGO','BUANG LOGO']
+        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
           .map(t=>`<option>${t}</option>`).join('')}</select></div>
       <button class="btn" id="lgGo">🔍 Cari</button>
     </div>
