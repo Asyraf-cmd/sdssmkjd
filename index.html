@@ -13,6 +13,7 @@
 -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1d4d">
+<script>try{var t=localStorage.getItem('dm_tema');if(t==='gelap'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark';}catch(e){}</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -54,6 +55,44 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .uinfo{text-align:right;font-size:12px;line-height:1.35}.uinfo b{font-size:13px;font-weight:700}
 .uinfo span{opacity:.85}
 .hd-jwt{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-weight:600}
+/* ---------- Garis masa sejarah ---------- */
+.tl{position:relative;padding-left:4px}.tl::before{content:"";position:absolute;left:19px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl-i{position:relative;display:flex;gap:12px;padding:8px 0}
+.tl-d{flex:0 0 32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;box-shadow:0 0 0 4px var(--glass-hi);z-index:1}
+/* ---------- MOD GELAP ---------- */
+html[data-theme=dark]{color-scheme:dark;--txt:#e3eaff;--mut:#97a6c8;--line:rgba(148,170,230,.14);--navy:#d4defc;
+ --glass:rgba(16,26,52,.74);--glass-hi:rgba(21,33,64,.88);--glass-bd:rgba(120,150,230,.16);--sh:0 12px 32px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.3)}
+html[data-theme=dark] body{background:#060d20}
+html[data-theme=dark] body::before{background:radial-gradient(900px 620px at -5% -10%,rgba(42,91,215,.30),transparent 60%),radial-gradient(640px 480px at 105% 5%,rgba(227,34,43,.10),transparent 62%),
+ radial-gradient(760px 560px at 90% 105%,rgba(247,198,0,.08),transparent 60%),linear-gradient(160deg,#08112a 0%,#0a1633 55%,#070f25 100%)}
+html[data-theme=dark] label{color:#b9c7ea}
+html[data-theme=dark] input,html[data-theme=dark] select,html[data-theme=dark] textarea{background:rgba(8,16,38,.85);border-color:rgba(148,170,230,.22);color:var(--txt)}
+html[data-theme=dark] input:focus,html[data-theme=dark] select:focus,html[data-theme=dark] textarea:focus{background:rgba(10,20,46,.95)}
+html[data-theme=dark] input:disabled{background:rgba(30,40,70,.6)}
+html[data-theme=dark] .btn.sec,html[data-theme=dark] .qk button{background:rgba(28,42,80,.9);color:#cddbff;border-color:rgba(148,170,230,.22)}
+html[data-theme=dark] nav{background:rgba(10,18,40,.82);border-top-color:rgba(120,150,230,.16)}
+html[data-theme=dark] nav button:hover{background:rgba(91,132,241,.14);color:#cddbff}
+html[data-theme=dark] .tabs button{background:rgba(16,26,52,.7);color:#c4d1f3;border-color:rgba(120,150,230,.16)}
+html[data-theme=dark] .tbl th{background:rgba(91,132,241,.12);color:#a9c0ff}
+html[data-theme=dark] .tbl tbody tr:hover{background:rgba(91,132,241,.08)}
+html[data-theme=dark] .tbl a,html[data-theme=dark] .modal-head button{color:#9db8ff}
+html[data-theme=dark] .pick{background:rgba(8,16,38,.7);border-color:rgba(148,170,230,.18)}
+html[data-theme=dark] .pick div:hover{background:rgba(91,132,241,.12)}html[data-theme=dark] .pick div.sel{background:rgba(34,197,94,.16)}
+html[data-theme=dark] .chip{background:rgba(91,132,241,.14);border-color:rgba(91,132,241,.3)}
+html[data-theme=dark] .info{background:rgba(91,132,241,.12);border-color:rgba(91,132,241,.28);color:#c3d3ff}
+html[data-theme=dark] .card.info{background:rgba(22,36,72,.75)}
+html[data-theme=dark] .warn{background:rgba(247,198,0,.10);border-color:rgba(247,198,0,.32);color:#fcd34d}
+html[data-theme=dark] .modal-box{background:rgba(14,23,48,.97)}html[data-theme=dark] .modal-head button{background:rgba(91,132,241,.16)}
+html[data-theme=dark] .login-box{background:rgba(14,23,48,.86);border-color:rgba(120,150,230,.22)}
+html[data-theme=dark] .logo-prev,html[data-theme=dark] .wiz .st{background:rgba(16,26,52,.7)}
+html[data-theme=dark] .sk{background:rgba(30,44,84,.5)!important}
+html[data-theme=dark] .bar,html[data-theme=dark] .lvl span{background:rgba(148,170,230,.13)}
+html[data-theme=dark] .stat.ringan .n{color:#4ade80}html[data-theme=dark] .stat.sederhana .n{color:#fb923c}html[data-theme=dark] .stat.berat .n{color:#f87171}html[data-theme=dark] .stat.amber .n{color:#fbbf24}
+html[data-theme=dark] .heat td,html[data-theme=dark] .heat th{border-color:rgba(148,170,230,.1)}
+html[data-theme=dark] .cmp-dn{color:#4ade80}html[data-theme=dark] .cmp-up{color:#f87171}
+html[data-theme=dark] .b-none,html[data-theme=dark] .b-off{background:#475569}
+html[data-theme=dark] .hero:not([style]){background:linear-gradient(125deg,#0b1d4d 0%,#1d3f94 55%,#2a5bd7 100%);box-shadow:0 14px 34px rgba(0,0,0,.4)}
+@media print{html[data-theme=dark]{--txt:#0f1d3d;--mut:#5b6b8c;--navy:#0b1d4d;--glass:#fff;--glass-hi:#fff}html[data-theme=dark] body{background:#fff}}
 /* ---------- Rangka pemuatan ---------- */
 .sk{position:relative;overflow:hidden;background:rgba(255,255,255,.55)!important;border:1px solid var(--glass-bd)}
 .sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:shimmer 1.2s infinite}
@@ -352,6 +391,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
   <header class="topbar">
     <img id="hdLogo" alt="Logo">
     <div class="brand"><b id="hdSchool"></b><small id="hdSys"></small></div>
+    <button class="instbtn" id="btnTema" title="Tukar tema cerah / gelap">🌙</button>
     <button class="instbtn hidden" id="btnInstall">📲 Pasang</button>
     <div class="uinfo"><b id="hdUser"></b><br><span id="hdRole" class="hd-jwt"></span><br><button id="btnOut">Log Keluar</button></div>
   </header>
@@ -385,8 +425,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '8.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
-const BACKEND_VERSI = 8;
+const APP_VERSI = '10.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const BACKEND_VERSI = 10;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -413,6 +453,9 @@ const nowHM = () => localISO().slice(11,16);
 const fmtD = s => s && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4)+(s.length>10?s.slice(10,16):'') : (s||'');
 const isAdmin = () => S.user && S.user.Pentadbir;
 const isGuru = () => S.user && S.user.Peranan==='GURU';
+/** Kebenaran guru mengikut jawatan (pengguna lama tanpa senarai kebenaran = akses penuh) */
+const can = p => isGuru() && (!S.user.perms || S.user.perms.includes(p));
+const PERMS=[['REKOD','Rekod kesalahan'],['EDIT','Edit / padam rekod'],['SAHKAN','Sahkan rekod pengawas'],['TINDAKAN','Tindakan susulan'],['MOEIS','Kemasukan MOEIS'],['LAPORAN','Laporan']];
 const ownOnly = () => S.user && S.user.Peranan==='PENGAWAS' && S.set.PengawasLihat!=='SEMUA';
 const kelasSort = (a,b) => String(a).localeCompare(String(b),'ms',{numeric:true});
 const muridByNo = no => S.murid.find(m=>m.NoDaftar===no) || S.muridArkib.find(m=>m.NoDaftar===no);
@@ -433,6 +476,18 @@ function needXLSX(){
     document.head.appendChild(sc); });
   return xlsxP;
 }
+/* ---------- Tema cerah / gelap ---------- */
+const mqDark=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function applyTheme(){
+  const t=LS.get('dm_tema')||'cerah', dark=t==='gelap'||(t==='auto'&&mqDark&&mqDark.matches);
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=dark?'#050b1c':'#0b1d4d';
+  const b=$('#btnTema'); if(b){ b.textContent=dark?'☀️':'🌙'; b.title=dark?'Tukar ke tema cerah':'Tukar ke tema gelap'; }
+}
+function setTheme(t){ LS.set('dm_tema',t); applyTheme(); }
+applyTheme();
+if(mqDark&&mqDark.addEventListener) mqDark.addEventListener('change',applyTheme);
+$('#btnTema').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'cerah':'gelap');
 function toastAct(msg,btn,fn,ms){
   const t=document.createElement('div'); t.className='toast ok'; t.innerHTML=`<span>${esc(msg)}</span>`;
   const b=document.createElement('button'); b.className='tbtn'; b.textContent=btn; b.onclick=async()=>{ b.disabled=true; t.remove(); await fn(); };
@@ -500,6 +555,7 @@ function ask(msg, okText, cls){
 /* ---------- Tahap demerit ---------- */
 function had(){ return {a:Math.max(1,+S.set.HadRingan||3), b:Math.max(1,+S.set.HadSederhana||3)}; }
 function tahapOf(n){ const {a,b}=had(); if(n<=0) return ''; return n<=a?'Ringan':(n<=a+b?'Sederhana':'Berat'); }
+function sumberOpts(cur,first){ const L=(S.set.SumberKesalahan||[]).slice(); if(cur&&!L.includes(cur)) L.push(cur); return (first!==undefined?`<option value="">${esc(first)}</option>`:'')+L.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join(''); }
 function stBadge(st){ return st==='MENUNGGU'?'<span class="badge b-MENUNGGU">⏳ Menunggu</span>':st==='DITOLAK'?'<span class="badge b-DITOLAK">✕ Ditolak</span>':''; }
 function badge(t){ return t?`<span class="badge b-${esc(t)}">${esc(t)}</span>`:'<span class="badge b-none">Tiada</span>'; }
 function sBadge(st){ return `<span class="badge b-${esc(st)}">${esc(STATUS[st]||st)}</span>`; }
@@ -590,7 +646,7 @@ function profilHtml(P){
     <tbody><tr><td class="c"><b>${c}</b></td><td class="c">${Math.min(c,a)} / ${a}</td><td class="c">${Math.max(0,Math.min(c-a,b))} / ${b}</td><td class="c">${Math.max(0,c-a-b)}</td><td class="c">${pdTag(tahapOf(c))}</td></tr></tbody></table>
     <h4>B. Sejarah Kesalahan</h4>
     <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Tarikh / Masa</th><th>Kesalahan</th><th>Catatan</th><th class="c">Ke-</th><th class="c">Tahap</th><th>Direkod oleh</th></tr></thead><tbody>
-    ${recs.length?recs.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}</td><td>${esc(r.Catatan)||'-'}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}<br><small>${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</small></td></tr>`).join(''):'<tr><td colspan="7" class="c">Tiada rekod kesalahan.</td></tr>'}
+    ${recs.length?recs.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Sumber?`<br><small>📍 ${esc(r.Sumber)}</small>`:''}</td><td>${esc(r.Catatan)||'-'}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}<br><small>${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</small></td></tr>`).join(''):'<tr><td colspan="7" class="c">Tiada rekod kesalahan.</td></tr>'}
     </tbody></table>
     ${ownOnly()?'<div class="pd-note">Nota: Hanya rekod yang dimasukkan oleh pengguna ini dipaparkan.</div>':''}
     ${isGuru()?moeisPrint(P):''}
@@ -635,14 +691,14 @@ async function printMoeisDoc(land){
     body=`<table class="pd-tbl pd-sm" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Nama murid</th><th>Kelas</th><th>Tarikh</th><th>Masa</th><th>Kesalahan</th><th>Butiran</th><th>Catatan</th><th class="c">Tahap</th><th class="c">Ke-</th><th>Direkod oleh</th><th class="c">Dimasukkan?</th><th style="width:13%">Nama guru yang memasukkan</th><th style="width:7%">Tarikh</th><th style="width:7%">T/tangan</th></tr></thead><tbody>
     ${L.map((x,i)=>{ const rr=x.rekod&&x.rekod.length?x.rekod:[{}]; const n=rr.length;
       return rr.map((r,k)=>`<tr class="${k===0?'grp':''}">${k===0?`<td class="c" rowspan="${n}">${i+1}</td><td rowspan="${n}"><b>${esc(x.NamaPenuh)}</b><br><small>${esc(x.NoDaftar)}<br>${esc(x.Julat)}</small></td><td class="nw" rowspan="${n}">${esc(x.Kelas)}</td>`:''}
-        <td class="nw">${fmtD(r.Tarikh)}</td><td class="nw">${esc(r.Masa||'')}</td><td>${esc(r.Kesalahan||'')}</td><td>${esc(r.Butiran||'-')}</td><td>${esc(r.Catatan||'-')}</td><td class="c">${r.Tahap?pdTag(r.Tahap):''}</td><td class="c">${esc(r.Bilangan||'')}</td><td>${esc(r.DirekodOleh||'')}</td>
+        <td class="nw">${fmtD(r.Tarikh)}</td><td class="nw">${esc(r.Masa||'')}</td><td>${esc(r.Kesalahan||'')}${r.Sumber?`<br><small>📍 ${esc(r.Sumber)}</small>`:''}</td><td>${esc(r.Butiran||'-')}</td><td>${esc(r.Catatan||'-')}</td><td class="c">${r.Tahap?pdTag(r.Tahap):''}</td><td class="c">${esc(r.Bilangan||'')}</td><td>${esc(r.DirekodOleh||'')}</td>
         ${k===0?`<td class="nw" rowspan="${n}">${cb(x.Status==='SUDAH')} Sudah<br>${cb(false)} Belum</td><td rowspan="${n}">${x.Status==='SUDAH'?esc(x.DimasukkanOleh):''}</td><td rowspan="${n}">${x.Status==='SUDAH'?fmtD(x.TarikhMasuk):''}</td><td rowspan="${n}"></td>`:''}</tr>`).join(''); }).join('')}
     </tbody></table>`;
   }else{
     body=`<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th style="width:24%">Maklumat murid</th><th>Butiran kesalahan</th><th style="width:27%">Kemasukan MOEIS</th></tr></thead><tbody>
     ${L.map((x,i)=>`<tr class="grp"><td class="c">${i+1}</td>
       <td><b>${esc(x.NamaPenuh)}</b><br><small>No. pendaftaran: ${esc(x.NoDaftar)}<br>Kelas: ${esc(x.Kelas)}<br>${esc(x.Julat)}<br>${trk(x)}</small></td>
-      <td><table class="pd-in">${(x.rekod||[]).map((r,k)=>`<tr><td class="nw">${k+1}.</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td><b>${esc(r.Kesalahan)}</b>${r.Butiran?` – ${esc(r.Butiran)}`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}<br><small>Ke-${esc(r.Bilangan)} · ${esc(r.DirekodOleh)}</small></td><td class="nw">${pdTag(r.Tahap)}</td></tr>`).join('')||'<tr><td>-</td></tr>'}</table></td>
+      <td><table class="pd-in">${(x.rekod||[]).map((r,k)=>`<tr><td class="nw">${k+1}.</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td><b>${esc(r.Kesalahan)}</b>${r.Butiran?` – ${esc(r.Butiran)}`:''}${r.Sumber?`<br><small>📍 ${esc(r.Sumber)}</small>`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}<br><small>Ke-${esc(r.Bilangan)} · ${esc(r.DirekodOleh)}</small></td><td class="nw">${pdTag(r.Tahap)}</td></tr>`).join('')||'<tr><td>-</td></tr>'}</table></td>
       <td>${cb(x.Status==='SUDAH')} Sudah &nbsp; ${cb(false)} Belum
         <div class="fill">Nama guru: ${x.Status==='SUDAH'?`<b>${esc(x.DimasukkanOleh)}</b>`:'<span class="dl"></span>'}</div>
         <div class="fill">Tarikh: ${x.Status==='SUDAH'?fmtD(x.TarikhMasuk):'<span class="dl"></span>'}</div>
@@ -670,9 +726,9 @@ function printRecs(list, terpilih){
   if(!L.length) return toast('Tiada rekod untuk dicetak.','err');
   printDoc(pdHead('Senarai Rekod Kesalahan Murid',terpilih?'Rekod terpilih':'',[
       ['Tempoh',(F.dari?fmtD(F.dari):'-')+' hingga '+(F.hingga?fmtD(F.hingga):'-')],['Kelas',F.kelas||'Semua kelas'],
-      ['Tahap',F.tahap||'Semua tahap'],['Carian',F.q||'-'],['Jumlah rekod',String(L.length)+(!terpilih&&S.recTotal>L.length?' daripada '+S.recTotal:'')]])+
+      ['Tahap',F.tahap||'Semua tahap'],['Sumber',F.sumber||'Semua'],['Carian',F.q||'-'],['Jumlah rekod',String(L.length)+(!terpilih&&S.recTotal>L.length?' daripada '+S.recTotal:'')]])+
     `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th>Kesalahan</th><th class="c">Ke-</th><th class="c">Tahap</th><th>Direkod oleh</th></tr></thead><tbody>
-    ${L.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.NamaPenuh)}<br><small>${esc(r.NoDaftar)}</small></td><td class="nw">${esc(r.Kelas)}</td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}</td></tr>`).join('')}
+    ${L.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.NamaPenuh)}<br><small>${esc(r.NoDaftar)}</small></td><td class="nw">${esc(r.Kelas)}</td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Sumber?`<br><small>📍 ${esc(r.Sumber)}</small>`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}</td></tr>`).join('')}
     </tbody></table>
     ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disemak oleh','','Guru Disiplin']])}`);
 }
@@ -703,7 +759,8 @@ function printReport(){
     <table class="pd-tbl"><thead><tr><th>Kelas</th><th class="r">Murid terlibat</th><th class="r">Ringan</th><th class="r">Sederhana</th><th class="r">Berat</th><th class="r">Jumlah</th></tr></thead><tbody>
     ${d.ikutKelas.length?d.ikutKelas.map(k=>`<tr><td>${esc(k.label)}</td><td class="r">${k.bilMurid}</td><td class="r">${k.Ringan}</td><td class="r">${k.Sederhana}</td><td class="r">${k.Berat}</td><td class="r"><b>${k.bil}</b></td></tr>`).join(''):'<tr><td colspan="6" class="c">Tiada data.</td></tr>'}
     </tbody>${d.ikutKelas.length?`<tfoot><tr><td>JUMLAH</td><td class="r">${tot.m}</td><td class="r">${tot.r}</td><td class="r">${tot.s}</td><td class="r">${tot.b}</td><td class="r">${tot.j}</td></tr></tfoot>`:''}</table>
-    <h4>D. Kesalahan Mengikut Jenis</h4>${simple('Kesalahan',d.ikutKesalahan)}
+    <h4>D. Kesalahan Mengikut Jenis & Sumber</h4>${simple('Kesalahan',d.ikutKesalahan)}
+    <div style="margin-top:8px">${simple('Sumber kesalahan',d.ikutSumber||[])}</div>
     <h4>E. Murid Paling Kerap (20 Teratas)</h4>
     <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Nama murid</th><th>No. pendaftaran</th><th>Kelas</th><th class="r">Kesalahan</th><th class="c">Tahap terkini</th></tr></thead><tbody>
     ${d.topMurid.length?d.topMurid.map((m,i)=>`<tr><td class="c">${i+1}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.NoDaftar)}</td><td>${esc(m.Kelas)}</td><td class="r">${m.bil}</td><td class="c">${pdTag(m.tahap)}</td></tr>`).join(''):'<tr><td colspan="6" class="c">Tiada data.</td></tr>'}
@@ -883,9 +940,9 @@ function showWelcome(){
   w.style.backgroundImage = bg ? `linear-gradient(160deg,rgba(11,29,77,${Math.max(ov,.45)}),rgba(29,63,148,${Math.max(ov-.1,.35)})), url("${bg}")` : '';
   const tkh=new Date().toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const info=[];
-  if(isGuru()&&S.tindakanBuka) info.push(`🛎️ ${S.tindakanBuka} tindakan susulan belum selesai`);
-  if(isGuru()&&S.moeisBelum) info.push(`🗂️ ${S.moeisBelum} kemasukan MOEIS belum dibuat`);
-  if(isGuru()&&S.menunggu&&S.set.PengesahanPengawas!=='TIDAK') info.push(`✅ ${S.menunggu} rekod pengawas menunggu pengesahan`);
+  if(can('TINDAKAN')&&S.tindakanBuka) info.push(`🛎️ ${S.tindakanBuka} tindakan susulan belum selesai`);
+  if(can('MOEIS')&&S.moeisBelum) info.push(`🗂️ ${S.moeisBelum} kemasukan MOEIS belum dibuat`);
+  if(can('SAHKAN')&&S.menunggu&&S.set.PengesahanPengawas!=='TIDAK') info.push(`✅ ${S.menunggu} rekod pengawas menunggu pengesahan`);
   w.innerHTML=`<div class="wel-box">
     <img src="${S.logo||DEF_LOGO}" alt="">
     <div class="wel-salam"><span>${sl.i}</span>${sl.t}</div>
@@ -945,10 +1002,12 @@ function bootData(d,opt){
    ===================================================================== */
 function navItems(){
   const it=[['dashboard','📊 Utama']];
-  if(isGuru() || S.set.PengawasRekod==='YA') it.push(['rekod','✍️ Rekod']);
+  if(isGuru() ? can('REKOD') : S.set.PengawasRekod==='YA') it.push(['rekod','✍️ Rekod']);
   it.push(['senarai','📋 Senarai'],['profil','👤 Profil']);
-  if(isGuru() && S.set.PengesahanPengawas!=='TIDAK') it.push(['sahkan','✅ Sahkan']);
-  if(isGuru()) it.push(['tindakan','🛎️ Tindakan'],['moeis','🗂️ MOEIS'],['laporan','📑 Laporan']);
+  if(can('SAHKAN') && S.set.PengesahanPengawas!=='TIDAK') it.push(['sahkan','✅ Sahkan']);
+  if(can('TINDAKAN')) it.push(['tindakan','🛎️ Tindakan']);
+  if(can('MOEIS')) it.push(['moeis','🗂️ MOEIS']);
+  if(can('LAPORAN')) it.push(['laporan','📑 Laporan']);
   if(isAdmin()) it.push(['tetapan','⚙️ Tetapan']);
   it.push(['akaun','🔑 Akaun']);
   return it;
@@ -959,11 +1018,21 @@ function renderNav(){
 }
 function setOpenCount(n){ S.tindakanBuka=n; renderNav(); }
 function setMoeisCount(n){ S.moeisBelum=n; renderNav(); }
+/** Ralat akibat menulis ke elemen halaman yang sudah ditutup — tidak memberi kesan, jangan dipaparkan */
+function isStaleDom(e){ return /Cannot (set|read) propert(y|ies) of null/.test(String(e&&e.message||e)); }
+window.addEventListener('unhandledrejection',ev=>{ if(isStaleDom(ev.reason)){ ev.preventDefault(); console.warn('Diabaikan:',ev.reason); } });
+window.addEventListener('error',ev=>{ if(isStaleDom(ev.error||ev.message)){ ev.preventDefault(); console.warn('Diabaikan:',ev.message); } });
+let navSeq=0;
 async function go(v){
+  const my=++navSeq;
   if(!navItems().some(x=>x[0]===v)) v='dashboard';
   S.view=v; renderNav(); window.scrollTo(0,0);
   const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,moeis:vMoeis,sahkan:vSahkan,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun}[v];
-  try{ await fn(); }catch(e){ $('#view').innerHTML=`<div class="card"><div class="err">${esc(e.message)}</div></div>`; }
+  try{ await fn(); }
+  catch(e){
+    if(my!==navSeq || isStaleDom(e)) { console.warn('Diabaikan (halaman telah ditukar):',e); return; }
+    $('#view').innerHTML=`<div class="card"><div class="err">${esc(e.message)}</div></div>`;
+  }
 }
 
 /* =====================================================================
@@ -1001,9 +1070,9 @@ function renderDashboard(d){
   </div>
   ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g6" style="margin:0">
     ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan click','data-mt="Ringan"')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana click','data-mt="Sederhana"')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat click','data-mt="Berat"')}
-    ${d.tindakanBuka!=null?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
-    ${d.moeisBelum!=null?stat('Belum dimasukkan ke MOEIS',d.moeisBelum,'berat click','id="dMoe"'):''}
-    ${isGuru()&&S.set.PengesahanPengawas!=='TIDAK'&&d.menunggu?stat('Rekod pengawas menunggu pengesahan',d.menunggu,'amber click','id="dSah"'):''}
+    ${d.tindakanBuka!=null&&can('TINDAKAN')?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
+    ${d.moeisBelum!=null&&can('MOEIS')?stat('Belum dimasukkan ke MOEIS',d.moeisBelum,'berat click','id="dMoe"'):''}
+    ${can('SAHKAN')&&S.set.PengesahanPengawas!=='TIDAK'&&d.menunggu?stat('Rekod pengawas menunggu pengesahan',d.menunggu,'amber click','id="dSah"'):''}
   </div></div>`:''}
   <div class="grid g2">
     ${d.topMurid?`<div class="card"><h3>10 Murid Paling Kerap</h3><div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Kelas</th><th class="right">Bil</th><th>Tahap</th></tr></thead><tbody>
@@ -1053,6 +1122,8 @@ function vRekod(){
       <div><label>Kesalahan</label><select id="rKes"><option value="">— Pilih kesalahan —</option>${[...g.keys()].map(k=>`<option>${esc(k)}</option>`).join('')}</select></div>
       <div id="rSubW" class="hidden"><label>Butiran</label><select id="rSub"></select></div>
     </div>
+    <label>Sumber kesalahan</label>
+    <select id="rSumber">${sumberOpts(LS.get('dm_sumber_'+(S.user?S.user.ID:''))||'','— Pilih sumber —')}</select>
     <label>Catatan (pilihan)</label>
     <textarea id="rCat" maxlength="500" placeholder="Contoh: semasa PdP Matematik"></textarea>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
@@ -1133,9 +1204,12 @@ async function saveRekod(){
   if(!S.pick.length) return toast('Sila pilih sekurang-kurangnya seorang murid.','err');
   const kid=selectedKesID();
   if(!kid) return toast('Sila pilih kesalahan dan butirannya.','err');
+  const sumber=$('#rSumber').value;
+  if(!sumber) return toast('Sila pilih sumber kesalahan.','err');
+  LS.set('dm_sumber_'+S.user.ID,sumber);
   const btn=$('#rSave'); btn.disabled=true;
   try{
-    const payload={noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value};
+    const payload={noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,sumber,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value};
     let res;
     try{ res=await api('recordOffence',payload); }
     catch(e){
@@ -1179,6 +1253,7 @@ function vSenarai(){
       <div><label>Hingga</label><input type="date" id="fHingga" value="${today()}"></div>
       <div><label>Kelas</label><select id="fKelas">${optKelas('','Semua')}</select></div>
       <div><label>Tahap</label><select id="fTahap"><option value="">Semua</option><option>Ringan</option><option>Sederhana</option><option>Berat</option></select></div>
+      <div><label>Sumber</label><select id="fSb">${sumberOpts('','Semua')}<option value="(Tiada)">(Tiada sumber)</option></select></div>
       <div><label>Status</label><select id="fSt"><option value="">Semua</option><option value="SAH">Sah</option><option value="MENUNGGU">Menunggu pengesahan</option><option value="DITOLAK">Ditolak</option></select></div>
     </div>
     <div class="row" style="margin-top:10px">
@@ -1199,11 +1274,12 @@ function vSenarai(){
 async function loadRecs(){
   $('#fTbl').innerHTML='<div class="muted">Memuatkan…</div>';
   try{
-    const F={dari:$('#fDari').value,hingga:$('#fHingga').value,kelas:$('#fKelas').value,tahap:$('#fTahap').value,status:$('#fSt').value,q:$('#fQ').value.trim()};
+    const F={dari:$('#fDari').value,hingga:$('#fHingga').value,kelas:$('#fKelas').value,tahap:$('#fTahap').value,status:$('#fSt').value,sumber:$('#fSb').value,q:$('#fQ').value.trim()};
     const r=await api('listRecords',F);
+    if(!$('#fTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.recs=r.records; S.recFilter=F; S.recTotal=r.total;
     $('#fInfo').textContent = `${r.total} rekod dijumpai`+(r.total>r.records.length?` (dipaparkan ${r.records.length} terkini)`:'');
-    $('#fTbl').innerHTML = recTable(r.records, isGuru(), true);
+    $('#fTbl').innerHTML = recTable(r.records, can('EDIT'), true);
     bindRecActions($('#fTbl'), r.records, loadRecs);
     const sel=()=>[...document.querySelectorAll('#fTbl .rC:checked')].map(c=>c.value);
     const upd=()=>{ const ids=sel(), murid=[...new Set(S.recs.filter(x=>ids.includes(x.ID)).map(x=>x.NoDaftar))];
@@ -1214,17 +1290,17 @@ async function loadRecs(){
     document.querySelectorAll('#fTbl .rC').forEach(c=>c.onchange=upd); upd();
     $('#fSelR').onclick=()=>{ const ids=sel(); printRecs(S.recs.filter(x=>ids.includes(x.ID)), true); };
     $('#fSelP').onclick=()=>{ const ids=sel(); printBulk([...new Set(S.recs.filter(x=>ids.includes(x.ID)).map(x=>x.NoDaftar))]); };
-  }catch(e){ $('#fTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if($('#fTbl')) $('#fTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 function recTable(list, canEdit, pick){
   if(!list.length) return '<div class="muted">Tiada rekod.</div>';
-  return `<table class="tbl"><thead><tr>${pick?'<th class="noprint"><input type="checkbox" id="rAll" title="Pilih semua"></th>':''}<th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th>${canEdit?'<th class="noprint"></th>':''}</tr></thead><tbody>
+  return `<table class="tbl"><thead><tr>${pick?'<th class="noprint"><input type="checkbox" id="rAll" title="Pilih semua"></th>':''}<th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th><th class="noprint"></th></tr></thead><tbody>
   ${list.map(r=>`<tr>${pick?`<td class="noprint"><input type="checkbox" class="rC" value="${esc(r.ID)}"></td>`:''}<td class="nowrap">${fmtD(r.Tarikh)}<div class="muted">${esc(r.Masa)}</div>${r.Arkib==='YA'?'<span class="badge b-arkib">Arkib</span>':''}</td>
     <td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.NoDaftar)}</div></td><td>${esc(r.Kelas)}</td>
-    <td>${esc(r.Kesalahan)}${r.Butiran?`<div class="muted">${esc(r.Butiran)}</div>`:''}${r.Catatan?`<div class="muted"><i>${esc(r.Catatan)}</i></div>`:''}</td>
+    <td>${esc(r.Kesalahan)}${r.Butiran?`<div class="muted">${esc(r.Butiran)}</div>`:''}${r.Sumber?`<div class="muted">📍 ${esc(r.Sumber)}</div>`:''}${r.Catatan?`<div class="muted"><i>${esc(r.Catatan)}</i></div>`:''}</td>
     <td>${r.Status&&r.Status!=='SAH'?'—':esc(r.Bilangan)}</td><td>${r.Status&&r.Status!=='SAH'?stBadge(r.Status):badge(r.Tahap)}</td>
     <td>${esc(r.DirekodOleh)}<div class="muted">${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</div></td>
-    ${canEdit?`<td class="nowrap noprint">${r.Arkib==='YA'?'':`<button class="btn sm sec" data-ed="${esc(r.ID)}">Edit</button> <button class="btn sm red" data-del="${esc(r.ID)}">Padam</button>`}</td>`:''}</tr>`).join('')}
+    <td class="nowrap noprint">${(isGuru()||r.DirekodOlehID===S.user.ID)&&r.Arkib!=='YA'?`<button class="btn sm sec" data-hist="${esc(r.ID)}" title="Sejarah perubahan">🕘</button> `:''}${canEdit&&r.Arkib!=='YA'?`<button class="btn sm sec" data-ed="${esc(r.ID)}">Edit</button> <button class="btn sm red" data-del="${esc(r.ID)}">Padam</button>`:''}</td></tr>`).join('')}
   </tbody></table>`;
 }
 function bindRecActions(root, list, after){
@@ -1233,6 +1309,21 @@ function bindRecActions(root, list, after){
     try{ await api('deleteRecord',{ID:b.dataset.del}); toast('Rekod dipadam dan kiraan dikemas kini.','ok'); after(); }catch(e){ toast(e.message,'err'); }
   });
   root.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editRecord(list.find(r=>r.ID===b.dataset.ed), after));
+  root.querySelectorAll('[data-hist]').forEach(b=>b.onclick=()=>showHistory(b.dataset.hist));
+}
+const HIST_IC={DICIPTA:['➕','#2a5bd7'],DIEDIT:['✏️','#d97706'],DISAHKAN:['✅','#16a34a'],DITOLAK:['⛔','#e3222b'],DIPADAM:['🗑️','#e3222b'],DIBATALKAN:['↶','#64748b'],'KIRAAN DIKEMAS KINI':['🔢','#7c3aed']};
+async function showHistory(id){
+  modal('🕘 Sejarah Rekod','<div class="muted">Memuatkan…</div>',[{t:'Tutup',cls:'sec'}]);
+  try{
+    const d=await api('recordHistory',{ID:id});
+    if($('#modal').classList.contains('hidden')) return;
+    const r=d.rekod;
+    $('#mBody').innerHTML=`${r?`<div class="info" style="margin-bottom:12px"><b>${esc(r.NamaPenuh)}</b> · ${esc(r.Kelas)} · ${esc(r.NoDaftar)}<br>${fmtD(r.Tarikh)} ${esc(r.Masa)} · ${esc(r.Kesalahan)}${r.Butiran?' – '+esc(r.Butiran):''}${r.Sumber?' · 📍 '+esc(r.Sumber):''}<br>Kedudukan semasa: ${r.Status&&r.Status!=='SAH'?stBadge(r.Status):'ke-'+esc(r.Bilangan)+' '+badge(r.Tahap)}</div>`
+      :'<div class="info warn" style="margin-bottom:12px">Rekod ini telah dipadam. Sejarahnya disimpan untuk rujukan.</div>'}
+      ${d.sejarah.length?`<div class="tl">${d.sejarah.map(h=>{ const ic=HIST_IC[h.Tindakan]||['•','#64748b']; return `<div class="tl-i"><div class="tl-d" style="background:${ic[1]}">${ic[0]}</div>
+        <div><b>${esc(h.Tindakan.charAt(0)+h.Tindakan.slice(1).toLowerCase())}</b> <span class="muted">· ${fmtD(h.Masa)} · ${esc(h.Pengguna)}</span><div style="font-size:13px;margin-top:2px;word-break:break-word">${esc(h.Butiran)}</div></div></div>`; }).join('')}</div>`
+      :'<div class="muted">Tiada sejarah direkodkan. Sejarah perubahan mula direkodkan dalam versi 10; perubahan sebelum ini boleh disemak di Tetapan → Log Aktiviti.</div>'}`;
+  }catch(e){ if(!$('#modal').classList.contains('hidden')) $('#mBody').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 function editRecord(r, after){
   if(!r) return;
@@ -1243,11 +1334,12 @@ function editRecord(r, after){
     <div class="info" style="margin-bottom:6px"><b>${esc(r.NamaPenuh)}</b> · ${esc(r.Kelas)} · ${esc(r.NoDaftar)}<br><span class="muted">Direkod oleh ${esc(r.DirekodOleh)} pada ${fmtD(r.DimasukkanPada)}</span></div>
     <div class="row"><div><label>Tarikh</label><input type="date" id="eT" value="${esc(r.Tarikh)}" max="${today()}"></div><div><label>Masa</label><input type="time" id="eM" value="${esc(r.Masa)}"></div></div>
     <label>Kesalahan</label><select id="eK">${kesAda?'':`<option value="" selected>${esc(kesLabel(r))} (asal)</option>`}${opts}</select>
+    <label>Sumber kesalahan</label><select id="eS">${sumberOpts(r.Sumber||'','— Tiada —')}</select>
     <label>Catatan</label><textarea id="eC" maxlength="500">${esc(r.Catatan)}</textarea>
     <div class="muted" style="margin-top:8px">Jika tarikh diubah, kedudukan "kesalahan ke-" dan tahap murid ini dikira semula secara automatik.</div>`,[
     {t:'Batal',cls:'sec'},
     {t:'Simpan',fn:async()=>{
-      await api('updateRecord',{ID:r.ID,tarikh:$('#eT').value,masa:$('#eM').value,kesalahanID:$('#eK').value,catatan:$('#eC').value});
+      await api('updateRecord',{ID:r.ID,tarikh:$('#eT').value,masa:$('#eM').value,kesalahanID:$('#eK').value,sumber:$('#eS').value,catatan:$('#eC').value});
       toast('Rekod dikemas kini.','ok'); after();
     }}
   ]);
@@ -1256,10 +1348,10 @@ async function exportRecs(){
   try{ await needXLSX(); }catch(e){ return toast(e.message,'err'); }
   if(!S.recs.length) return toast('Tiada rekod untuk dieksport.','err');
   const rows=S.recs.map(r=>({'Tarikh':fmtD(r.Tarikh),'Masa':r.Masa,'No. Pendaftaran':r.NoDaftar,'Nama Penuh':r.NamaPenuh,'Kelas':r.Kelas,
-    'Kesalahan':r.Kesalahan,'Butiran':r.Butiran,'Catatan':r.Catatan,'Kesalahan Ke-':Number(r.Bilangan)||r.Bilangan,'Tahap':r.Tahap,
+    'Kesalahan':r.Kesalahan,'Butiran':r.Butiran,'Sumber':r.Sumber||'','Catatan':r.Catatan,'Kesalahan Ke-':Number(r.Bilangan)||r.Bilangan,'Tahap':r.Tahap,
     'Direkod Oleh':r.DirekodOleh,'Peranan':r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}));
   const ws=XLSX.utils.json_to_sheet(rows);
-  ws['!cols']=[{wch:11},{wch:7},{wch:16},{wch:38},{wch:12},{wch:28},{wch:20},{wch:30},{wch:13},{wch:11},{wch:26},{wch:10}];
+  ws['!cols']=[{wch:11},{wch:7},{wch:16},{wch:38},{wch:12},{wch:28},{wch:20},{wch:26},{wch:30},{wch:13},{wch:11},{wch:26},{wch:10}];
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Rekod Demerit');
   XLSX.writeFile(wb,`Rekod_Demerit_${today()}.xlsx`);
 }
@@ -1296,6 +1388,7 @@ async function loadProfilTable(){
   const el=$('#pTbl2'); el.innerHTML='<div class="muted">Memuatkan…</div>';
   try{
     const L=await api('studentSummary',{kelas,tahap,moeis:$('#pMoe').value,q,termasukArkib:$('#pArk').checked,semua:!!kelas||tahap==='TIADA'||!!q});
+    if(!document.body.contains(el)) return;
     const {a,b}=had();
     $('#pInfo').innerHTML=`<b>${L.length}</b> murid${kelas?' dalam '+esc(kelas):''}${tahap&&tahap!=='TIADA'?' · tahap '+esc(tahap):''}${!kelas&&!tahap&&!q?' yang mempunyai rekod kesalahan':''}`;
     if(!L.length){ el.innerHTML='<div class="muted">Tiada murid sepadan.</div>'; $('#pBulk').disabled=true; return; }
@@ -1311,7 +1404,7 @@ async function loadProfilTable(){
     document.querySelectorAll('.pC').forEach(c=>c.onchange=upd); upd();
     $('#pBulk').onclick=()=>printBulk([...document.querySelectorAll('.pC:checked')].map(c=>c.value));
     el.querySelectorAll('[data-v]').forEach(x=>x.onclick=e=>{ e.preventDefault(); showProfil(x.dataset.v); });
-  }catch(e){ el.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if(document.body.contains(el)) el.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 function vProfilCari(){
   $('#view').innerHTML = `
@@ -1340,6 +1433,7 @@ async function showProfil(no){
   const out=$('#pOut'); out.innerHTML='<div class="card muted">Memuatkan…</div>';
   try{
     const [st,lr,mo]=await Promise.all([api('studentStatus',{noDaftarList:[no]}), api('listRecords',{noDaftar:no}), isGuru()?api('listMoeis',{noDaftar:no}):Promise.resolve({list:[]})]);
+    if(!document.body.contains(out)) return;
     const c=st[no].count;
     out.innerHTML = `
     <div class="card">
@@ -1350,17 +1444,17 @@ async function showProfil(no){
       ${arkib?'':`<div class="muted" style="margin-top:6px">Kesalahan seterusnya akan direkod sebagai kesalahan ke-${c+1}: ${badge(tahapOf(c+1))}</div>`}
     </div>
     <div class="card"><h3>Sejarah Kesalahan</h3>${ownOnly()?'<div class="info" style="margin-bottom:10px">Hanya rekod yang dimasukkan oleh akaun anda dipaparkan.</div>':''}
-      <div class="tw" id="pTbl">${recTable(lr.records, isGuru())}</div></div>
+      <div class="tw" id="pTbl">${recTable(lr.records, can('EDIT'))}</div></div>
     ${isGuru()?`<div class="card"><h3>🗂️ Kemasukan MOEIS</h3><div class="muted" style="margin-bottom:8px">Setiap ${esc(S.set.MoeisSetiap||3)} ${S.set.MoeisSkop==='SEMUA'?'rekod kesalahan':'rekod kesalahan ringan'} perlu dimasukkan ke dalam sistem MOEIS.</div>
       ${mo.list.length?`<div class="tw"><table class="tbl"><thead><tr><th>Kumpulan rekod</th><th>Status</th><th>Dimasukkan oleh</th><th></th></tr></thead><tbody>
-      ${mo.list.map(x=>`<tr><td>${esc(x.Julat)}<div class="muted">${esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '))}</div></td><td>${mBadge(x.Status)}</td><td>${x.Status==='SUDAH'?esc(x.DimasukkanOleh)+`<div class="muted">${fmtD(x.TarikhMasuk)}</div>`:'<span class="muted">—</span>'}</td><td class="right"><button class="btn sm" data-mo="${esc(x.ID)}">Kemas kini</button></td></tr>`).join('')}
+      ${mo.list.map(x=>`<tr><td>${esc(x.Julat)}<div class="muted">${esc(x.TarikhRekod.split(' – ').map(fmtD).join(' – '))}</div></td><td>${mBadge(x.Status)}</td><td>${x.Status==='SUDAH'?esc(x.DimasukkanOleh)+`<div class="muted">${fmtD(x.TarikhMasuk)}</div>`:'<span class="muted">—</span>'}</td><td class="right">${can('MOEIS')?'':'<span class="muted">—</span>'}<button class="btn sm ${can('MOEIS')?'':'hidden'}" data-mo=""${esc(x.ID)}">Kemas kini</button></td></tr>`).join('')}
       </tbody></table></div>`:'<div class="muted">Belum ada kemasukan MOEIS diperlukan.</div>'}</div>`:''}`;
     S.prof={m,c,recs:lr.records,arkib,moeis:mo.list};
     out.querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>moeisModal([b.dataset.mo],()=>showProfil(no)));
     $('#pPrt').onclick=printProfil;
     bindRecActions($('#pTbl'), lr.records, ()=>showProfil(no));
     out.scrollIntoView({behavior:'smooth'});
-  }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+  }catch(e){ if(document.body.contains(out)) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
 
 /* =====================================================================
@@ -1389,6 +1483,7 @@ async function loadTind(){
   try{
     const F={status:$('#tS').value,kelas:$('#tK').value,jenis:$('#tJ').value,q:$('#tQ').value.trim()};
     const r=await api('listTindakan',F);
+    if(!$('#tTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.tind=r.list; S.tindFilter=F;
     setOpenCount(r.buka);
     $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Tindakan diambil</th><th></th></tr></thead><tbody>
@@ -1414,7 +1509,7 @@ async function loadTind(){
         {t:'Simpan',fn:async()=>{ await api('updateTindakan',{ID:t.ID,Status:$('#uS').value,Jenis:[...document.querySelectorAll('.uJ:checked')].map(c=>c.value),TarikhTindakan:$('#uT').value,Catatan:$('#uC').value}); toast('Tindakan dikemas kini.','ok'); loadTind(); }}
       ]);
     });
-  }catch(e){ $('#tTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if($('#tTbl')) $('#tTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 
 /* =====================================================================
@@ -1426,11 +1521,12 @@ async function vSahkan(){
     <div class="card"><div class="toolbar"><button class="btn grn" id="sSah" disabled>✓ Sahkan terpilih (0)</button><button class="btn red" id="sTolak" disabled>✕ Tolak terpilih (0)</button></div><div class="tw" id="sTbl"><div class="muted">Memuatkan…</div></div></div>`;
   try{
     const r=await api('listRecords',{status:'MENUNGGU'});
+    if(!$('#sTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.menunggu=r.total; renderNav();
     const L=r.records;
     $('#sTbl').innerHTML=L.length?`<table class="tbl"><thead><tr><th><input type="checkbox" id="sAll"></th><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Direkod oleh</th></tr></thead><tbody>
       ${L.map(x=>`<tr><td><input type="checkbox" class="sC" value="${esc(x.ID)}"></td><td class="nowrap">${fmtD(x.Tarikh)}<div class="muted">${esc(x.Masa)}</div></td><td>${esc(x.NamaPenuh)}<div class="muted">${esc(x.NoDaftar)}</div></td><td>${esc(x.Kelas)}</td>
-        <td>${esc(x.Kesalahan)}${x.Butiran?`<div class="muted">${esc(x.Butiran)}</div>`:''}${x.Catatan?`<div class="muted"><i>${esc(x.Catatan)}</i></div>`:''}</td><td>${esc(x.DirekodOleh)}<div class="muted">${fmtD(x.DimasukkanPada)}</div></td></tr>`).join('')}</tbody></table>`
+        <td>${esc(x.Kesalahan)}${x.Butiran?`<div class="muted">${esc(x.Butiran)}</div>`:''}${x.Sumber?`<div class="muted">📍 ${esc(x.Sumber)}</div>`:''}${x.Catatan?`<div class="muted"><i>${esc(x.Catatan)}</i></div>`:''}</td><td>${esc(x.DirekodOleh)}<div class="muted">${fmtD(x.DimasukkanPada)}</div></td></tr>`).join('')}</tbody></table>`
       :'<div class="muted">🎉 Tiada rekod menunggu pengesahan.</div>';
     const sel=()=>[...document.querySelectorAll('.sC:checked')].map(c=>c.value);
     const upd=()=>{ const n=sel().length; $('#sSah').disabled=$('#sTolak').disabled=!n; $('#sSah').textContent=`✓ Sahkan terpilih (${n})`; $('#sTolak').textContent=`✕ Tolak terpilih (${n})`; };
@@ -1441,7 +1537,7 @@ async function vSahkan(){
       toast(`${x.dikemaskini} rekod disahkan.`+(x.moeisBaru?` ${x.moeisBaru} kemasukan MOEIS baharu.`:''),'ok'); vSahkan(); }catch(e){ toast(e.message,'err'); } };
     $('#sTolak').onclick=()=>{ const ids=sel(); modal('Tolak Rekod',`<p>${ids.length} rekod akan ditolak dan tidak dikira.</p><label>Sebab ditolak</label><textarea id="tSb" placeholder="Cth: Salah murid / maklumat tidak tepat"></textarea>`,[
       {t:'Batal',cls:'sec'},{t:'Tolak',cls:'red',fn:async()=>{ const x=await api('sahkanRekod',{IDs:ids,keputusan:'DITOLAK',sebab:$('#tSb').value}); S.menunggu=x.menunggu; toast(`${x.dikemaskini} rekod ditolak.`,'ok'); vSahkan(); }}]); };
-  }catch(e){ $('#sTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if($('#sTbl')) $('#sTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 
 /* =====================================================================
@@ -1470,6 +1566,7 @@ async function loadMoeis(){
   try{
     const F={status:$('#moF').value,kelas:$('#moK').value,q:$('#moQ').value.trim()};
     const r=await api('listMoeis',F);
+    if(!$('#moTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.moeisList=r.list; S.moeisFilter=F; setMoeisCount(r.belum);
     $('#moTbl').innerHTML = r.list.length?`<table class="tbl"><thead><tr><th><input type="checkbox" id="moAll"></th><th>Murid</th><th>Kelas</th><th>Kumpulan rekod</th><th>Status</th><th>Dimasukkan oleh</th><th></th></tr></thead><tbody>
       ${r.list.map(x=>`<tr><td><input type="checkbox" class="moC" value="${esc(x.ID)}"></td><td><a href="#" data-no="${esc(x.NoDaftar)}">${esc(x.NamaPenuh)}</a><div class="muted">${esc(x.NoDaftar)}</div></td><td>${esc(x.Kelas)}</td>
@@ -1483,7 +1580,7 @@ async function loadMoeis(){
     $('#moBulk').onclick=()=>moeisModal([...document.querySelectorAll('.moC:checked')].map(c=>c.value),loadMoeis);
     $('#moTbl').querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>moeisModal([b.dataset.mo],loadMoeis));
     $('#moTbl').querySelectorAll('[data-no]').forEach(a=>a.onclick=e=>{ e.preventDefault(); S.profilNo=a.dataset.no; go('profil'); });
-  }catch(e){ $('#moTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if($('#moTbl')) $('#moTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 
 /* =====================================================================
@@ -1531,6 +1628,7 @@ async function loadBulkList(){
   const o=$('#bOut'); o.innerHTML='<div class="muted">Memuatkan…</div>';
   try{
     const L=await api('studentSummary',{tahap:$('#bT').value,kelas:$('#bK').value,moeis:$('#bM').value,termasukArkib:$('#bA').checked});
+    if(!document.body.contains(o)) return;
     if(!L.length){ o.innerHTML='<div class="muted">Tiada murid sepadan.</div>'; return; }
     o.innerHTML=`<div class="toolbar" style="align-items:center"><button class="btn" id="bPrt">🖨 Cetak Profil Terpilih (${Math.min(L.length,300)})</button><span class="muted">${L.length} murid${L.length>300?' · maksimum 300 profil setiap cetakan':''}</span></div>
       <div class="tw" style="max-height:380px;overflow:auto"><table class="tbl"><thead><tr><th><input type="checkbox" id="bAll" checked></th><th>Murid</th><th>Kelas</th><th class="right">Kesalahan</th><th>Tahap</th><th class="right">MOEIS belum</th></tr></thead><tbody>
@@ -1540,7 +1638,7 @@ async function loadBulkList(){
     $('#bAll').onchange=e=>{ document.querySelectorAll('.bC').forEach((c,i)=>c.checked=e.target.checked&&i<300); upd(); };
     document.querySelectorAll('.bC').forEach(c=>c.onchange=upd); upd();
     $('#bPrt').onclick=()=>printBulk([...document.querySelectorAll('.bC:checked')].map(c=>c.value));
-  }catch(e){ o.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  }catch(e){ if(document.body.contains(o)) o.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
 function prevMonth(m){ let [y,mo]=m.split('-').map(Number); mo--; if(!mo){ mo=12; y--; } return y+'-'+String(mo).padStart(2,'0'); }
 function monthRange(m){ const [yy,mm]=m.split('-').map(Number); return {dari:m+'-01',hingga:m+'-'+String(new Date(yy,mm,0).getDate()).padStart(2,'0'),label:BULAN_PENUH[mm-1]+' '+yy}; }
@@ -1553,9 +1651,10 @@ async function genCompare(){
   const out=$('#lOut'); out.innerHTML='<div class="card muted">Menjana perbandingan…</div>';
   try{
     const [a,b]=await Promise.all([api('report',{dari:A.dari,hingga:A.hingga}),api('report',{dari:B.dari,hingga:B.hingga})]);
+    if(!document.body.contains(out)) return;
     S.cmp={A,B,a,b};
     const row=(l,x,y)=>`<tr><td>${l}</td><td class="right"><b>${x}</b></td><td class="right">${y}</td><td class="right">${delta(x,y)}</td></tr>`;
-    const kel=mergeLists(a.ikutKelas,b.ikutKelas), kes=mergeLists(a.ikutKesalahan,b.ikutKesalahan);
+    const kel=mergeLists(a.ikutKelas,b.ikutKelas), kes=mergeLists(a.ikutKesalahan,b.ikutKesalahan), smb=mergeLists(a.ikutSumber||[],b.ikutSumber||[]);
     const tbl=(h,L)=>`<table class="tbl"><thead><tr><th>${h}</th><th class="right">${esc(A.label)}</th><th class="right">${esc(B.label)}</th><th class="right">Perubahan</th></tr></thead><tbody>${L.length?L.map(x=>row(esc(x.label),x.a,x.b)).join(''):'<tr><td colspan="4" class="muted">Tiada data.</td></tr>'}</tbody></table>`;
     out.innerHTML=`<div class="toolbar"><button class="btn sec" id="cPrt">🖨 Cetak Perbandingan</button></div>
     <div class="card"><h3>📊 Perbandingan: ${esc(A.label)} berbanding ${esc(B.label)}</h3>
@@ -1564,9 +1663,10 @@ async function genCompare(){
         ${row('Jumlah kesalahan',a.jumlah,b.jumlah)}${row('Murid terlibat',a.muridUnik,b.muridUnik)}${row('Tahap Ringan',a.tahap.Ringan,b.tahap.Ringan)}${row('Tahap Sederhana',a.tahap.Sederhana,b.tahap.Sederhana)}${row('Tahap Berat',a.tahap.Berat,b.tahap.Berat)}
         ${row('Sesi pagi (sebelum 1 ptg)',a.sesi.Pagi,b.sesi.Pagi)}${row('Sesi petang',a.sesi.Petang,b.sesi.Petang)}
       </tbody></table></div></div>
-    <div class="grid g2"><div class="card"><h3>Mengikut Kelas</h3><div class="tw">${tbl('Kelas',kel)}</div></div><div class="card"><h3>Mengikut Kesalahan</h3><div class="tw">${tbl('Kesalahan',kes)}</div></div></div>`;
+    <div class="grid g2"><div class="card"><h3>Mengikut Kelas</h3><div class="tw">${tbl('Kelas',kel)}</div></div><div class="card"><h3>Mengikut Kesalahan</h3><div class="tw">${tbl('Kesalahan',kes)}</div></div></div>
+    <div class="card"><h3>📍 Mengikut Sumber</h3><div class="tw">${tbl('Sumber',smb)}</div></div>`;
     $('#cPrt').onclick=printCompare;
-  }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+  }catch(e){ if(document.body.contains(out)) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
 function printCompare(){
   const {A,B,a,b}=S.cmp||{}; if(!a) return;
@@ -1578,6 +1678,7 @@ function printCompare(){
       ${row('Jumlah kesalahan',a.jumlah,b.jumlah)}${row('Murid terlibat',a.muridUnik,b.muridUnik)}${row('Tahap Ringan',a.tahap.Ringan,b.tahap.Ringan)}${row('Tahap Sederhana',a.tahap.Sederhana,b.tahap.Sederhana)}${row('Tahap Berat',a.tahap.Berat,b.tahap.Berat)}${row('Sesi pagi',a.sesi.Pagi,b.sesi.Pagi)}${row('Sesi petang',a.sesi.Petang,b.sesi.Petang)}</tbody></table>
     <h4>B. Mengikut Kelas</h4>${tb('Kelas',mergeLists(a.ikutKelas,b.ikutKelas))}
     <h4>C. Mengikut Kesalahan</h4>${tb('Kesalahan',mergeLists(a.ikutKesalahan,b.ikutKesalahan))}
+    <h4>D. Mengikut Sumber</h4>${tb('Sumber',mergeLists(a.ikutSumber||[],b.ikutSumber||[]))}
     <div class="pd-note">Perubahan positif (+) bermaksud bilangan kesalahan meningkat berbanding tempoh B.</div>
     ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
 }
@@ -1603,7 +1704,7 @@ async function printRumusan(){
         <div><h4>Kelas paling kerap</h4><table class="pd-tbl"><tbody>${top(d.ikutKelas.slice().sort((a,b)=>b.bil-a.bil),5)}</tbody></table></div></div>
       <h4>Murid memerlukan perhatian (10 teratas)</h4><table class="pd-tbl"><thead><tr><th class="c">#</th><th>Nama murid</th><th>Kelas</th><th class="r">Kesalahan</th><th class="c">Tahap</th></tr></thead><tbody>
         ${d.topMurid.slice(0,10).map((m,i)=>`<tr><td class="c">${i+1}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.Kelas)}</td><td class="r">${m.bil}</td><td class="c">${pdTag(m.tahap)}</td></tr>`).join('')||'<tr><td colspan="5" class="c">Tiada data.</td></tr>'}</tbody></table>
-      <h4>Pemerhatian</h4><div style="font-size:9.5pt">• Waktu paling kerap: <b>${puncak&&puncak.bil?esc(puncak.label)+' ('+puncak.bil+' kes)':'-'}</b> · Hari paling kerap: <b>${hariP&&hariP.bil?esc(hariP.label)+' ('+hariP.bil+' kes)':'-'}</b> · Sesi pagi ${d.sesi.Pagi} / petang ${d.sesi.Petang}.</div>
+      <h4>Pemerhatian</h4><div style="font-size:9.5pt">• Waktu paling kerap: <b>${puncak&&puncak.bil?esc(puncak.label)+' ('+puncak.bil+' kes)':'-'}</b> · Hari paling kerap: <b>${hariP&&hariP.bil?esc(hariP.label)+' ('+hariP.bil+' kes)':'-'}</b> · Sumber utama: <b>${(d.ikutSumber||[]).filter(x=>x.label!=='(Tiada)')[0]?esc(d.ikutSumber.filter(x=>x.label!=='(Tiada)')[0].label)+' ('+d.ikutSumber.filter(x=>x.label!=='(Tiada)')[0].bil+')':'-'}</b> · Sesi pagi ${d.sesi.Pagi} / petang ${d.sesi.Petang}.</div>
       <h4>Isu & cadangan tindakan</h4><div class="lines"><div></div><div></div><div></div><div></div></div>`+
       pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])+`</div>`, true);
   }catch(e){ toast(e.message,'err'); }
@@ -1654,6 +1755,7 @@ async function genReport(){
     <div class="card"><h3>Trend ${d.trendHarian?'Harian':'Bulanan'}</h3>${vchart(d.trend,d.trendHarian)}</div>
     <div class="grid g2">
       <div class="card"><h3>Kesalahan Mengikut Jenis</h3>${bars(d.ikutKesalahan)}</div>
+      <div class="card"><h3>📍 Sumber Kesalahan</h3>${bars(d.ikutSumber||[])}</div>
       <div class="card"><h3>Mengikut Hari</h3>${bars(d.ikutHari.filter(x=>x.bil||(x.label!=='Sabtu'&&x.label!=='Ahad')))}</div>
     </div>
     <div class="card"><h3>🕒 Analisis Waktu Kejadian</h3>
@@ -1679,7 +1781,7 @@ async function genReport(){
     </div>
 `;
     $('#lXls').onclick=exportReport; $('#lPrt').onclick=printReport;
-  }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+  }catch(e){ if(document.body.contains(out)) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
 async function exportReport(){
   const d=S.rpt; if(!d) return;
@@ -1692,6 +1794,7 @@ async function exportReport(){
   XLSX.utils.book_append_sheet(wb,ring,'Ringkasan');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKelas.map(k=>({'Kelas':k.label,'Murid terlibat':k.bilMurid,'Ringan':k.Ringan,'Sederhana':k.Sederhana,'Berat':k.Berat,'Jumlah':k.bil}))),'Ikut Kelas');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKesalahan.map(k=>({'Kesalahan':k.label,'Bilangan':k.bil}))),'Ikut Kesalahan');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.ikutSumber||[]).map(k=>({'Sumber':k.label,'Bilangan':k.bil}))),'Ikut Sumber');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.topMurid.map((m,i)=>({'#':i+1,'No. Pendaftaran':m.NoDaftar,'Nama':m.NamaPenuh,'Kelas':m.Kelas,'Bilangan':m.bil,'Tahap terkini':m.tahap}))),'Murid Kerap');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.ikutJenisTindakan||[]).map(k=>({'Jenis tindakan':k.label,'Bilangan':k.bil})).concat((d.ikutJenisTindakan||[]).length?[]:[{'Jenis tindakan':'(tiada)','Bilangan':0}])),'Jenis Tindakan');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.trend.map(t=>({'Tempoh':d.trendHarian?fmtD(t.label):t.label,'Bilangan':t.bil}))),'Trend');
@@ -1704,7 +1807,9 @@ async function exportReport(){
 function vAkaun(){
   $('#view').innerHTML = `
   <div class="card" style="max-width:480px"><h3>🔑 Akaun Saya</h3>
-    <div class="muted">Nama: <b>${esc(S.user.Nama)}</b><br>ID log masuk: <b>${esc(S.user.Login)}</b><br>Peranan: <b>${esc(roleName(S.user))}</b>${S.user.Jawatan?`<br>Jawatan: <b>${esc(S.user.Jawatan)}</b>`:''}<br>Versi sistem: <b>${esc(APP_VERSI)}</b></div>
+    <div class="muted">Nama: <b>${esc(S.user.Nama)}</b><br>ID log masuk: <b>${esc(S.user.Login)}</b><br>Peranan: <b>${esc(roleName(S.user))}</b>${S.user.Jawatan?`<br>Jawatan: <b>${esc(S.user.Jawatan)}</b>`:''}${isGuru()&&S.user.perms&&!S.user.Pentadbir&&S.user.perms.length<PERMS.length?`<br>Kebenaran: <b>${esc(PERMS.filter(x=>S.user.perms.includes(x[0])).map(x=>x[1]).join(', ')||'Lihat sahaja')}</b>`:''}<br>Versi sistem: <b>${esc(APP_VERSI)}</b></div>
+    <label>Tema paparan</label>
+    <select id="aTema" style="max-width:260px"><option value="cerah">☀️ Cerah</option><option value="gelap">🌙 Gelap</option><option value="auto">🖥️ Ikut tetapan peranti</option></select>
     <div class="toolbar" style="margin-top:8px"><button class="btn sec sm" id="aUpd">🔄 Semak kemas kini</button>
       <button class="btn sm ${S.latihan?'sec':'amb'}" id="aLat">${S.latihan?'↩ Keluar mod latihan':'🧪 Masuk mod latihan'}</button>
       ${S.latihan&&isAdmin()?'<button class="btn sm sec" id="aSeed">♻ Jana semula data latihan</button>':''}</div>
@@ -1719,6 +1824,7 @@ function vAkaun(){
     try{ await api('changePassword',{lama:$('#aOld').value,baru:$('#aNew').value}); toast('Kata laluan berjaya ditukar.','ok'); vAkaun(); }
     catch(e){ toast(e.message,'err'); }
   };
+  $('#aTema').value=LS.get('dm_tema')||'cerah'; $('#aTema').onchange=()=>setTheme($('#aTema').value);
   $('#aLat').onclick=()=>setLatihan(!S.latihan);
   if($('#aSeed')) $('#aSeed').onclick=async()=>{ if(!await ask('Padam semua data latihan dan jana semula data contoh?','Jana Semula','amb')) return; try{ await api('seedLatihan'); toast('Data latihan dijana semula.','ok'); boot({}); }catch(e){ toast(e.message,'err'); } };
   $('#aUpd').onclick=async()=>{
@@ -1733,11 +1839,11 @@ function vAkaun(){
    TETAPAN (GURU PENTADBIR)
    ===================================================================== */
 const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],
-  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['jawatan','🎖️ Jawatan'],['jenistindakan','🛠️ Jenis Tindakan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['kesihatan','🩺 Kesihatan Sistem'],['log','📜 Log Aktiviti']];
+  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['jawatan','🎖️ Jawatan'],['sumber','📍 Sumber Kesalahan'],['jenistindakan','🛠️ Jenis Tindakan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['kesihatan','🩺 Kesihatan Sistem'],['log','📜 Log Aktiviti']];
 function vTetapan(){
   $('#view').innerHTML = `<div class="tabs">${TABS.map(([k,t])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${t}</button>`).join('')}</div><div id="tBody"></div>`;
-  $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; vTetapan(); });
-  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,sistem:tSistem,tahunbaru:tTahunBaru,kesihatan:tKesihatan,jenistindakan:tJenisTindakan,log:tLog})[S.tab]();
+  $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ navSeq++; S.tab=b.dataset.t; vTetapan(); });
+  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,sistem:tSistem,tahunbaru:tTahunBaru,kesihatan:tKesihatan,jenistindakan:tJenisTindakan,sumber:tSumber,log:tLog})[S.tab]();
 }
 
 /* ---------- Umum & Logo ---------- */
@@ -2206,18 +2312,38 @@ function userForm(u,role){
 
 /* ---------- Jawatan ---------- */
 function tJawatan(){
-  const L={GURU:S.jawatan.filter(j=>j.Peranan==='GURU').map(j=>Object.assign({},j)),PENGAWAS:S.jawatan.filter(j=>j.Peranan==='PENGAWAS').map(j=>Object.assign({},j))};
+  const toArr=k=>!k||k==='SEMUA'?PERMS.map(x=>x[0]):String(k).split(',').filter(Boolean);
+  const L={GURU:S.jawatan.filter(j=>j.Peranan==='GURU').map(j=>Object.assign({},j,{Kebenaran:toArr(j.Kebenaran)})),PENGAWAS:S.jawatan.filter(j=>j.Peranan==='PENGAWAS').map(j=>Object.assign({},j))};
   const used=(p,n)=>S.users.filter(u=>u.Peranan===p&&u.Jawatan===n).length;
   $('#tBody').innerHTML=`
   <div class="info" style="margin-bottom:12px">Senarai jawatan ini dipilih semasa mendaftar akses guru dan pengawas. Jawatan pengguna juga dicetak pada ruangan "Disediakan oleh" dalam dokumen. Menukar nama jawatan akan turut mengemas kini pengguna yang memegang jawatan tersebut.</div>
   <div class="grid g2">${['GURU','PENGAWAS'].map(p=>`<div class="card"><h3>${p==='GURU'?'👩‍🏫 Jawatan Guru':'🛡️ Jawatan Pengawas'}</h3>
     <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Nama jawatan</th><th class="right">Pengguna</th><th></th></tr></thead><tbody id="j_${p}"></tbody></table></div>
     <button class="btn sec sm" style="margin-top:10px" data-add="${p}">+ Tambah jawatan</button></div>`).join('')}</div>
-  <div style="text-align:right"><button class="btn" id="jSave">💾 Simpan Jawatan</button></div>`;
+  <div class="card"><h3>🔐 Kebenaran Mengikut Jawatan Guru</h3>
+    <div class="info" style="margin-bottom:10px">Tandakan fungsi yang dibenarkan bagi setiap jawatan guru. Semua guru sentiasa boleh <b>melihat</b> papan pemuka, senarai rekod dan profil murid.
+      Guru bertanda <b>Pentadbir</b> sentiasa mempunyai akses penuh. Guru tanpa jawatan juga mendapat akses penuh.</div>
+    <div class="toolbar"><span class="muted" style="align-self:center">Pratetap:</span>
+      <button class="btn sm sec" data-pre="SEMUA">Semua dibenarkan</button><button class="btn sm sec" data-pre="BACA">Baca + laporan sahaja</button><button class="btn sm sec" data-pre="REKOD">Rekod sahaja</button></div>
+    <div class="tw"><table class="tbl"><thead><tr><th>Jawatan</th>${PERMS.map(x=>`<th class="c" style="text-align:center">${esc(x[1])}</th>`).join('')}</tr></thead><tbody id="jPerm"></tbody></table></div>
+    <div class="muted" style="margin-top:6px">Klik nama jawatan untuk memilih baris itu sebelum menggunakan pratetap.</div>
+  </div>
+  <div style="text-align:right"><button class="btn" id="jSave">💾 Simpan Jawatan & Kebenaran</button></div>`;
+  let selRow=-1;
+  const drawPerm=()=>{
+    $('#jPerm').innerHTML=L.GURU.map((j,i)=>`<tr style="${i===selRow?'background:rgba(42,91,215,.1)':''}"><td><a href="#" data-sr="${i}">${esc(j.Nama||'(tanpa nama)')}</a></td>${PERMS.map(x=>`<td style="text-align:center"><input type="checkbox" data-pi="${i}" data-pk="${x[0]}" ${(j.Kebenaran||[]).includes(x[0])?'checked':''}></td>`).join('')}</tr>`).join('');
+    $('#jPerm').querySelectorAll('input').forEach(c=>c.onchange=()=>{ const j=L.GURU[+c.dataset.pi]; const set=new Set(j.Kebenaran||[]); c.checked?set.add(c.dataset.pk):set.delete(c.dataset.pk); j.Kebenaran=PERMS.map(x=>x[0]).filter(k=>set.has(k)); });
+    $('#jPerm').querySelectorAll('[data-sr]').forEach(a=>a.onclick=e=>{ e.preventDefault(); selRow=+a.dataset.sr; drawPerm(); });
+  };
+  $('#tBody').querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{
+    if(selRow<0) return toast('Klik nama jawatan dalam jadual kebenaran dahulu.','err');
+    L.GURU[selRow].Kebenaran={SEMUA:PERMS.map(x=>x[0]),BACA:['LAPORAN'],REKOD:['REKOD']}[b.dataset.pre]; drawPerm();
+  });
   const draw=p=>{
+    if(p==='GURU') setTimeout(drawPerm);
     $('#j_'+p).innerHTML=L[p].map((j,i)=>`<tr><td>${i+1}</td><td><input data-p="${p}" data-i="${i}" value="${esc(j.Nama)}"></td><td class="right">${j.ID?used(p,j.Nama):0}</td>
       <td class="nowrap right"><button class="btn sm sec" data-up="${p}|${i}" ${i?'':'disabled'}>↑</button> <button class="btn sm sec" data-dn="${p}|${i}" ${i<L[p].length-1?'':'disabled'}>↓</button> <button class="btn sm red" data-x="${p}|${i}">✕</button></td></tr>`).join('')||'<tr><td colspan="4" class="muted">Tiada jawatan.</td></tr>';
-    $('#j_'+p).querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[p][+el.dataset.i].Nama=el.value; });
+    $('#j_'+p).querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[p][+el.dataset.i].Nama=el.value; if(p==='GURU') drawPerm(); });
     const mv=(k,d)=>{ const [pp,ii]=k.split('|'); const i=+ii, t=L[pp][i]; L[pp].splice(i,1); L[pp].splice(i+d,0,t); draw(pp); };
     $('#j_'+p).querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>mv(b.dataset.up,-1));
     $('#j_'+p).querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>mv(b.dataset.dn,1));
@@ -2226,29 +2352,35 @@ function tJawatan(){
       L[pp].splice(+ii,1); draw(pp); });
   };
   draw('GURU'); draw('PENGAWAS');
-  $('#tBody').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{ const p=b.dataset.add; L[p].push({ID:'',Nama:'',Peranan:p}); draw(p); const ins=$('#j_'+p).querySelectorAll('input'); ins[ins.length-1].focus(); });
+  $('#tBody').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{ const p=b.dataset.add; L[p].push({ID:'',Nama:'',Peranan:p,Kebenaran:PERMS.map(x=>x[0])}); draw(p); const ins=$('#j_'+p).querySelectorAll('input'); ins[ins.length-1].focus(); });
   $('#jSave').onclick=async()=>{
-    try{ const r=await api('saveJawatan',L); S.jawatan=r.jawatan; S.users=r.users; toast('Senarai jawatan disimpan.','ok'); tJawatan(); }
+    try{ const r=await api('saveJawatan',L); S.jawatan=r.jawatan; S.users=r.users; toast('Jawatan dan kebenaran disimpan. Pengguna akan menerima kebenaran baharu apabila halaman dimuat semula.','ok'); tJawatan(); }
     catch(e){ toast(e.message,'err'); }
   };
 }
 
 /* ---------- Jenis tindakan ---------- */
-function tJenisTindakan(){
-  const L=(S.set.JenisTindakan||[]).slice();
-  $('#tBody').innerHTML=`<div class="card" style="max-width:720px"><h3>🛠️ Jenis Tindakan Susulan</h3>
-    <div class="info" style="margin-bottom:12px">Senarai ini dipilih oleh guru semasa mengemas kini tindakan susulan, dan digunakan dalam laporan untuk mengira jenis tindakan yang telah diambil. Menukar atau memadam jenis tidak mengubah rekod tindakan lama.</div>
-    <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Jenis tindakan</th><th></th></tr></thead><tbody id="jtB"></tbody></table></div>
-    <div class="toolbar" style="margin-top:10px;justify-content:space-between"><button class="btn sec" id="jtAdd">+ Tambah jenis</button><button class="btn" id="jtSave">💾 Simpan</button></div></div>`;
+function tListEditor(key,title,info,label,after){
+  const L=(S.set[key]||[]).slice();
+  $('#tBody').innerHTML=`<div class="card" style="max-width:720px"><h3>${title}</h3>
+    <div class="info" style="margin-bottom:12px">${info}</div>
+    <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>${esc(label)}</th><th></th></tr></thead><tbody id="jtB"></tbody></table></div>
+    <div class="toolbar" style="margin-top:10px;justify-content:space-between"><button class="btn sec" id="jtAdd">+ Tambah</button><button class="btn" id="jtSave">💾 Simpan</button></div></div>`;
   const draw=()=>{
-    $('#jtB').innerHTML=L.map((j,i)=>`<tr><td>${i+1}</td><td><input data-i="${i}" value="${esc(j)}"></td><td class="nowrap right"><button class="btn sm sec" data-m="${i}|-1" ${i?'':'disabled'}>↑</button> <button class="btn sm sec" data-m="${i}|1" ${i<L.length-1?'':'disabled'}>↓</button> <button class="btn sm red" data-x="${i}">✕</button></td></tr>`).join('');
+    $('#jtB').innerHTML=L.map((j,i)=>`<tr><td>${i+1}</td><td><input data-i="${i}" value="${esc(j)}" maxlength="80"></td><td class="nowrap right"><button class="btn sm sec" data-m="${i}|-1" ${i?'':'disabled'}>↑</button> <button class="btn sm sec" data-m="${i}|1" ${i<L.length-1?'':'disabled'}>↓</button> <button class="btn sm red" data-x="${i}">✕</button></td></tr>`).join('');
     $('#jtB').querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[+el.dataset.i]=el.value; });
     $('#jtB').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ const [i,d]=b.dataset.m.split('|').map(Number); const t=L[i]; L.splice(i,1); L.splice(i+d,0,t); draw(); });
     $('#jtB').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ L.splice(+b.dataset.x,1); draw(); });
   };
   draw();
   $('#jtAdd').onclick=()=>{ L.push(''); draw(); const ins=$('#jtB').querySelectorAll('input'); ins[ins.length-1].focus(); };
-  $('#jtSave').onclick=async()=>{ try{ const r=await api('saveSettings',{JenisTindakan:JSON.stringify(L)}); S.set=r.settings; toast('Senarai jenis tindakan disimpan.','ok'); tJenisTindakan(); }catch(e){ toast(e.message,'err'); } };
+  $('#jtSave').onclick=async()=>{ try{ const r=await api('saveSettings',{[key]:JSON.stringify(L)}); S.set=r.settings; toast('Senarai disimpan.','ok'); after(); }catch(e){ toast(e.message,'err'); } };
+}
+function tJenisTindakan(){
+  tListEditor('JenisTindakan','🛠️ Jenis Tindakan Susulan','Senarai ini dipilih oleh guru semasa mengemas kini tindakan susulan, dan digunakan dalam laporan untuk mengira jenis tindakan yang telah diambil. Menukar atau memadam jenis tidak mengubah rekod tindakan lama.','Jenis tindakan',tJenisTindakan);
+}
+function tSumber(){
+  tListEditor('SumberKesalahan','📍 Sumber Kesalahan','Sumber kesalahan dipilih dalam borang <b>Rekod Kesalahan</b> (cth. pemantauan guru bertugas, aduan guru mata pelajaran, laporan pengawas). Ia dipaparkan dalam senarai rekod, cetakan dan laporan. Menukar atau memadam sumber tidak mengubah rekod lama.','Sumber kesalahan',tSumber);
 }
 
 /* ---------- Kesihatan sistem ---------- */
@@ -2288,7 +2420,7 @@ async function tKesihatan(){
 /* ---------- Notifikasi ---------- */
 async function tNotif(){
   $('#tBody').innerHTML='<div class="card muted">Memuatkan…</div>';
-  let n; try{ n=await api('getNotif'); }catch(e){ $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
+  let n; try{ n=await api('getNotif'); }catch(e){ if($('#tBody')) $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
   if(!$('#tBody')) return;
   const yn=(id,v,l)=>`<label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="${id}" ${v==='YA'?'checked':''}> ${l}</label>`;
   $('#tBody').innerHTML=`
@@ -2342,7 +2474,7 @@ function tKeselamatan(){
 /* ---------- Wizard tahun persekolahan baharu ---------- */
 async function tTahunBaru(){
   S.wiz=S.wiz||{};
-  let d; try{ d=await api('systemInfo'); }catch(e){ $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
+  let d; try{ d=await api('systemInfo'); }catch(e){ if($('#tBody')) $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
   if(!$('#tBody')) return;
   const lama=d.rekodAktif.filter(y=>y.bolehArkib);
   const st=(n,done,title,body)=>`<div class="st ${done?'done':''}"><div class="no">${done?'✓':n}</div><div style="flex:1"><b>${title}</b><div class="muted" style="margin:4px 0 8px">${body[0]}</div>${body[1]||''}</div></div>`;
@@ -2370,7 +2502,7 @@ async function tTahunBaru(){
 async function tSistem(){
   $('#tBody').innerHTML='<div class="card muted">Memuatkan…</div>';
   let d;
-  try{ d=await api('systemInfo'); }catch(e){ $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
+  try{ d=await api('systemInfo'); }catch(e){ if($('#tBody')) $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
   if(!$('#tBody')) return;
   const sb=d.sandaran;
   $('#tBody').innerHTML=(d.perluKebenaran?`<div class="card info warn"><b>⚠️ Kebenaran Google belum lengkap.</b> Sandaran automatik tidak dapat digunakan sehingga pemilik skrip memberi kebenaran:
@@ -2428,7 +2560,7 @@ function tLog(){
     <div class="row" style="margin-bottom:10px">
       <div><input id="lgQ" placeholder="Cari pengguna, tindakan atau butiran…"></div>
       <div style="flex:0 0 220px"><select id="lgT"><option value="">Semua tindakan</option>
-        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI JAWATAN','SAHKAN REKOD','TOLAK REKOD','BATAL REKOD','KEMAS KINI NOTIFIKASI','RALAT NOTIFIKASI','LOG MASUK (GOOGLE)','RALAT SISTEM','AMARAN PRESTASI','KOSONGKAN CACHE','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
+        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI JAWATAN','EDIT REKOD','SAHKAN REKOD','TOLAK REKOD','BATAL REKOD','KEMAS KINI NOTIFIKASI','RALAT NOTIFIKASI','LOG MASUK (GOOGLE)','RALAT SISTEM','AMARAN PRESTASI','KOSONGKAN CACHE','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
           .map(t=>`<option>${t}</option>`).join('')}</select></div>
       <button class="btn" id="lgGo">🔍 Cari</button>
     </div>
@@ -2438,9 +2570,10 @@ function tLog(){
     $('#lgTbl').innerHTML='<div class="muted">Memuatkan…</div>';
     try{
       const l=await api('listLog',{q:$('#lgQ').value.trim(),tindakan:$('#lgT').value,limit:500});
+      if(!$('#lgTbl')) return;   // halaman telah ditukar semasa memuatkan
       $('#lgTbl').innerHTML = l.length?`<div class="muted" style="margin-bottom:6px">${l.length} entri terkini${l.length>=500?' (dihadkan 500)':''}</div><table class="tbl"><thead><tr><th>Masa</th><th>Pengguna</th><th>Tindakan</th><th>Butiran</th></tr></thead><tbody>
         ${l.map(x=>`<tr><td class="nowrap">${fmtD(x.Masa)}</td><td>${esc(x.Pengguna)}</td><td class="nowrap"><b>${esc(x.Tindakan)}</b></td><td style="word-break:break-word">${esc(x.Butiran)}</td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada entri.</div>';
-    }catch(e){ $('#lgTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+    }catch(e){ if($('#lgTbl')) $('#lgTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
   };
   $('#lgGo').onclick=load; $('#lgT').onchange=load; $('#lgQ').onkeydown=e=>{if(e.key==='Enter')load();};
   load();
