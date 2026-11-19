@@ -20,9 +20,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="icon" id="favicon" href="icon-192.png">
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style id="app-css">
 :root{
 --navy:#0b1d4d;--pri:#1d3f94;--pri2:#2a5bd7;--pri3:#5b84f1;--red:#e3222b;--yel:#f7c600;
@@ -55,6 +54,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .uinfo{text-align:right;font-size:12px;line-height:1.35}.uinfo b{font-size:13px;font-weight:700}
 .uinfo span{opacity:.85}
 .hd-jwt{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-weight:600}
+/* ---------- Rangka pemuatan ---------- */
+.sk{position:relative;overflow:hidden;background:rgba(255,255,255,.55)!important;border:1px solid var(--glass-bd)}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:shimmer 1.2s infinite}
+.sk.stat::before{display:none}
+@keyframes shimmer{to{transform:translateX(100%)}}
 /* ---------- Mod latihan, luar talian, Google ---------- */
 .lat{position:sticky;top:66px;z-index:18;text-align:center;padding:7px 12px;font-size:13px;color:#3b2f00;background:repeating-linear-gradient(135deg,#facc15 0 18px,#fde047 18px 36px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .lat button{margin-left:8px;border:0;border-radius:999px;padding:3px 10px;background:#3b2f00;color:#fde047;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
@@ -98,7 +102,7 @@ body.latihan .topbar{background:linear-gradient(120deg,rgba(92,64,0,.94),rgba(16
 .wel-btn{margin-top:22px;width:100%;justify-content:center;padding:13px 18px;font-size:15px;background:#fff!important;color:var(--pri)!important;box-shadow:0 10px 26px rgba(0,0,0,.25)!important}
 .wel-btn:focus{outline:none}.wel-btn:focus-visible{outline:3px solid rgba(255,255,255,.55);outline-offset:3px}
 .wel-bar{margin-top:20px;height:3px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
-.wel-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--yel),#fff);transform-origin:left;animation:welBar 4s linear forwards}
+.wel-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--yel),#fff);transform-origin:left;animation:welBar 3s linear forwards}
 @keyframes welBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 @media(max-width:600px){.wel-nama{font-size:23px}.wel-box{padding:28px 20px 22px}}
 .uinfo button,.instbtn{margin-top:4px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:600;transition:background .2s}
@@ -381,8 +385,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '7.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
-const BACKEND_VERSI = 7;
+const APP_VERSI = '8.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const BACKEND_VERSI = 8;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -419,6 +423,16 @@ const kesLabel = k => k.Kesalahan + (k.Butiran?' – '+k.Butiran:'');
 let busy=0;
 function loading(on){ busy=Math.max(0,busy+(on?1:-1)); $('#loader').classList.toggle('on',busy>0); }
 
+/* ---------- Pustaka Excel dimuat hanya apabila diperlukan ---------- */
+const XLSX_URL='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+let xlsxP=null;
+function needXLSX(){
+  if(window.XLSX) return Promise.resolve();
+  if(!xlsxP) xlsxP=new Promise((ok,ko)=>{ loading(true); const sc=document.createElement('script'); sc.src=XLSX_URL;
+    sc.onload=()=>{ loading(false); ok(); }; sc.onerror=()=>{ loading(false); xlsxP=null; ko(new Error('Pustaka Excel gagal dimuatkan. Semak sambungan internet.')); };
+    document.head.appendChild(sc); });
+  return xlsxP;
+}
 function toastAct(msg,btn,fn,ms){
   const t=document.createElement('div'); t.className='toast ok'; t.innerHTML=`<span>${esc(msg)}</span>`;
   const b=document.createElement('button'); b.className='tbtn'; b.textContent=btn; b.onclick=async()=>{ b.disabled=true; t.remove(); await fn(); };
@@ -499,6 +513,11 @@ function lvlBar(n){
 function skopText(){ return S.set.SkopKiraan==='SEMUA' ? 'secara terkumpul (keseluruhan)' : 'bagi setiap tahun kalendar (bermula semula setiap Januari)'; }
 
 /* ---------- Penjenamaan ---------- */
+/** Simpan logo dalam peranti; pelayan hanya menghantar logo apabila ia berubah. */
+function takeLogo(d){
+  if(d.logo!=null){ if(d.logoId){ LS.set('dm_logo',d.logo); LS.set('dm_logo_id',d.logoId); } else { LS.del('dm_logo'); LS.del('dm_logo_id'); } return d.logo; }
+  return d.logoId && LS.get('dm_logo_id')===d.logoId ? (LS.get('dm_logo')||'') : '';
+}
 function applyBrand(school, sys, logo){
   const src = logo || DEF_LOGO;
   ['#lgLogo','#hdLogo','#pwLogo'].forEach(s=>$(s).src=src);
@@ -803,13 +822,22 @@ function setupGoogle(clientId){
 
 async function init(){
   if(S.token){
+    // 1) Papar serta-merta dari data tersimpan  2) Kemas kini dari pelayan di latar belakang
+    if(bootCached()){
+      try{ await boot({silent:true}); }
+      catch(e){
+        if(e.offline){ S.offline=true; renderOffBar(); }
+        else if(e.code!=='AUTH' && e.code!=='PWCHANGE') toast(e.message,'err');
+      }
+      return;
+    }
     try{ await boot({welcome:true}); return; }
     catch(e){
       if(e.offline && LS.get('dm_boot')){ try{ S.offline=true; bootData(JSON.parse(LS.get('dm_boot')),{}); renderOffBar(); toast('Luar talian: memaparkan data terakhir yang disimpan.','err'); return; }catch(x){} }
-      if(e.code==='PWCHANGE'){ api('info').then(i=>{ applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); }).catch(()=>{}); return; } }
+      if(e.code==='PWCHANGE'){ api('info',{logoId:LS.get('dm_logo_id')||''}).then(i=>{ applyBrand(i.NamaSekolah,i.NamaSistem,takeLogo(i)); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); }).catch(()=>{}); return; } }
   }
   showLogin();
-  try{ const i=await api('info'); applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); setupGoogle(i.googleClientId); }
+  try{ const i=await api('info',{logoId:LS.get('dm_logo_id')||''}); applyBrand(i.NamaSekolah,i.NamaSistem,takeLogo(i)); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); setupGoogle(i.googleClientId); }
   catch(e){ $('#lgErr').textContent=e.message; applyBrand('','',''); }
 }
 function showOnly(id){ ['#login','#pwc','#app'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
@@ -847,7 +875,9 @@ function salamMasa(){
 }
 function jawatanUser(){ return S.user.Jawatan || roleName(S.user); }
 let welTimer=null, welClock=null;
+function welcomeDue(){ return LS.get('dm_wel_'+(S.token||'').slice(0,8))!==today(); }
 function showWelcome(){
+  LS.set('dm_wel_'+(S.token||'').slice(0,8),today());
   const w=$('#welcome'), sl=salamMasa();
   const bg=LS.get('dm_bg'), ov=Math.max(0,Math.min(90,+(LS.get('dm_bg_ov')||35)))/100;
   w.style.backgroundImage = bg ? `linear-gradient(160deg,rgba(11,29,77,${Math.max(ov,.45)}),rgba(29,63,148,${Math.max(ov-.1,.35)})), url("${bg}")` : '';
@@ -873,24 +903,40 @@ function showWelcome(){
     w.classList.add('out'); setTimeout(()=>w.classList.add('hidden'),430); document.removeEventListener('keydown',key); };
   const key=e=>{ if(e.key==='Enter'||e.key==='Escape') close(); };
   document.addEventListener('keydown',key);
-  clearTimeout(welTimer); welTimer=setTimeout(close,4000);
+  clearTimeout(welTimer); welTimer=setTimeout(close,3000);
 }
 async function boot(opt){
-  const d = await api('bootstrap');
+  opt=opt||{};
+  const d = await api('bootstrap',{dash:true,logoId:LS.get('dm_logo_id')||''});
   S.offline=false;
-  if(!d.latihan) LS.set('dm_boot',JSON.stringify(Object.assign({},d,{users:[]})));
-  bootData(d,opt||{});
+  d.logo=takeLogo(d);
+  if(!d.latihan) LS.set('dm_boot',JSON.stringify(Object.assign({},d,{users:[],logo:'',bootAt:Date.now()})));
+  if(d.dashboard) S.dashPre={d:d.dashboard,t:Date.now()};
+  bootData(d,opt);
   flushQueue();
 }
+/** Paparan segera: guna data tersimpan dalam peranti, kemudian kemas kini dari pelayan di latar belakang. */
+function bootCached(){
+  if(S.latihan || !S.token) return false;
+  let c; try{ c=JSON.parse(LS.get('dm_boot')||'null'); }catch(e){ c=null; }
+  if(!c || !c.user) return false;
+  c.logo=LS.get('dm_logo_id')===c.logoId ? (LS.get('dm_logo')||'') : '';
+  if(c.dashboard) S.dashPre={d:c.dashboard,t:Date.now(),cached:true};
+  bootData(c,{welcome:welcomeDue()});
+  return true;
+}
 function bootData(d,opt){
+  opt=opt||{};
   S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
   S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[]; S.menunggu=d.menunggu||0; S.kesKerap=d.kesKerap||[];
   document.body.classList.toggle('latihan',!!S.latihan); $('#latBar').classList.toggle('hidden',!S.latihan); renderOffBar(); lastAct=Date.now();
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
   $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=jawatanUser(); $('#hdRole').title=roleName(S.user);
   showOnly('#app');
-  renderNav(); go(S.view);
-  if(opt&&opt.welcome) showWelcome();
+  renderNav();
+  if(!opt.silent) go(S.view);
+  else if(S.view==='dashboard' && d.dashboard) renderDashboard(d.dashboard);   // segar semula papan pemuka sahaja; halaman lain tidak diganggu
+  if(opt.welcome) showWelcome();
   if((d.versi||1)<BACKEND_VERSI && isAdmin()) modal('⚠️ Backend Perlu Dikemas Kini',`<p>Frontend ini memerlukan <b>Code.gs Versi ${BACKEND_VERSI}</b>, tetapi Apps Script masih menjalankan versi ${d.versi||1}. Sesetengah fungsi (Tetapan, Tindakan, Laporan, Sandaran) tidak akan berfungsi.</p><ol><li>Ganti seluruh Code.gs dengan fail backend terkini dan simpan.</li><li>Jalankan fungsi <b>setup</b> sekali.</li><li>Deploy → Manage deployments → Edit → Version: <b>New version</b> → Deploy.</li></ol>`);
 }
 
@@ -930,8 +976,19 @@ function bars(list,empty){
   return list.map(x=>`<div style="margin:8px 0"><div class="sp"><span>${esc(x.label)}</span><b>${x.bil}</b></div><div class="bar"><i style="width:${(x.bil/max*100).toFixed(1)}%"></i></div></div>`).join('');
 }
 async function vDashboard(){
-  const v=$('#view'); v.innerHTML='<div class="card muted">Memuatkan…</div>';
+  const v=$('#view');
+  if(S.dashPre && Date.now()-S.dashPre.t<60000){ const p=S.dashPre; S.dashPre=null; renderDashboard(p.d); return; }   // data segar akan tiba melalui bootstrap
+  else v.innerHTML=skeleton();
   const d=await api('dashboard');
+  if(S.view!=='dashboard') return;
+  renderDashboard(d);
+}
+function skeleton(){
+  return `<div class="hero sk" style="height:86px"></div><div class="grid g6">${'<div class="stat sk" style="height:84px"></div>'.repeat(6)}</div>
+    <div class="grid g2"><div class="card sk" style="height:220px"></div><div class="card sk" style="height:220px"></div></div>`;
+}
+function renderDashboard(d){
+  const v=$('#view');
   if(d.tindakanBuka!=null) setOpenCount(d.tindakanBuka);
   if(d.moeisBelum!=null) setMoeisCount(d.moeisBelum);
   const sl=salamMasa(), salam=sl.t;
@@ -1195,7 +1252,8 @@ function editRecord(r, after){
     }}
   ]);
 }
-function exportRecs(){
+async function exportRecs(){
+  try{ await needXLSX(); }catch(e){ return toast(e.message,'err'); }
   if(!S.recs.length) return toast('Tiada rekod untuk dieksport.','err');
   const rows=S.recs.map(r=>({'Tarikh':fmtD(r.Tarikh),'Masa':r.Masa,'No. Pendaftaran':r.NoDaftar,'Nama Penuh':r.NamaPenuh,'Kelas':r.Kelas,
     'Kesalahan':r.Kesalahan,'Butiran':r.Butiran,'Catatan':r.Catatan,'Kesalahan Ke-':Number(r.Bilangan)||r.Bilangan,'Tahap':r.Tahap,
@@ -1623,8 +1681,9 @@ async function genReport(){
     $('#lXls').onclick=exportReport; $('#lPrt').onclick=printReport;
   }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
-function exportReport(){
+async function exportReport(){
   const d=S.rpt; if(!d) return;
+  try{ await needXLSX(); }catch(e){ return toast(e.message,'err'); }
   const wb=XLSX.utils.book_new();
   const ring=XLSX.utils.aoa_to_sheet([[d.sekolah],[d.tajuk],['Tempoh',fmtD(d.dari)+' – '+fmtD(d.hingga)],[],
     ['Jumlah kesalahan',d.jumlah],['Murid terlibat',d.muridUnik],['Ringan',d.tahap.Ringan],['Sederhana',d.tahap.Sederhana],['Berat',d.tahap.Berat],[],
@@ -1759,7 +1818,7 @@ function tUmum(){
     try{
       const url=await resizeImage(f,320);
       const r=await api('uploadLogo',{dataUrl:url});
-      S.logo=r.logo; $('#sLogo').src=S.logo||DEF_LOGO; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo); toast('Logo dikemas kini.','ok');
+      S.logo=r.logo; LS.del('dm_logo_id'); LS.del('dm_logo'); $('#sLogo').src=S.logo||DEF_LOGO; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo); toast('Logo dikemas kini.','ok');
     }catch(err){ toast(err.message,'err'); }
     e.target.value='';
   };
@@ -1785,7 +1844,7 @@ function tUmum(){
   };
   $('#sLogoDel').onclick=async()=>{
     if(!await ask('Buang logo sekolah?','Buang')) return;
-    try{ await api('removeLogo'); S.logo=''; $('#sLogo').src=DEF_LOGO; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,''); toast('Logo dibuang.','ok'); }
+    try{ await api('removeLogo'); S.logo=''; LS.del('dm_logo'); LS.del('dm_logo_id'); $('#sLogo').src=DEF_LOGO; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,''); toast('Logo dibuang.','ok'); }
     catch(e){ toast(e.message,'err'); }
   };
 }
@@ -1992,7 +2051,8 @@ function muridForm(m){
     }}
   ]);
 }
-function templateMurid(){
+async function templateMurid(){
+  try{ await needXLSX(); }catch(e){ return toast(e.message,'err'); }
   const aoa=[['No. Pendaftaran Murid','Nama Penuh','Kelas'],['12345','CONTOH NAMA MURID BIN ABDULLAH', S.kelas[0]||'1 Amanah']];
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   for(let r=2;r<=1500;r++){ const a='A'+r; if(!ws[a]) ws[a]={t:'s',v:''}; ws[a].z='@'; }
@@ -2016,7 +2076,7 @@ function pickFile(handler){
   fi.click();
 }
 async function readSheet(file){
-  if(typeof XLSX==='undefined') throw new Error('Pustaka Excel gagal dimuatkan. Semak sambungan internet.');
+  await needXLSX();
   const wb=XLSX.read(await file.arrayBuffer());
   return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''});
 }
@@ -2093,7 +2153,8 @@ function tUsers(role){
     if(!await ask(`Padam akaun <b>${esc(u.Nama)}</b> (${esc(u.Login)})?<br><span class="muted">Rekod yang telah dimasukkan oleh akaun ini kekal. Pertimbangkan "Tidak aktif" sebagai ganti.</span>`,'Padam')) return;
     try{ S.users=await api('deleteUser',{ID:u.ID}); toast('Akaun dipadam.','ok'); tUsers(role); }catch(e){ toast(e.message,'err'); }
   });
-  $('#uTpl').onclick=()=>{
+  $('#uTpl').onclick=async()=>{
+    try{ await needXLSX(); }catch(e){ return toast(e.message,'err'); }
     const jw=S.jawatan.filter(j=>j.Peranan===role).map(j=>j.Nama);
     const ws=XLSX.utils.aoa_to_sheet([['ID Log Masuk','Nama','Kata Laluan','Jawatan','Emel Google (pilihan)'],[isG?'cikgu.aminah':'p.ali2027',isG?'AMINAH BINTI ISMAIL':'ALI BIN AHMAD','sementara123',jw[jw.length-1]||'',isG?'aminah@moe-dl.edu.my':'']]);
     ws['!cols']=[{wch:24},{wch:40},{wch:18},{wch:30},{wch:32}];
