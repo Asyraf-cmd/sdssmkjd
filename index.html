@@ -53,7 +53,37 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .brand{flex:1;min-width:0}.brand b{display:block;font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand small{opacity:.8;font-size:12px;letter-spacing:.3px}
 .uinfo{text-align:right;font-size:12px;line-height:1.35}.uinfo b{font-size:13px;font-weight:700}
-.uinfo span{opacity:.8}
+.uinfo span{opacity:.85}
+.hd-jwt{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-weight:600}
+/* ---------- Halaman sambutan ---------- */
+.wel{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;color:#fff;overflow:hidden;
+ background:radial-gradient(700px 500px at 15% 10%,rgba(91,132,241,.55),transparent 60%),radial-gradient(520px 420px at 90% 20%,rgba(227,34,43,.32),transparent 60%),
+ radial-gradient(600px 460px at 75% 95%,rgba(247,198,0,.28),transparent 60%),linear-gradient(150deg,#0b1d4d,#1d3f94 60%,#14306f);background-size:cover;background-position:center;
+ animation:fade .35s ease}
+.wel.out{animation:welOut .45s ease forwards}
+@keyframes welOut{to{opacity:0;transform:scale(1.03)}}
+.wel-box{position:relative;width:100%;max-width:520px;text-align:center;padding:34px 28px 26px;border-radius:28px;
+ background:rgba(255,255,255,.12);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);
+ border:1px solid rgba(255,255,255,.28);box-shadow:0 30px 80px rgba(5,14,40,.45);animation:pop .5s ease}
+.wel-box::before{content:"";position:absolute;left:36px;right:36px;top:0;height:4px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,var(--pri3) 0 60%,var(--red) 60% 82%,var(--yel) 82%)}
+.wel-box img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35))}
+.wel-salam{margin:14px 0 2px;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.9}
+.wel-salam span{display:inline-block;font-size:22px;vertical-align:-3px;margin-right:6px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-4px)}}
+.wel-nama{font-size:28px;font-weight:800;line-height:1.2;margin:4px 0 10px;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.wel-jwt{display:inline-block;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--pri);font-weight:800;font-size:13.5px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.wel-sek{margin-top:14px;font-size:13px;opacity:.85;font-weight:600}
+.wel-masa{margin-top:16px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.wel-masa div{padding:8px 14px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:13px}
+.wel-masa b{font-size:18px;letter-spacing:1px}
+.wel-info{margin-top:12px;font-size:12.5px;opacity:.9}
+.wel-info span{display:inline-block;margin:3px 4px;padding:4px 10px;border-radius:999px;background:rgba(227,34,43,.35);border:1px solid rgba(255,255,255,.25)}
+.wel-btn{margin-top:22px;width:100%;justify-content:center;padding:13px 18px;font-size:15px;background:#fff!important;color:var(--pri)!important;box-shadow:0 10px 26px rgba(0,0,0,.25)!important}
+.wel-btn:focus{outline:none}.wel-btn:focus-visible{outline:3px solid rgba(255,255,255,.55);outline-offset:3px}
+.wel-bar{margin-top:20px;height:3px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
+.wel-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--yel),#fff);transform-origin:left;animation:welBar 4s linear forwards}
+@keyframes welBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media(max-width:600px){.wel-nama{font-size:23px}.wel-box{padding:28px 20px 22px}}
 .uinfo button,.instbtn{margin-top:4px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:600;transition:background .2s}
 .uinfo button:hover,.instbtn:hover{background:rgba(255,255,255,.26)}
 nav{display:flex;gap:4px;overflow-x:auto;padding:6px 10px calc(6px + env(safe-area-inset-bottom));position:fixed;left:0;right:0;bottom:0;z-index:30;scrollbar-width:none;justify-content:safe center;
@@ -237,7 +267,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
  .card,.stat,.tabs button{background:rgba(255,255,255,.95)}nav{background:rgba(255,255,255,.97)}.login-box{background:#fff}
 }
-@media(max-width:600px){.uinfo span{display:none}main{padding:12px 10px calc(96px + env(safe-area-inset-bottom))}nav button{min-width:68px;padding:6px 8px 5px}.stat .n{font-size:23px}.card{padding:15px}.hero{padding:16px}.hero h2{font-size:17px}}
+@media(max-width:600px){.hd-jwt{max-width:130px}.uinfo b{display:inline-block;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}main{padding:12px 10px calc(96px + env(safe-area-inset-bottom))}nav button{min-width:68px;padding:6px 8px 5px}.stat .n{font-size:23px}.card{padding:15px}.hero{padding:16px}.hero h2{font-size:17px}}
 @media print{
   body.pdoc>*:not(#printArea){display:none!important}
   body.pdoc #printArea{display:block}
@@ -292,12 +322,13 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
 </div>
 
 <!-- ========== APLIKASI ========== -->
+<div id="welcome" class="wel hidden"></div>
 <div id="app" class="hidden">
   <header class="topbar">
     <img id="hdLogo" alt="Logo">
     <div class="brand"><b id="hdSchool"></b><small id="hdSys"></small></div>
     <button class="instbtn hidden" id="btnInstall">📲 Pasang</button>
-    <div class="uinfo"><b id="hdUser"></b><br><span id="hdRole"></span><br><button id="btnOut">Log Keluar</button></div>
+    <div class="uinfo"><b id="hdUser"></b><br><span id="hdRole" class="hd-jwt"></span><br><button id="btnOut">Log Keluar</button></div>
   </header>
   <main id="view"></main>
   <nav id="nav"></nav>
@@ -327,7 +358,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '5.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '5.2';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 5;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -672,7 +703,7 @@ async function applyLoginBg(id, overlay){
 if(LS.get('dm_bg')) setLoginBg(LS.get('dm_bg'), LS.get('dm_bg_ov')||35);
 async function init(){
   if(S.token){
-    try{ await boot(); return; }
+    try{ await boot({welcome:true}); return; }
     catch(e){ if(e.code==='PWCHANGE'){ api('info').then(i=>{ applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); }).catch(()=>{}); return; } }
   }
   showLogin();
@@ -690,7 +721,7 @@ $('#lgForm').onsubmit = async e=>{
     const r = await api('login',{login:$('#lgUser').value,password:$('#lgPass').value});
     S.token=r.token; LS.set('dm_token',r.token);
     if(r.user.mustChange){ $('#pwOld').value=$('#lgPass').value; $('#lgPass').value=''; showPwChange(); $('#pwNew').focus(); return; }
-    $('#lgPass').value=''; S.view='dashboard'; await boot();
+    $('#lgPass').value=''; S.view='dashboard'; await boot({welcome:true});
   }catch(err){ $('#lgErr').textContent=err.message; }
   finally{ $('#lgBtn').disabled=false; }
 };
@@ -701,21 +732,55 @@ $('#pwForm').onsubmit = async e=>{
   try{
     await api('changePassword',{lama:$('#pwOld').value,baru:$('#pwNew').value});
     ['#pwOld','#pwNew','#pwNew2'].forEach(s=>$(s).value='');
-    toast('Kata laluan berjaya ditukar.','ok'); S.view='dashboard'; await boot();
+    toast('Kata laluan berjaya ditukar.','ok'); S.view='dashboard'; await boot({welcome:true});
   }catch(err){ $('#pwErr').textContent=err.message; }
   finally{ $('#pwBtn').disabled=false; }
 };
 $('#pwOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSession(); };
 $('#btnOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSession(); };
 
-async function boot(){
+function salamMasa(){
+  const j=new Date().getHours();
+  return j<12?{t:'Selamat Pagi',i:'☀️'}:j<19?{t:'Selamat Petang',i:'🌤️'}:{t:'Selamat Malam',i:'🌙'};
+}
+function jawatanUser(){ return S.user.Jawatan || roleName(S.user); }
+let welTimer=null, welClock=null;
+function showWelcome(){
+  const w=$('#welcome'), sl=salamMasa();
+  const bg=LS.get('dm_bg'), ov=Math.max(0,Math.min(90,+(LS.get('dm_bg_ov')||35)))/100;
+  w.style.backgroundImage = bg ? `linear-gradient(160deg,rgba(11,29,77,${Math.max(ov,.45)}),rgba(29,63,148,${Math.max(ov-.1,.35)})), url("${bg}")` : '';
+  const tkh=new Date().toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const info=[];
+  if(isGuru()&&S.tindakanBuka) info.push(`🛎️ ${S.tindakanBuka} tindakan susulan belum selesai`);
+  if(isGuru()&&S.moeisBelum) info.push(`🗂️ ${S.moeisBelum} kemasukan MOEIS belum dibuat`);
+  w.innerHTML=`<div class="wel-box">
+    <img src="${S.logo||DEF_LOGO}" alt="">
+    <div class="wel-salam"><span>${sl.i}</span>${sl.t}</div>
+    <div class="wel-nama">${esc(S.user.Nama)}</div>
+    <div class="wel-jwt">${esc(jawatanUser())}</div>
+    <div class="wel-sek">${esc(S.set.NamaSekolah||'')}<br><span style="opacity:.8;font-weight:500">${esc(S.set.NamaSistem||'Sistem Demerit Murid')}</span></div>
+    <div class="wel-masa"><div>📅 ${esc(tkh)}</div><div>🕒 <b id="welJam"></b></div></div>
+    ${info.length?`<div class="wel-info">${info.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}
+    <div class="wel-bar"><i></i></div>
+  </div>`;
+  const tick=()=>{ const e=$('#welJam'); if(e) e.textContent=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); };
+  tick(); clearInterval(welClock); welClock=setInterval(tick,1000);
+  w.classList.remove('hidden','out');
+  const close=()=>{ if(w.classList.contains('hidden')||w.classList.contains('out')) return; clearTimeout(welTimer); clearInterval(welClock);
+    w.classList.add('out'); setTimeout(()=>w.classList.add('hidden'),430); document.removeEventListener('keydown',key); };
+  const key=e=>{ if(e.key==='Enter'||e.key==='Escape') close(); };
+  document.addEventListener('keydown',key);
+  clearTimeout(welTimer); welTimer=setTimeout(close,4000);
+}
+async function boot(opt){
   const d = await api('bootstrap');
   S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
   S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[];
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
-  $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=roleName(S.user);
+  $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=jawatanUser(); $('#hdRole').title=roleName(S.user);
   showOnly('#app');
   renderNav(); go(S.view);
+  if(opt&&opt.welcome) showWelcome();
   if((d.versi||1)<BACKEND_VERSI && isAdmin()) modal('⚠️ Backend Perlu Dikemas Kini',`<p>Frontend ini memerlukan <b>Code.gs Versi ${BACKEND_VERSI}</b>, tetapi Apps Script masih menjalankan versi ${d.versi||1}. Sesetengah fungsi (Tetapan, Tindakan, Laporan, Sandaran) tidak akan berfungsi.</p><ol><li>Ganti seluruh Code.gs dengan fail backend terkini dan simpan.</li><li>Jalankan fungsi <b>setup</b> sekali.</li><li>Deploy → Manage deployments → Edit → Version: <b>New version</b> → Deploy.</li></ol>`);
 }
 
@@ -758,10 +823,10 @@ async function vDashboard(){
   const d=await api('dashboard');
   if(d.tindakanBuka!=null) setOpenCount(d.tindakanBuka);
   if(d.moeisBelum!=null) setMoeisCount(d.moeisBelum);
-  const jam=new Date().getHours(), salam=jam<12?'Selamat pagi':jam<15?'Selamat tengah hari':jam<19?'Selamat petang':'Selamat malam';
+  const sl=salamMasa(), salam=sl.t;
   const tkh=new Date().toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   v.innerHTML = `
-  <div class="hero"><h2>${salam}, ${esc(S.user.Nama)} 👋</h2><p>${esc(tkh)} · Skop kiraan: ${esc(d.skop)}${ownOnly()?' · rekod yang anda masukkan sahaja':''}</p></div>
+  <div class="hero"><h2>${sl.i} ${salam}, ${esc(S.user.Nama)}</h2><p>${esc(jawatanUser())} · ${esc(tkh)} · Skop kiraan: ${esc(d.skop)}${ownOnly()?' · rekod yang anda masukkan sahaja':''}</p></div>
   <div class="grid g6">
     ${stat('Jumlah rekod',d.jumlah)}${stat('Hari ini',d.hariIni)}${stat('Bulan ini',d.bulanIni)}
     ${stat('Rekod tahap Ringan',d.rekodTahap.Ringan,'ringan click','data-rt="Ringan"')}${stat('Rekod tahap Sederhana',d.rekodTahap.Sederhana,'sederhana click','data-rt="Sederhana"')}${stat('Rekod tahap Berat',d.rekodTahap.Berat,'berat click','data-rt="Berat"')}
