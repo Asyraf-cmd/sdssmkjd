@@ -2,96 +2,196 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sistem Demerit Murid</title>
 <!--
   =====================================================================
-   SISTEM DEMERIT MURID — FRONTEND
-   Pilihan A: tampal ke fail "Index.html" dalam projek Apps Script
-              (API_URL boleh dibiarkan kosong).
-   Pilihan B: hos sebagai index.html (cth. GitHub Pages) dan isi API_URL
-              dengan URL Web App yang berakhir /exec.
+   SISTEM DEMERIT MURID — FRONTEND · Versi 2
+   GitHub Pages: simpan sebagai index.html bersama manifest.json,
+   sw.js, icon-192.png dan icon-512.png dalam folder yang sama.
   =====================================================================
 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1d4d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Demerit">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" id="favicon" href="icon-192.png">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-:root{--pri:#1e3a8a;--pri2:#2563eb;--bg:#f1f5f9;--card:#fff;--txt:#0f172a;--mut:#64748b;--line:#e2e8f0;
---ringan:#16a34a;--sederhana:#ea580c;--berat:#dc2626;--r:12px}
+:root{
+--navy:#0b1d4d;--pri:#1d3f94;--pri2:#2a5bd7;--pri3:#5b84f1;--red:#e3222b;--yel:#f7c600;
+--txt:#0f1d3d;--mut:#5b6b8c;--line:rgba(29,63,148,.10);
+--glass:rgba(255,255,255,.68);--glass-hi:rgba(255,255,255,.86);--glass-bd:rgba(255,255,255,.75);
+--ringan:#16a34a;--sederhana:#ea7a0c;--berat:#e3222b;--r:18px;
+--sh:0 12px 32px rgba(11,29,77,.10),0 2px 6px rgba(11,29,77,.06);
+--blur:blur(20px) saturate(170%);
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:15px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt);font-size:15px;min-height:100vh;background:#e8eefc;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+ radial-gradient(900px 620px at -5% -10%,rgba(42,91,215,.42),transparent 60%),
+ radial-gradient(640px 480px at 105% 5%,rgba(227,34,43,.14),transparent 62%),
+ radial-gradient(760px 560px at 90% 105%,rgba(247,198,0,.18),transparent 60%),
+ radial-gradient(900px 700px at 5% 105%,rgba(29,63,148,.32),transparent 60%),
+ linear-gradient(160deg,#eef3ff 0%,#dde7fb 55%,#e9effd 100%)}
 .hidden{display:none!important}
-.topbar{background:var(--pri);color:#fff;display:flex;align-items:center;gap:12px;padding:10px 16px;position:sticky;top:0;z-index:20;height:64px}
-.topbar img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:8px;padding:2px}
-.brand{flex:1;min-width:0}.brand b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brand small{opacity:.85;font-size:12px}
-.uinfo{text-align:right;font-size:12px;line-height:1.3}.uinfo b{font-size:13px}
-.uinfo button{margin-top:3px;background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:6px;padding:3px 9px;cursor:pointer;font-size:12px}
-nav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:6px 10px;position:sticky;top:64px;z-index:19}
-nav button{border:0;background:none;padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;font:inherit;font-size:14px;color:var(--mut)}
-nav button.on{background:var(--pri);color:#fff}
-main{max-width:1150px;margin:0 auto;padding:16px}
-.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:16px}
-.card h3{margin:0 0 12px;font-size:16px}
-.grid{display:grid;gap:12px;margin-bottom:16px}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}.g6{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+::selection{background:rgba(42,91,215,.22)}
+
+/* ---------- Bar atas & navigasi ---------- */
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 18px;padding-top:max(10px,env(safe-area-inset-top));position:sticky;top:0;z-index:20;min-height:66px;color:#fff;
+ background:linear-gradient(120deg,rgba(11,29,77,.92),rgba(29,63,148,.86));-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+ box-shadow:0 8px 24px rgba(11,29,77,.25)}
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--pri2) 0 60%,var(--red) 60% 82%,var(--yel) 82%)}
+.topbar img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+.brand{flex:1;min-width:0}.brand b{display:block;font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{opacity:.8;font-size:12px;letter-spacing:.3px}
+.uinfo{text-align:right;font-size:12px;line-height:1.35}.uinfo b{font-size:13px;font-weight:700}
+.uinfo span{opacity:.8}
+.uinfo button,.instbtn{margin-top:4px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:600;transition:background .2s}
+.uinfo button:hover,.instbtn:hover{background:rgba(255,255,255,.26)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;position:sticky;top:66px;z-index:19;scrollbar-width:none;
+ background:rgba(255,255,255,.58);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--glass-bd);box-shadow:0 4px 16px rgba(11,29,77,.06)}
+nav::-webkit-scrollbar{display:none}
+nav button{border:0;background:none;padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;font:inherit;font-size:14px;font-weight:600;color:var(--mut);transition:all .2s}
+nav button:hover{background:rgba(42,91,215,.08);color:var(--pri)}
+nav button.on{background:linear-gradient(135deg,var(--pri2),var(--pri));color:#fff;box-shadow:0 6px 16px rgba(42,91,215,.35)}
+.dot{display:inline-block;min-width:19px;padding:0 6px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:700;margin-left:6px;text-align:center;line-height:18px;box-shadow:0 2px 6px rgba(227,34,43,.4)}
+main{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+
+/* ---------- Kad kaca ---------- */
+.card{background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--glass-bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:16px}
+.card h3{margin:0 0 14px;font-size:16px;font-weight:700;color:var(--navy);letter-spacing:.1px}
+.grid{display:grid;gap:14px;margin-bottom:16px}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}.g6{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .grid>.card{margin-bottom:0}
-.stat{background:#fff;border-radius:var(--r);padding:14px;border-left:5px solid var(--pri2);box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.stat .n{font-size:28px;font-weight:700}.stat .l{color:var(--mut);font-size:13px}
-.stat.ringan{border-color:var(--ringan)}.stat.sederhana{border-color:var(--sederhana)}.stat.berat{border-color:var(--berat)}
-label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px;color:#334155}
-input,select,textarea{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;background:#fff;color:inherit}
-input:focus,select:focus,textarea:focus{outline:2px solid #93c5fd;border-color:var(--pri2)}
-textarea{min-height:70px;resize:vertical}
-input[type=checkbox]{width:auto}
-.btn{border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer;background:var(--pri2);color:#fff;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn.sec{background:#e2e8f0;color:var(--txt)}.btn.red{background:var(--berat)}.btn.grn{background:var(--ringan)}
-.btn.sm{padding:5px 10px;font-size:13px}.btn:disabled{opacity:.5;cursor:not-allowed}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:150px}.row>.btn{flex:0 0 auto}
+.hero{position:relative;overflow:hidden;border-radius:var(--r);padding:20px 22px;margin-bottom:16px;color:#fff;
+ background:linear-gradient(125deg,var(--navy) 0%,var(--pri) 55%,var(--pri2) 100%);box-shadow:0 14px 34px rgba(29,63,148,.30)}
+.hero::before{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(247,198,0,.35),transparent 65%)}
+.hero::after{content:"";position:absolute;right:120px;bottom:-110px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(227,34,43,.30),transparent 65%)}
+.hero h2{margin:0;font-size:20px;font-weight:800;position:relative}.hero p{margin:4px 0 0;opacity:.85;font-size:13px;position:relative}
+.stat{position:relative;overflow:hidden;background:var(--glass-hi);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--glass-bd);border-radius:16px;padding:14px 16px;box-shadow:var(--sh)}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--pri3),var(--pri))}
+.stat .n{font-size:28px;font-weight:800;letter-spacing:-.5px;color:var(--navy)}
+.stat .l{color:var(--mut);font-size:12.5px;font-weight:600}
+.stat.ringan::before{background:linear-gradient(180deg,#4ade80,var(--ringan))}.stat.ringan .n{color:var(--ringan)}
+.stat.sederhana::before{background:linear-gradient(180deg,#fdba74,var(--sederhana))}.stat.sederhana .n{color:var(--sederhana)}
+.stat.berat::before{background:linear-gradient(180deg,#fb7185,var(--berat))}.stat.berat .n{color:var(--berat)}
+.stat.amber::before{background:linear-gradient(180deg,#fde047,#eab308)}.stat.amber .n{color:#a16207}
+.stat.click{cursor:pointer;transition:transform .2s}.stat.click:hover{transform:translateY(-2px)}
+
+/* ---------- Borang ---------- */
+label{display:block;font-size:12.5px;font-weight:700;margin:12px 0 5px;color:#30406a;letter-spacing:.2px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid rgba(29,63,148,.16);border-radius:12px;font:inherit;background:rgba(255,255,255,.88);color:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri2);box-shadow:0 0 0 4px rgba(42,91,215,.16);background:#fff}
+input:disabled{background:rgba(241,245,255,.8);color:var(--mut)}
+textarea{min-height:76px;resize:vertical}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
+.btn{border:0;border-radius:12px;padding:10px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;color:#fff;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none;
+ background:linear-gradient(135deg,var(--pri2),var(--pri));box-shadow:0 6px 16px rgba(42,91,215,.28);transition:transform .15s,box-shadow .2s,filter .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(42,91,215,.34)}
+.btn:active{transform:translateY(0)}
+.btn.sec{background:rgba(255,255,255,.85);color:var(--pri);border:1px solid rgba(29,63,148,.16);box-shadow:0 2px 8px rgba(11,29,77,.06)}
+.btn.red{background:linear-gradient(135deg,#f0454d,var(--red));box-shadow:0 6px 16px rgba(227,34,43,.28)}
+.btn.grn{background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 6px 16px rgba(22,163,74,.26)}
+.btn.amb{background:linear-gradient(135deg,#facc15,#eab308);color:#3b2f00;box-shadow:0 6px 16px rgba(234,179,8,.30)}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:150px}.row>.btn{flex:0 0 auto}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.tw{overflow-x:auto}
-.tbl{width:100%;border-collapse:collapse;font-size:14px}
-.tbl th,.tbl td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-.tbl th{background:#f8fafc;font-size:12px;text-transform:uppercase;color:var(--mut);white-space:nowrap}
-.tbl td input,.tbl td select{padding:6px 8px}
-.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
-.b-Ringan{background:var(--ringan)}.b-Sederhana{background:var(--sederhana)}.b-Berat{background:var(--berat)}.b-none{background:#94a3b8}
-.b-on{background:#0ea5e9}.b-off{background:#94a3b8}
+
+/* ---------- Jadual & lencana ---------- */
+.tw{overflow-x:auto;border-radius:12px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.tbl th,.tbl td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{background:rgba(29,63,148,.06);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--pri);font-weight:700;white-space:nowrap}
+.tbl th:first-child{border-top-left-radius:10px}.tbl th:last-child{border-top-right-radius:10px}
+.tbl tbody tr{transition:background .15s}.tbl tbody tr:hover{background:rgba(42,91,215,.05)}
+.tbl td input,.tbl td select{padding:7px 9px}
+.tbl a{color:var(--pri2);font-weight:600;text-decoration:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:.2px}
+.b-Ringan{background:linear-gradient(135deg,#22c55e,#16a34a)}.b-Sederhana{background:linear-gradient(135deg,#fb923c,#ea7a0c)}.b-Berat{background:linear-gradient(135deg,#f0454d,#e3222b)}
+.b-none{background:#94a3b8}.b-on{background:linear-gradient(135deg,var(--pri3),var(--pri2))}.b-off{background:#94a3b8}
+.b-BELUM{background:linear-gradient(135deg,#f0454d,#e3222b)}.b-PROSES{background:linear-gradient(135deg,#facc15,#eab308);color:#3b2f00}.b-SELESAI{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.b-arkib{background:#64748b}
+
+/* ---------- Pemilih murid ---------- */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px;font-size:13px;display:flex;gap:10px;align-items:flex-start;max-width:100%}
-.chip button{border:0;background:none;color:var(--berat);font-size:20px;cursor:pointer;line-height:1;padding:0}
-.pick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px}
-.pick div{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
-.pick div:hover{background:#eff6ff}.pick div.sel{background:#dcfce7}
+.chip{background:rgba(42,91,215,.08);border:1px solid rgba(42,91,215,.22);border-radius:14px;padding:9px 12px;font-size:13px;display:flex;gap:10px;align-items:flex-start;max-width:100%}
+.chip button{border:0;background:none;color:var(--red);font-size:20px;cursor:pointer;line-height:1;padding:0}
+.pick{max-height:270px;overflow:auto;border:1px solid rgba(29,63,148,.14);border-radius:14px;margin-top:8px;background:rgba(255,255,255,.7)}
+.pick div{padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;transition:background .15s}
+.pick div:hover{background:rgba(42,91,215,.07)}.pick div.sel{background:rgba(22,163,74,.12)}
 .pick .em{cursor:default;color:var(--mut)}.pick .em:hover{background:none}
 .muted{color:var(--mut);font-size:13px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.tabs button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font:inherit;font-size:14px}
-.tabs button.on{background:var(--pri);border-color:var(--pri);color:#fff}
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1e3a8a,#2563eb)}
-.login-box{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25)}
-.login-box img{width:96px;height:96px;object-fit:contain}
-.login-box h2{margin:10px 0 2px;font-size:18px}.login-box form{text-align:left;margin-top:14px}
-.err{color:var(--berat);font-size:13px;min-height:18px;margin-top:8px}
-.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
-.modal-box{background:#fff;border-radius:14px;width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column}
-.modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
-.modal-head h3{margin:0;font-size:16px}.modal-head button{border:0;background:none;font-size:24px;cursor:pointer;line-height:1}
-.modal-body{padding:16px;overflow:auto}
-.modal-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
-.toast{background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-.toast.err{background:var(--berat)}.toast.ok{background:var(--ringan)}
-#loader{position:fixed;top:0;left:0;height:3px;background:#f59e0b;width:0;z-index:70;transition:width .4s}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tabs button{border:1px solid var(--glass-bd);background:rgba(255,255,255,.6);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-radius:12px;padding:9px 15px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;color:#30406a;transition:all .2s}
+.tabs button:hover{background:rgba(255,255,255,.85)}
+.tabs button.on{background:linear-gradient(135deg,var(--pri2),var(--pri));border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(42,91,215,.3)}
+
+/* ---------- Log masuk ---------- */
+.login-wrap{position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:radial-gradient(700px 500px at 15% 10%,rgba(91,132,241,.55),transparent 60%),radial-gradient(520px 420px at 90% 20%,rgba(227,34,43,.35),transparent 60%),
+ radial-gradient(600px 460px at 75% 95%,rgba(247,198,0,.30),transparent 60%),linear-gradient(150deg,#0b1d4d,#1d3f94 60%,#14306f)}
+.login-box{position:relative;background:rgba(255,255,255,.80);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,.6);
+ border-radius:24px;padding:30px 28px;width:100%;max-width:410px;text-align:center;box-shadow:0 30px 70px rgba(5,14,40,.45)}
+.login-box::before{content:"";position:absolute;left:28px;right:28px;top:0;height:4px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,var(--pri2) 0 60%,var(--red) 60% 82%,var(--yel) 82%)}
+.login-box img{width:104px;height:104px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(11,29,77,.25))}
+.login-box h2{margin:12px 0 2px;font-size:19px;font-weight:800;color:var(--navy)}.login-box form{text-align:left;margin-top:16px}
+.login-box .btn{padding:12px 16px;font-size:15px}
+.err{color:var(--red);font-size:13px;min-height:18px;margin-top:8px;font-weight:600}
+
+/* ---------- Modal, toast, pemuat ---------- */
+.modal{position:fixed;inset:0;background:rgba(11,29,77,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;animation:fade .18s}
+.modal-box{background:rgba(255,255,255,.92);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--glass-bd);border-radius:22px;width:100%;max-width:660px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(11,29,77,.35);animation:pop .22s}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font-size:16px;font-weight:800;color:var(--navy)}
+.modal-head button{border:0;background:rgba(29,63,148,.08);width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;line-height:1;color:var(--pri)}
+.modal-body{padding:18px 20px;overflow:auto}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
+.toast{background:rgba(11,29,77,.88);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 12px 28px rgba(11,29,77,.3);animation:pop .2s}
+.toast.err{background:rgba(227,34,43,.92)}.toast.ok{background:rgba(22,163,74,.92)}
+#loader{position:fixed;top:0;left:0;height:3px;width:0;z-index:70;transition:width .4s;background:linear-gradient(90deg,var(--pri2),var(--red),var(--yel))}
 #loader.on{width:85%}
-.lvl{display:flex;gap:4px;margin:8px 0 4px}.lvl span{flex:1;height:12px;border-radius:3px;background:#e2e8f0}
-.bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pri2)}
+
+/* ---------- Komponen lain ---------- */
+.lvl{display:flex;gap:4px;margin:10px 0 6px}.lvl span{flex:1;height:12px;border-radius:4px;background:rgba(29,63,148,.10)}
+.bar{height:8px;background:rgba(29,63,148,.10);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--pri3),var(--pri))}
 .sp{display:flex;justify-content:space-between;gap:8px;font-size:14px}
-.info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;font-size:13px;color:#1e3a8a}
-.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
-.logo-prev{width:110px;height:110px;object-fit:contain;border:1px dashed #cbd5e1;border-radius:10px;padding:6px;background:#fff}
+.sp+.bar{margin-top:6px}
+.info{background:rgba(42,91,215,.08);border:1px solid rgba(42,91,215,.20);border-radius:14px;padding:11px 14px;font-size:13px;color:var(--pri)}
+.card.info{background:rgba(232,239,255,.75)}
+.warn{background:rgba(247,198,0,.14);border:1px solid rgba(234,179,8,.45);color:#7a5a00}
+.logo-prev{width:110px;height:110px;object-fit:contain;border:1px dashed rgba(29,63,148,.3);border-radius:16px;padding:8px;background:rgba(255,255,255,.7)}
 .right{text-align:right}.nowrap{white-space:nowrap}
-@media(max-width:600px){.uinfo span{display:none}main{padding:10px}.stat .n{font-size:22px}}
-@media print{.topbar,nav,.toolbar,.noprint,#toast{display:none!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ddd}main{max-width:none;padding:0}}
+.vchart{display:flex;align-items:flex-end;gap:3px;height:180px;border-bottom:1px solid var(--line);padding-top:18px}
+.vchart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.vchart i{display:block;width:100%;max-width:34px;background:linear-gradient(180deg,var(--pri3),var(--pri));border-radius:6px 6px 0 0;min-height:1px}
+.vchart b{font-size:10px;color:var(--mut);font-weight:700}
+.vlabels{display:flex;gap:3px;margin-top:4px}.vlabels span{flex:1;text-align:center;font-size:10px;color:var(--mut);overflow:hidden;white-space:nowrap;min-width:0}
+.rpt-head{display:flex;gap:14px;align-items:center;border-bottom:3px solid var(--pri);padding-bottom:12px;margin-bottom:14px}
+.rpt-head img{width:66px;height:66px;object-fit:contain}
+.print-only{display:none}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ .card,.stat,.tabs button{background:rgba(255,255,255,.95)}nav{background:rgba(255,255,255,.97)}.login-box{background:#fff}
+}
+@media(max-width:600px){.uinfo span{display:none}main{padding:12px 10px 32px}.stat .n{font-size:23px}.card{padding:15px}.hero{padding:16px}.hero h2{font-size:17px}}
+@media print{
+  .topbar,nav,.toolbar,.noprint,#toast,#loader{display:none!important}
+  body{background:#fff;font-size:12px}body::before{display:none}
+  .card,.stat{box-shadow:none;border:1px solid #ccd5e8;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;break-inside:avoid}
+  main{max-width:none;padding:0}.print-only{display:block}
+  .badge,.bar i,.vchart i,.stat::before,.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -106,11 +206,31 @@ input[type=checkbox]{width:auto}
     <div class="muted" id="lgSys">Sistem Demerit Murid</div>
     <form id="lgForm">
       <label>ID Log Masuk</label>
-      <input id="lgUser" autocomplete="username" required>
+      <input id="lgUser" autocomplete="username" autocapitalize="none" required>
       <label>Kata Laluan</label>
       <input id="lgPass" type="password" autocomplete="current-password" required>
       <button class="btn" style="width:100%;justify-content:center;margin-top:16px" id="lgBtn">Log Masuk</button>
       <div class="err" id="lgErr"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== WAJIB TUKAR KATA LALUAN ========== -->
+<div id="pwc" class="login-wrap hidden">
+  <div class="login-box">
+    <img id="pwLogo" alt="Logo">
+    <h2>Tukar Kata Laluan</h2>
+    <div class="muted">Untuk keselamatan, sila tetapkan kata laluan baharu sebelum menggunakan sistem.</div>
+    <form id="pwForm">
+      <label>Kata laluan semasa / sementara</label>
+      <input id="pwOld" type="password" autocomplete="current-password" required>
+      <label>Kata laluan baharu (min. 6 aksara)</label>
+      <input id="pwNew" type="password" autocomplete="new-password" required>
+      <label>Sahkan kata laluan baharu</label>
+      <input id="pwNew2" type="password" autocomplete="new-password" required>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:16px" id="pwBtn">Simpan & Teruskan</button>
+      <button type="button" class="btn sec" style="width:100%;justify-content:center;margin-top:8px" id="pwOut">Log Keluar</button>
+      <div class="err" id="pwErr"></div>
     </form>
   </div>
 </div>
@@ -120,6 +240,7 @@ input[type=checkbox]{width:auto}
   <header class="topbar">
     <img id="hdLogo" alt="Logo">
     <div class="brand"><b id="hdSchool"></b><small id="hdSys"></small></div>
+    <button class="instbtn hidden" id="btnInstall">📲 Pasang</button>
     <div class="uinfo"><b id="hdUser"></b><br><span id="hdRole"></span><br><button id="btnOut">Log Keluar</button></div>
   </header>
   <nav id="nav"></nav>
@@ -142,6 +263,7 @@ input[type=checkbox]{width:auto}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
+const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
    KEADAAN & UTILITI
@@ -151,22 +273,28 @@ const LS = {
   set(k,v){try{localStorage.setItem(k,v)}catch(e){}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
-const S = {token:LS.get('dm_token')||'', user:null, set:{}, logo:'', kelas:[], murid:[], kes:[], users:[],
-  view:'dashboard', tab:'umum', pick:[], recs:[]};
+const S = {token:LS.get('dm_token')||'', user:null, set:{}, logo:'', kelas:[], murid:[], muridArkib:[], kes:[], users:[],
+  tindakanBuka:0, tahunArkib:[], view:'dashboard', tab:'umum', pick:[], recs:[], rpt:null};
 const $ = s => document.querySelector(s);
 const esc = v => String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const DEF_LOGO = 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 4 8 12v18c0 15 10 26 24 30 14-4 24-15 24-30V12z" fill="#1e3a8a"/><path d="M22 32l7 7 13-14" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+const SVG_LOGO = 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 4 8 12v18c0 15 10 26 24 30 14-4 24-15 24-30V12z" fill="#1d3f94"/><path d="M22 32l7 7 13-14" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+const DEF_LOGO = IN_GAS ? SVG_LOGO : 'logo.png';
+const BULAN = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+const BULAN_PENUH = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const STATUS = {BELUM:'Belum diambil tindakan',PROSES:'Dalam proses',SELESAI:'Selesai'};
 
 function localISO(){ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString(); }
 const today = () => localISO().slice(0,10);
 const nowHM = () => localISO().slice(11,16);
-const fmtD = s => s && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4) : (s||'');
+const fmtD = s => s && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4)+(s.length>10?s.slice(10,16):'') : (s||'');
 const isAdmin = () => S.user && S.user.Pentadbir;
 const isGuru = () => S.user && S.user.Peranan==='GURU';
+const ownOnly = () => S.user && S.user.Peranan==='PENGAWAS' && S.set.PengawasLihat!=='SEMUA';
 const kelasSort = (a,b) => String(a).localeCompare(String(b),'ms',{numeric:true});
-const muridByNo = no => S.murid.find(m=>m.NoDaftar===no);
+const muridByNo = no => S.murid.find(m=>m.NoDaftar===no) || S.muridArkib.find(m=>m.NoDaftar===no);
 const roleName = u => u.Peranan==='GURU' ? (u.Pentadbir===true||u.Pentadbir==='YA' ? 'Guru (Pentadbir)' : 'Guru') : 'Pengawas';
 const optKelas = (sel,first) => (first!==undefined?`<option value="">${esc(first)}</option>`:'') + S.kelas.map(k=>`<option ${k===sel?'selected':''}>${esc(k)}</option>`).join('');
+const kesLabel = k => k.Kesalahan + (k.Butiran?' – '+k.Butiran:'');
 
 let busy=0;
 function loading(on){ busy=Math.max(0,busy+(on?1:-1)); $('#loader').classList.toggle('on',busy>0); }
@@ -181,18 +309,21 @@ async function api(action,data){
   loading(true);
   try{
     let res;
-    if(window.google && google.script && google.script.run){
+    if(IN_GAS){
       const txt = await new Promise((ok,ko)=>google.script.run.withSuccessHandler(ok).withFailureHandler(ko).api(JSON.stringify(payload)));
       res = JSON.parse(txt);
     }else{
       if(!API_URL) throw new Error('API_URL belum ditetapkan dalam fail frontend.');
-      const r = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      let r;
+      try{ r = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }
+      catch(e){ throw new Error(navigator.onLine===false?'Tiada sambungan internet.':'Gagal menghubungi pelayan. Cuba lagi.'); }
       res = await r.json();
     }
     if(!res.ok){ const e=new Error(res.error||'Ralat tidak diketahui.'); e.code=res.code; throw e; }
     return res.data;
   }catch(e){
-    if(e.code==='AUTH' && action!=='login'){ endSession(); }
+    if(e.code==='AUTH' && action!=='login') endSession();
+    if(e.code==='PWCHANGE') showPwChange();
     throw e;
   }finally{ loading(false); }
 }
@@ -201,6 +332,7 @@ async function api(action,data){
 function modal(title, body, buttons){
   $('#mTitle').textContent=title; $('#mBody').innerHTML=body;
   const f=$('#mFoot'); f.innerHTML='';
+  $('#mX').onclick=closeModal;
   (buttons||[{t:'Tutup',cls:'sec'}]).forEach(b=>{
     const el=document.createElement('button'); el.className='btn '+(b.cls||''); el.textContent=b.t;
     el.onclick=async()=>{
@@ -216,14 +348,13 @@ function modal(title, body, buttons){
   $('#modal').classList.remove('hidden');
 }
 function closeModal(){ $('#modal').classList.add('hidden'); $('#mBody').innerHTML=''; }
-$('#mX').onclick=closeModal;
 function ask(msg, okText, cls){
   return new Promise(res=>{
     modal('Pengesahan', `<p>${msg}</p>`, [
       {t:'Batal',cls:'sec',fn:()=>{res(false);}},
       {t:okText||'Ya',cls:cls||'red',fn:()=>{res(true);}}
     ]);
-    $('#mX').onclick=()=>{res(false);closeModal();$('#mX').onclick=closeModal;};
+    $('#mX').onclick=()=>{res(false);closeModal();};
   });
 }
 
@@ -231,6 +362,7 @@ function ask(msg, okText, cls){
 function had(){ return {a:Math.max(1,+S.set.HadRingan||3), b:Math.max(1,+S.set.HadSederhana||3)}; }
 function tahapOf(n){ const {a,b}=had(); if(n<=0) return ''; return n<=a?'Ringan':(n<=a+b?'Sederhana':'Berat'); }
 function badge(t){ return t?`<span class="badge b-${esc(t)}">${esc(t)}</span>`:'<span class="badge b-none">Tiada</span>'; }
+function sBadge(st){ return `<span class="badge b-${esc(st)}">${esc(STATUS[st]||st)}</span>`; }
 function lvlBar(n){
   const {a,b}=had(); let h='<div class="lvl">';
   for(let i=0;i<a;i++) h+=`<span style="${i<n?'background:var(--ringan)':''}"></span>`;
@@ -243,7 +375,8 @@ function skopText(){ return S.set.SkopKiraan==='SEMUA' ? 'secara terkumpul (kese
 /* ---------- Penjenamaan ---------- */
 function applyBrand(school, sys, logo){
   const src = logo || DEF_LOGO;
-  ['#lgLogo','#hdLogo'].forEach(s=>$(s).src=src);
+  ['#lgLogo','#hdLogo','#pwLogo'].forEach(s=>$(s).src=src);
+  if(logo) $('#favicon').href=logo;
   $('#lgSchool').textContent = school || 'Sistem Demerit';
   $('#hdSchool').textContent = school || '';
   $('#lgSys').textContent = $('#hdSys').textContent = sys || 'Sistem Demerit Murid';
@@ -251,34 +384,64 @@ function applyBrand(school, sys, logo){
 }
 
 /* =====================================================================
-   PERMULAAN & LOG MASUK
+   PWA
+   ===================================================================== */
+let installEvt=null;
+if(!IN_GAS && 'serviceWorker' in navigator && location.protocol==='https:'){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; $('#btnInstall').classList.remove('hidden'); });
+window.addEventListener('appinstalled',()=>{ installEvt=null; $('#btnInstall').classList.add('hidden'); toast('Aplikasi berjaya dipasang.','ok'); });
+$('#btnInstall').onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt=null; $('#btnInstall').classList.add('hidden'); };
+
+/* =====================================================================
+   PERMULAAN, LOG MASUK & TUKAR KATA LALUAN
    ===================================================================== */
 async function init(){
-  if(S.token){ try{ await boot(); return; }catch(e){} }
+  if(S.token){
+    try{ await boot(); return; }
+    catch(e){ if(e.code==='PWCHANGE'){ api('info').then(i=>applyBrand(i.NamaSekolah,i.NamaSistem,i.logo)).catch(()=>{}); return; } }
+  }
   showLogin();
   try{ const i=await api('info'); applyBrand(i.NamaSekolah,i.NamaSistem,i.logo); }
   catch(e){ $('#lgErr').textContent=e.message; applyBrand('','',''); }
 }
-function showLogin(){ $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); }
-function endSession(){ S.token=''; S.user=null; LS.del('dm_token'); showLogin(); }
+function showOnly(id){ ['#login','#pwc','#app'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
+function showLogin(){ showOnly('#login'); }
+function showPwChange(){ showOnly('#pwc'); $('#pwErr').textContent=''; setTimeout(()=>$('#pwOld').focus(),50); }
+function endSession(){ S.token=''; S.user=null; LS.del('dm_token'); closeModal(); showLogin(); }
 
 $('#lgForm').onsubmit = async e=>{
   e.preventDefault(); $('#lgErr').textContent=''; $('#lgBtn').disabled=true;
   try{
     const r = await api('login',{login:$('#lgUser').value,password:$('#lgPass').value});
-    S.token=r.token; LS.set('dm_token',r.token); $('#lgPass').value='';
-    S.view='dashboard'; await boot();
+    S.token=r.token; LS.set('dm_token',r.token);
+    if(r.user.mustChange){ $('#pwOld').value=$('#lgPass').value; $('#lgPass').value=''; showPwChange(); $('#pwNew').focus(); return; }
+    $('#lgPass').value=''; S.view='dashboard'; await boot();
   }catch(err){ $('#lgErr').textContent=err.message; }
   finally{ $('#lgBtn').disabled=false; }
 };
+$('#pwForm').onsubmit = async e=>{
+  e.preventDefault(); $('#pwErr').textContent='';
+  if($('#pwNew').value!==$('#pwNew2').value){ $('#pwErr').textContent='Pengesahan kata laluan tidak sepadan.'; return; }
+  $('#pwBtn').disabled=true;
+  try{
+    await api('changePassword',{lama:$('#pwOld').value,baru:$('#pwNew').value});
+    ['#pwOld','#pwNew','#pwNew2'].forEach(s=>$(s).value='');
+    toast('Kata laluan berjaya ditukar.','ok'); S.view='dashboard'; await boot();
+  }catch(err){ $('#pwErr').textContent=err.message; }
+  finally{ $('#pwBtn').disabled=false; }
+};
+$('#pwOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSession(); };
 $('#btnOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSession(); };
 
 async function boot(){
   const d = await api('bootstrap');
-  S.user=d.user; S.set=d.settings; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.kes=d.kesalahan; S.users=d.users||[];
+  S.user=d.user; S.set=d.settings; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
+  S.kes=d.kesalahan; S.users=d.users||[]; S.tindakanBuka=d.tindakanBuka||0; S.tahunArkib=d.tahunArkib||[];
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
   $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=roleName(S.user);
-  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  showOnly('#app');
   renderNav(); go(S.view);
 }
 
@@ -289,42 +452,47 @@ function navItems(){
   const it=[['dashboard','📊 Papan Pemuka']];
   if(isGuru() || S.set.PengawasRekod==='YA') it.push(['rekod','✍️ Rekod Kesalahan']);
   it.push(['senarai','📋 Senarai Rekod'],['profil','👤 Profil Murid']);
+  if(isGuru()) it.push(['tindakan','🛎️ Tindakan'],['laporan','📑 Laporan']);
   if(isAdmin()) it.push(['tetapan','⚙️ Tetapan']);
   it.push(['akaun','🔑 Akaun Saya']);
   return it;
 }
 function renderNav(){
-  $('#nav').innerHTML = navItems().map(([k,t])=>`<button data-v="${k}" class="${S.view===k?'on':''}">${t}</button>`).join('');
+  $('#nav').innerHTML = navItems().map(([k,t])=>`<button data-v="${k}" class="${S.view===k?'on':''}">${t}${k==='tindakan'&&S.tindakanBuka?`<span class="dot">${S.tindakanBuka}</span>`:''}</button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 }
+function setOpenCount(n){ S.tindakanBuka=n; renderNav(); }
 async function go(v){
   if(!navItems().some(x=>x[0]===v)) v='dashboard';
   S.view=v; renderNav(); window.scrollTo(0,0);
-  const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tetapan:vTetapan,akaun:vAkaun}[v];
+  const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun}[v];
   try{ await fn(); }catch(e){ $('#view').innerHTML=`<div class="card"><div class="err">${esc(e.message)}</div></div>`; }
 }
 
 /* =====================================================================
    PAPAN PEMUKA
    ===================================================================== */
-function stat(l,n,cls){ return `<div class="stat ${cls||''}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`; }
+function stat(l,n,cls,attr){ return `<div class="stat ${cls||''}" ${attr||''}><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`; }
 function bars(list,empty){
   if(!list.length) return `<div class="muted">${empty||'Tiada data.'}</div>`;
-  const max=Math.max(...list.map(x=>x.bil));
+  const max=Math.max(...list.map(x=>x.bil))||1;
   return list.map(x=>`<div style="margin:8px 0"><div class="sp"><span>${esc(x.label)}</span><b>${x.bil}</b></div><div class="bar"><i style="width:${(x.bil/max*100).toFixed(1)}%"></i></div></div>`).join('');
 }
 async function vDashboard(){
   const v=$('#view'); v.innerHTML='<div class="card muted">Memuatkan…</div>';
   const d=await api('dashboard');
-  const own = S.user.Peranan==='PENGAWAS' && S.set.PengawasLihat!=='SEMUA';
+  if(d.tindakanBuka!=null) setOpenCount(d.tindakanBuka);
+  const jam=new Date().getHours(), salam=jam<12?'Selamat pagi':jam<15?'Selamat tengah hari':jam<19?'Selamat petang':'Selamat malam';
+  const tkh=new Date().toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   v.innerHTML = `
-  <div class="muted" style="margin-bottom:10px">Skop: <b>${esc(d.skop)}</b>${own?' · rekod yang anda masukkan sahaja':''}</div>
+  <div class="hero"><h2>${salam}, ${esc(S.user.Nama)} 👋</h2><p>${esc(tkh)} · Skop kiraan: ${esc(d.skop)}${ownOnly()?' · rekod yang anda masukkan sahaja':''}</p></div>
   <div class="grid g6">
     ${stat('Jumlah rekod',d.jumlah)}${stat('Hari ini',d.hariIni)}${stat('Bulan ini',d.bulanIni)}
     ${stat('Rekod tahap Ringan',d.rekodTahap.Ringan,'ringan')}${stat('Rekod tahap Sederhana',d.rekodTahap.Sederhana,'sederhana')}${stat('Rekod tahap Berat',d.rekodTahap.Berat,'berat')}
   </div>
-  ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g3" style="margin:0">
+  ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g6" style="margin:0">
     ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat')}
+    ${d.tindakanBuka!=null?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
   </div></div>`:''}
   <div class="grid g2">
     ${d.topMurid?`<div class="card"><h3>10 Murid Paling Kerap</h3><div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Kelas</th><th class="right">Bil</th><th>Tahap</th></tr></thead><tbody>
@@ -332,9 +500,10 @@ async function vDashboard(){
     </tbody></table></div></div>`:''}
     <div class="card"><h3>Kesalahan Paling Kerap</h3>${bars(d.ikutKesalahan.slice(0,10))}</div>
     <div class="card"><h3>Rekod Mengikut Kelas</h3>${bars(d.ikutKelas)}</div>
-    <div class="card"><h3>Rekod Terkini</h3>${d.terkini.length?d.terkini.map(r=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div class="sp"><b>${esc(r.NamaPenuh)}</b>${badge(r.Tahap)}</div><div class="muted">${fmtD(r.Tarikh)} ${esc(r.Masa)} · ${esc(r.Kelas)} · ${esc(r.Kesalahan)}${r.Butiran?' – '+esc(r.Butiran):''} · ke-${esc(r.Bilangan)}</div></div>`).join(''):'<div class="muted">Tiada rekod.</div>'}</div>
+    <div class="card"><h3>Rekod Terkini</h3>${d.terkini.length?d.terkini.map(r=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div class="sp"><b>${esc(r.NamaPenuh)}</b>${badge(r.Tahap)}</div><div class="muted">${fmtD(r.Tarikh)} ${esc(r.Masa)} · ${esc(r.Kelas)} · ${esc(kesLabel(r))} · ke-${esc(r.Bilangan)}</div></div>`).join(''):'<div class="muted">Tiada rekod.</div>'}</div>
   </div>`;
   v.querySelectorAll('tr[data-no]').forEach(tr=>tr.onclick=()=>{ S.profilNo=tr.dataset.no; go('profil'); });
+  if($('#dTind')) $('#dTind').onclick=()=>go('tindakan');
 }
 
 /* =====================================================================
@@ -376,7 +545,7 @@ function vRekod(){
   <div class="card info">
     <b>Peraturan peningkatan tahap:</b> Kesalahan ke-1 hingga ke-${a} direkod sebagai <b>Ringan</b>.
     Kesalahan ke-${a+1} hingga ke-${a+b} dikira sebagai <b>Sederhana</b>.
-    Kesalahan ke-${a+b+1} dan seterusnya dikira sebagai <b>Berat</b>. Kiraan dibuat ${skopText()}.
+    Kesalahan ke-${a+b+1} dan seterusnya dikira sebagai <b>Berat</b>. Kiraan dibuat ${skopText()} dan disusun mengikut tarikh kejadian.
   </div>`;
   $('#rKelas').onchange=renderPickList; $('#rCari').oninput=renderPickList;
   $('#rKes').onchange=()=>{
@@ -403,7 +572,7 @@ function renderPickList(){
 function togglePick(no){
   const i=S.pick.findIndex(p=>p.NoDaftar===no);
   if(i>=0) S.pick.splice(i,1);
-  else { const m=muridByNo(no); if(!m) return; S.pick.push(Object.assign({},m,{count:null})); refreshCounts([no]); }
+  else { const m=S.murid.find(x=>x.NoDaftar===no); if(!m) return; S.pick.push(Object.assign({},m,{count:null})); refreshCounts([no]); }
   renderChips(); renderPickList();
 }
 async function refreshCounts(list){
@@ -418,9 +587,12 @@ async function refreshCounts(list){
 function renderChips(){
   const el=$('#rChips'); if(!el) return;
   $('#rBil').textContent=S.pick.length;
+  const back = $('#rTarikh') && $('#rTarikh').value<today();
   el.innerHTML = S.pick.length ? S.pick.map(p=>`<div class="chip"><div><b>${esc(p.NamaPenuh)}</b><div class="muted">${esc(p.Kelas)} · ${esc(p.NoDaftar)}</div>
-    <div style="margin-top:4px">${p.count==null?'<span class="muted">Menyemak rekod…</span>':`Rekod sedia ada: <b>${p.count}</b> → kesalahan ke-${p.count+1} ${badge(tahapOf(p.count+1))}`}</div></div>
-    <button title="Buang" data-no="${esc(p.NoDaftar)}">×</button></div>`).join('') : '<span class="muted">Belum ada murid dipilih.</span>';
+    <div style="margin-top:4px">${p.count==null?'<span class="muted">Menyemak rekod…</span>':`Rekod sedia ada: <b>${p.count}</b> → ${back?'≈ ':''}kesalahan ke-${p.count+1} ${badge(tahapOf(p.count+1))}`}</div></div>
+    <button title="Buang" data-no="${esc(p.NoDaftar)}">×</button></div>`).join('')
+    + (back?'<div class="muted" style="width:100%">Tarikh lampau: kedudukan sebenar akan disusun semula mengikut tarikh selepas disimpan.</div>':'')
+    : '<span class="muted">Belum ada murid dipilih.</span>';
   el.querySelectorAll('button[data-no]').forEach(b=>b.onclick=()=>togglePick(b.dataset.no));
 }
 function selectedKesID(){
@@ -435,24 +607,26 @@ async function saveRekod(){
   if(!kid) return toast('Sila pilih kesalahan dan butirannya.','err');
   const btn=$('#rSave'); btn.disabled=true;
   try{
-    const out=await api('recordOffence',{noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value});
+    const res=await api('recordOffence',{noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value});
+    const out=res.records;
+    if(res.tindakanBaru && isGuru()) setOpenCount(S.tindakanBuka+res.tindakanBaru);
     modal('✅ Rekod Disimpan', `<p>${out.length} rekod berjaya disimpan.</p><div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Kesalahan ke-</th><th>Tahap</th></tr></thead><tbody>
       ${out.map(r=>`<tr><td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.Kelas)}</div></td><td>${esc(r.Bilangan)}</td><td>${badge(r.Tahap)}</td></tr>`).join('')}</tbody></table></div>
-      ${out.some(r=>r.Tahap!=='Ringan')?'<p class="info warn" style="margin-top:12px">Terdapat murid yang telah mencapai tahap Sederhana/Berat. Sila maklumkan kepada guru disiplin / guru kelas untuk tindakan susulan.</p>':''}`);
+      ${res.tindakanBaru?`<p class="info warn" style="margin-top:12px">${res.tindakanBaru} tindakan susulan baharu telah diwujudkan dalam menu <b>Tindakan</b> kerana murid mencapai tahap Sederhana/Berat.</p>`
+        :(out.some(r=>r.Tahap!=='Ringan')?'<p class="info warn" style="margin-top:12px">Terdapat murid di tahap Sederhana/Berat. Sila maklumkan kepada guru disiplin / guru kelas.</p>':'')}`);
     S.pick=[]; $('#rCat').value=''; renderChips(); renderPickList();
   }catch(e){ toast(e.message,'err'); }
   finally{ btn.disabled=false; }
 }
 
 /* =====================================================================
-   SENARAI REKOD
+   SENARAI REKOD (+ EDIT / PADAM)
    ===================================================================== */
 function vSenarai(){
   const y=today().slice(0,4);
-  const own = S.user.Peranan==='PENGAWAS' && S.set.PengawasLihat!=='SEMUA';
   $('#view').innerHTML = `
   <div class="card"><h3>📋 Senarai Rekod Kesalahan</h3>
-    ${own?'<div class="info" style="margin-bottom:10px">Anda hanya boleh melihat rekod yang dimasukkan oleh akaun anda.</div>':''}
+    ${ownOnly()?'<div class="info" style="margin-bottom:10px">Anda hanya boleh melihat rekod yang dimasukkan oleh akaun anda.</div>':''}
     <div class="row">
       <div><label>Dari</label><input type="date" id="fDari" value="${y}-01-01"></div>
       <div><label>Hingga</label><input type="date" id="fHingga" value="${today()}"></div>
@@ -477,25 +651,44 @@ async function loadRecs(){
     S.recs=r.records;
     $('#fInfo').textContent = `${r.total} rekod dijumpai`+(r.total>r.records.length?` (dipaparkan ${r.records.length} terkini)`:'');
     $('#fTbl').innerHTML = recTable(r.records, isGuru());
-    bindDel($('#fTbl'), loadRecs);
+    bindRecActions($('#fTbl'), r.records, loadRecs);
   }catch(e){ $('#fTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
-function recTable(list, canDel){
+function recTable(list, canEdit){
   if(!list.length) return '<div class="muted">Tiada rekod.</div>';
-  return `<table class="tbl"><thead><tr><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th>${canDel?'<th></th>':''}</tr></thead><tbody>
-  ${list.map(r=>`<tr><td class="nowrap">${fmtD(r.Tarikh)}<div class="muted">${esc(r.Masa)}</div></td>
+  return `<table class="tbl"><thead><tr><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th>${canEdit?'<th class="noprint"></th>':''}</tr></thead><tbody>
+  ${list.map(r=>`<tr><td class="nowrap">${fmtD(r.Tarikh)}<div class="muted">${esc(r.Masa)}</div>${r.Arkib==='YA'?'<span class="badge b-arkib">Arkib</span>':''}</td>
     <td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.NoDaftar)}</div></td><td>${esc(r.Kelas)}</td>
     <td>${esc(r.Kesalahan)}${r.Butiran?`<div class="muted">${esc(r.Butiran)}</div>`:''}${r.Catatan?`<div class="muted"><i>${esc(r.Catatan)}</i></div>`:''}</td>
     <td>${esc(r.Bilangan)}</td><td>${badge(r.Tahap)}</td>
     <td>${esc(r.DirekodOleh)}<div class="muted">${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</div></td>
-    ${canDel?`<td><button class="btn sm red noprint" data-del="${esc(r.ID)}">Padam</button></td>`:''}</tr>`).join('')}
+    ${canEdit?`<td class="nowrap noprint">${r.Arkib==='YA'?'':`<button class="btn sm sec" data-ed="${esc(r.ID)}">Edit</button> <button class="btn sm red" data-del="${esc(r.ID)}">Padam</button>`}</td>`:''}</tr>`).join('')}
   </tbody></table>`;
 }
-function bindDel(root, after){
+function bindRecActions(root, list, after){
   root.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
-    if(!await ask('Padam rekod ini? Tindakan ini tidak boleh dibatalkan.<br><span class="muted">Nota: nombor "kesalahan ke-" pada rekod lain tidak berubah.</span>','Padam')) return;
-    try{ await api('deleteRecord',{ID:b.dataset.del}); toast('Rekod dipadam.','ok'); after(); }catch(e){ toast(e.message,'err'); }
+    if(!await ask('Padam rekod ini? Tindakan ini tidak boleh dibatalkan.<br><span class="muted">Nombor "kesalahan ke-" dan tahap bagi rekod lain murid ini akan dikira semula secara automatik.</span>','Padam')) return;
+    try{ await api('deleteRecord',{ID:b.dataset.del}); toast('Rekod dipadam dan kiraan dikemas kini.','ok'); after(); }catch(e){ toast(e.message,'err'); }
   });
+  root.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>editRecord(list.find(r=>r.ID===b.dataset.ed), after));
+}
+function editRecord(r, after){
+  if(!r) return;
+  const opts=S.kes.filter(k=>k.Aktif!=='TIDAK'||k.ID===r.KesalahanID)
+    .map(k=>`<option value="${esc(k.ID)}" ${k.ID===r.KesalahanID?'selected':''}>${esc(kesLabel(k))}${k.Aktif==='TIDAK'?' (tidak aktif)':''}</option>`).join('');
+  const kesAda=S.kes.some(k=>k.ID===r.KesalahanID);
+  modal('Edit Rekod',`
+    <div class="info" style="margin-bottom:6px"><b>${esc(r.NamaPenuh)}</b> · ${esc(r.Kelas)} · ${esc(r.NoDaftar)}<br><span class="muted">Direkod oleh ${esc(r.DirekodOleh)} pada ${fmtD(r.DimasukkanPada)}</span></div>
+    <div class="row"><div><label>Tarikh</label><input type="date" id="eT" value="${esc(r.Tarikh)}" max="${today()}"></div><div><label>Masa</label><input type="time" id="eM" value="${esc(r.Masa)}"></div></div>
+    <label>Kesalahan</label><select id="eK">${kesAda?'':`<option value="" selected>${esc(kesLabel(r))} (asal)</option>`}${opts}</select>
+    <label>Catatan</label><textarea id="eC" maxlength="500">${esc(r.Catatan)}</textarea>
+    <div class="muted" style="margin-top:8px">Jika tarikh diubah, kedudukan "kesalahan ke-" dan tahap murid ini dikira semula secara automatik.</div>`,[
+    {t:'Batal',cls:'sec'},
+    {t:'Simpan',fn:async()=>{
+      await api('updateRecord',{ID:r.ID,tarikh:$('#eT').value,masa:$('#eM').value,kesalahanID:$('#eK').value,catatan:$('#eC').value});
+      toast('Rekod dikemas kini.','ok'); after();
+    }}
+  ]);
 }
 function exportRecs(){
   if(!S.recs.length) return toast('Tiada rekod untuk dieksport.','err');
@@ -524,34 +717,176 @@ function vProfil(){
   const draw=()=>{
     const k=$('#pKelas').value, q=$('#pCari').value.trim().toLowerCase();
     if(!k && q.length<2){ $('#pList').innerHTML='<div class="em">Pilih kelas atau taip sekurang-kurangnya 2 huruf.</div>'; return; }
-    const l=S.murid.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)))
-      .sort((x,y)=>x.NamaPenuh.localeCompare(y.NamaPenuh)).slice(0,80);
-    $('#pList').innerHTML = l.length?l.map(m=>`<div data-no="${esc(m.NoDaftar)}">${esc(m.NamaPenuh)} <span class="muted">· ${esc(m.Kelas)} · ${esc(m.NoDaftar)}</span></div>`).join(''):'<div class="em">Tiada murid dijumpai.</div>';
+    const pool=S.murid.map(m=>Object.assign({_a:0},m)).concat(k?[]:S.muridArkib.map(m=>Object.assign({_a:1},m)));
+    const l=pool.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)))
+      .sort((x,y)=>x._a-y._a||x.NamaPenuh.localeCompare(y.NamaPenuh)).slice(0,80);
+    $('#pList').innerHTML = l.length?l.map(m=>`<div data-no="${esc(m.NoDaftar)}">${esc(m.NamaPenuh)} <span class="muted">· ${esc(m.Kelas)} · ${esc(m.NoDaftar)}</span>${m._a?' <span class="badge b-arkib">Arkib</span>':''}</div>`).join(''):'<div class="em">Tiada murid dijumpai.</div>';
     $('#pList').querySelectorAll('div[data-no]').forEach(d=>d.onclick=()=>showProfil(d.dataset.no));
   };
   $('#pKelas').onchange=draw; $('#pCari').oninput=draw; draw();
   if(S.profilNo){ const n=S.profilNo; S.profilNo=null; showProfil(n); }
 }
 async function showProfil(no){
-  const m=muridByNo(no)||{NoDaftar:no,NamaPenuh:'(Murid tiada dalam senarai semasa)',Kelas:'-'};
+  const m=muridByNo(no)||{NoDaftar:no,NamaPenuh:'(Murid tiada dalam senarai)',Kelas:'-'};
+  const arkib=S.muridArkib.some(x=>x.NoDaftar===no);
   const out=$('#pOut'); out.innerHTML='<div class="card muted">Memuatkan…</div>';
   try{
     const [st,lr]=await Promise.all([api('studentStatus',{noDaftarList:[no]}), api('listRecords',{noDaftar:no})]);
     const c=st[no].count;
-    const own = S.user.Peranan==='PENGAWAS' && S.set.PengawasLihat!=='SEMUA';
     out.innerHTML = `
     <div class="card">
-      <div class="sp" style="align-items:flex-start"><div><h3 style="margin:0">${esc(m.NamaPenuh)}</h3><div class="muted">No. Pendaftaran: ${esc(m.NoDaftar)} · Kelas: ${esc(m.Kelas)}</div></div>
+      <div class="print-only rpt-head"><img src="${S.logo||DEF_LOGO}"><div><b>${esc(S.set.NamaSekolah)}</b><br>Profil Demerit Murid · dicetak ${fmtD(today())}</div></div>
+      <div class="sp" style="align-items:flex-start"><div><h3 style="margin:0">${esc(m.NamaPenuh)} ${arkib?'<span class="badge b-arkib">Arkib</span>':''}</h3><div class="muted">No. Pendaftaran: ${esc(m.NoDaftar)} · Kelas: ${esc(m.Kelas)}</div></div>
       <button class="btn sec sm noprint" onclick="window.print()">🖨 Cetak</button></div>
       <div style="margin-top:14px" class="sp"><span>Jumlah kesalahan (${S.set.SkopKiraan==='SEMUA'?'keseluruhan':'tahun '+today().slice(0,4)}): <b>${c}</b></span><span>Tahap semasa: ${badge(tahapOf(c))}</span></div>
       ${lvlBar(c)}
-      <div class="muted" style="margin-top:6px">Kesalahan seterusnya akan direkod sebagai kesalahan ke-${c+1}: ${badge(tahapOf(c+1))}</div>
+      ${arkib?'':`<div class="muted" style="margin-top:6px">Kesalahan seterusnya akan direkod sebagai kesalahan ke-${c+1}: ${badge(tahapOf(c+1))}</div>`}
     </div>
-    <div class="card"><h3>Sejarah Kesalahan</h3>${own?'<div class="info" style="margin-bottom:10px">Hanya rekod yang dimasukkan oleh akaun anda dipaparkan.</div>':''}
+    <div class="card"><h3>Sejarah Kesalahan</h3>${ownOnly()?'<div class="info" style="margin-bottom:10px">Hanya rekod yang dimasukkan oleh akaun anda dipaparkan.</div>':''}
       <div class="tw" id="pTbl">${recTable(lr.records, isGuru())}</div></div>`;
-    bindDel($('#pTbl'), ()=>showProfil(no));
+    bindRecActions($('#pTbl'), lr.records, ()=>showProfil(no));
     out.scrollIntoView({behavior:'smooth'});
   }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+}
+
+/* =====================================================================
+   TINDAKAN SUSULAN (GURU)
+   ===================================================================== */
+function vTindakan(){
+  $('#view').innerHTML = `
+  <div class="card"><h3>🛎️ Tindakan Susulan</h3>
+    <div class="info" style="margin-bottom:10px">Tindakan diwujudkan secara automatik apabila murid mencapai tahap <b>Sederhana</b> (sekali bagi setiap tempoh kiraan)
+    atau <b>Berat</b> (setiap kali tiada tindakan Berat yang masih terbuka). Kemas kini status dan catatkan tindakan yang diambil, cth. kaunseling, panggilan ibu bapa.</div>
+    <div class="row">
+      <div><label>Status</label><select id="tS"><option value="BUKA">Belum selesai</option><option value="BELUM">Belum diambil tindakan</option><option value="PROSES">Dalam proses</option><option value="SELESAI">Selesai</option><option value="">Semua</option></select></div>
+      <div><label>Kelas</label><select id="tK">${optKelas('','Semua')}</select></div>
+      <div><label>Carian</label><input id="tQ" placeholder="Nama, no. pendaftaran, catatan…"></div>
+      <button class="btn" id="tGo">🔍 Cari</button>
+    </div>
+  </div>
+  <div class="card"><div class="tw" id="tTbl"></div></div>`;
+  $('#tGo').onclick=loadTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
+  loadTind();
+}
+async function loadTind(){
+  $('#tTbl').innerHTML='<div class="muted">Memuatkan…</div>';
+  try{
+    const r=await api('listTindakan',{status:$('#tS').value,kelas:$('#tK').value,q:$('#tQ').value.trim()});
+    setOpenCount(r.buka);
+    $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Catatan tindakan</th><th></th></tr></thead><tbody>
+      ${r.list.map(t=>`<tr><td class="nowrap">${fmtD(t.TarikhWujud)}<div class="muted">Tempoh: ${esc(t.Tempoh==='SEMUA'?'Keseluruhan':t.Tempoh)}</div></td>
+      <td><a href="#" data-no="${esc(t.NoDaftar)}">${esc(t.NamaPenuh)}</a><div class="muted">${esc(t.NoDaftar)}</div></td><td>${esc(t.Kelas)}</td>
+      <td>${badge(t.Tahap)}</td><td>${sBadge(t.Status)}</td>
+      <td>${esc(t.Catatan)||'<span class="muted">—</span>'}${t.DikemaskiniOleh?`<div class="muted">${esc(t.DikemaskiniOleh)} · ${fmtD(t.DikemaskiniPada)}</div>`:''}</td>
+      <td><button class="btn sm" data-id="${esc(t.ID)}">Kemas kini</button></td></tr>`).join('')}</tbody></table>`
+      : '<div class="muted">Tiada tindakan bagi tapisan ini.</div>';
+    $('#tTbl').querySelectorAll('[data-no]').forEach(a=>a.onclick=e=>{ e.preventDefault(); S.profilNo=a.dataset.no; go('profil'); });
+    $('#tTbl').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{
+      const t=r.list.find(x=>x.ID===b.dataset.id);
+      modal('Kemas Kini Tindakan',`
+        <div class="info" style="margin-bottom:6px"><b>${esc(t.NamaPenuh)}</b> · ${esc(t.Kelas)} · ${badge(t.Tahap)}</div>
+        <label>Status</label><select id="uS">${Object.keys(STATUS).map(k=>`<option value="${k}" ${t.Status===k?'selected':''}>${STATUS[k]}</option>`).join('')}</select>
+        <label>Catatan tindakan</label><textarea id="uC" maxlength="1000" placeholder="Cth: Kaunseling oleh Pn. Aminah pada 20/11; ibu bapa dihubungi.">${esc(t.Catatan)}</textarea>`,[
+        {t:'Batal',cls:'sec'},
+        {t:'Simpan',fn:async()=>{ await api('updateTindakan',{ID:t.ID,Status:$('#uS').value,Catatan:$('#uC').value}); toast('Tindakan dikemas kini.','ok'); loadTind(); }}
+      ]);
+    });
+  }catch(e){ $('#tTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+}
+
+/* =====================================================================
+   LAPORAN (GURU)
+   ===================================================================== */
+function vLaporan(){
+  const t=today(), y=+t.slice(0,4);
+  const years=[]; for(let i=y;i>=y-5;i--) years.push(i);
+  $('#view').innerHTML = `
+  <div class="card noprint"><h3>📑 Laporan Disiplin</h3>
+    <div class="row">
+      <div><label>Jenis laporan</label><select id="lJ"><option value="BULAN">Bulanan</option><option value="JULAT">Penggal / julat tarikh</option><option value="TAHUN">Tahunan</option></select></div>
+      <div id="lBW"><label>Bulan</label><input type="month" id="lB" value="${t.slice(0,7)}" max="${t.slice(0,7)}"></div>
+      <div id="lTW" class="hidden"><label>Tahun</label><select id="lT">${years.map(x=>`<option>${x}</option>`).join('')}</select></div>
+      <div id="lD1" class="hidden"><label>Dari</label><input type="date" id="lDari" value="${y}-01-01"></div>
+      <div id="lD2" class="hidden"><label>Hingga</label><input type="date" id="lHingga" value="${t}"></div>
+      <button class="btn" id="lGo">Jana Laporan</button>
+    </div>
+  </div>
+  <div id="lOut"></div>`;
+  $('#lJ').onchange=()=>{ const j=$('#lJ').value;
+    $('#lBW').classList.toggle('hidden',j!=='BULAN'); $('#lTW').classList.toggle('hidden',j!=='TAHUN');
+    $('#lD1').classList.toggle('hidden',j!=='JULAT'); $('#lD2').classList.toggle('hidden',j!=='JULAT'); };
+  $('#lGo').onclick=genReport;
+  genReport();
+}
+function rptRange(){
+  const j=$('#lJ').value;
+  if(j==='BULAN'){ const m=$('#lB').value||today().slice(0,7); const [yy,mm]=m.split('-').map(Number);
+    const last=new Date(yy,mm,0).getDate(); return {dari:m+'-01',hingga:m+'-'+String(last).padStart(2,'0'),tajuk:'Laporan Bulanan: '+BULAN_PENUH[mm-1]+' '+yy}; }
+  if(j==='TAHUN'){ const yy=$('#lT').value; return {dari:yy+'-01-01',hingga:yy+'-12-31',tajuk:'Laporan Tahunan '+yy}; }
+  return {dari:$('#lDari').value,hingga:$('#lHingga').value,tajuk:'Laporan '+fmtD($('#lDari').value)+' hingga '+fmtD($('#lHingga').value)};
+}
+function vchart(list, daily){
+  if(!list.length) return '<div class="muted">Tiada data.</div>';
+  const max=Math.max(...list.map(x=>x.bil))||1;
+  const lbl=x=>daily? String(+x.label.slice(8,10)) : BULAN[+x.label.slice(5,7)-1]+(list.length>12?' '+x.label.slice(2,4):'');
+  const step=Math.ceil(list.length/16);
+  return `<div class="vchart">${list.map(x=>`<div title="${esc(x.label)}: ${x.bil}"><b>${x.bil||''}</b><i style="height:${(x.bil/max*100).toFixed(1)}%"></i></div>`).join('')}</div>
+    <div class="vlabels">${list.map((x,i)=>`<span>${i%step===0?lbl(x):''}</span>`).join('')}</div>`;
+}
+async function genReport(){
+  const R=rptRange();
+  if(!R.dari||!R.hingga||R.dari>R.hingga) return toast('Julat tarikh tidak sah.','err');
+  const out=$('#lOut'); out.innerHTML='<div class="card muted">Menjana laporan…</div>';
+  try{
+    const d=await api('report',{dari:R.dari,hingga:R.hingga});
+    d.tajuk=R.tajuk; S.rpt=d;
+    const pct=n=>d.jumlah?Math.round(n/d.jumlah*100)+'%':'0%';
+    out.innerHTML=`
+    <div class="toolbar"><button class="btn sec" onclick="window.print()">🖨 Cetak / Simpan PDF</button><button class="btn grn" id="lXls">⬇ Eksport Excel</button></div>
+    <div class="card">
+      <div class="rpt-head"><img src="${S.logo||DEF_LOGO}"><div><b style="font-size:16px">${esc(d.sekolah)}</b><br>${esc(d.tajuk)}<br><span class="muted">Tempoh: ${fmtD(d.dari)} – ${fmtD(d.hingga)} · Dijana: ${fmtD(d.dijana)}</span></div></div>
+      <div class="grid g6" style="margin:0">
+        ${stat('Jumlah kesalahan',d.jumlah)}${stat('Murid terlibat',d.muridUnik)}
+        ${stat('Ringan ('+pct(d.tahap.Ringan)+')',d.tahap.Ringan,'ringan')}${stat('Sederhana ('+pct(d.tahap.Sederhana)+')',d.tahap.Sederhana,'sederhana')}${stat('Berat ('+pct(d.tahap.Berat)+')',d.tahap.Berat,'berat')}
+        ${stat('Tindakan selesai',d.tindakan.SELESAI+' / '+(d.tindakan.BELUM+d.tindakan.PROSES+d.tindakan.SELESAI),'amber')}
+      </div>
+    </div>
+    <div class="card"><h3>Trend ${d.trendHarian?'Harian':'Bulanan'}</h3>${vchart(d.trend,d.trendHarian)}</div>
+    <div class="grid g2">
+      <div class="card"><h3>Kesalahan Mengikut Jenis</h3>${bars(d.ikutKesalahan)}</div>
+      <div class="card"><h3>Mengikut Hari</h3>${bars(d.ikutHari.filter(x=>x.bil||(x.label!=='Sabtu'&&x.label!=='Ahad')))}</div>
+    </div>
+    <div class="card"><h3>Ringkasan Mengikut Kelas</h3><div class="tw"><table class="tbl"><thead><tr><th>Kelas</th><th class="right">Murid terlibat</th><th class="right">Ringan</th><th class="right">Sederhana</th><th class="right">Berat</th><th class="right">Jumlah</th></tr></thead><tbody>
+      ${d.ikutKelas.length?d.ikutKelas.map(k=>`<tr><td>${esc(k.label)}</td><td class="right">${k.bilMurid}</td><td class="right">${k.Ringan}</td><td class="right">${k.Sederhana}</td><td class="right">${k.Berat}</td><td class="right"><b>${k.bil}</b></td></tr>`).join(''):'<tr><td colspan="6" class="muted">Tiada data.</td></tr>'}
+    </tbody></table></div></div>
+    <div class="grid g2">
+      <div class="card"><h3>Murid Paling Kerap (20 teratas)</h3><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Murid</th><th>Kelas</th><th class="right">Bil</th><th>Tahap terkini</th></tr></thead><tbody>
+        ${d.topMurid.length?d.topMurid.map((m,i)=>`<tr><td>${i+1}</td><td>${esc(m.NamaPenuh)}<div class="muted">${esc(m.NoDaftar)}</div></td><td>${esc(m.Kelas)}</td><td class="right"><b>${m.bil}</b></td><td>${badge(m.tahap)}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">Tiada data.</td></tr>'}
+      </tbody></table></div></div>
+      <div class="card"><h3>Direkod Oleh</h3>${bars(d.ikutPegawai)}
+        <h3 style="margin-top:18px">Status Tindakan Susulan (diwujudkan dalam tempoh ini)</h3>
+        <div class="sp"><span>${sBadge('BELUM')}</span><b>${d.tindakan.BELUM}</b></div>
+        <div class="sp" style="margin-top:6px"><span>${sBadge('PROSES')}</span><b>${d.tindakan.PROSES}</b></div>
+        <div class="sp" style="margin-top:6px"><span>${sBadge('SELESAI')}</span><b>${d.tindakan.SELESAI}</b></div>
+      </div>
+    </div>
+    <div class="print-only" style="margin-top:30px"><div style="display:flex;justify-content:space-between"><div>Disediakan oleh:<br><br><br>.............................<br>${esc(S.user.Nama)}</div><div>Disemak oleh:<br><br><br>.............................<br>Guru Disiplin / PK HEM</div></div></div>`;
+    $('#lXls').onclick=exportReport;
+  }catch(e){ out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+}
+function exportReport(){
+  const d=S.rpt; if(!d) return;
+  const wb=XLSX.utils.book_new();
+  const ring=XLSX.utils.aoa_to_sheet([[d.sekolah],[d.tajuk],['Tempoh',fmtD(d.dari)+' – '+fmtD(d.hingga)],[],
+    ['Jumlah kesalahan',d.jumlah],['Murid terlibat',d.muridUnik],['Ringan',d.tahap.Ringan],['Sederhana',d.tahap.Sederhana],['Berat',d.tahap.Berat],[],
+    ['Tindakan: Belum',d.tindakan.BELUM],['Tindakan: Dalam proses',d.tindakan.PROSES],['Tindakan: Selesai',d.tindakan.SELESAI]]);
+  ring['!cols']=[{wch:26},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ring,'Ringkasan');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKelas.map(k=>({'Kelas':k.label,'Murid terlibat':k.bilMurid,'Ringan':k.Ringan,'Sederhana':k.Sederhana,'Berat':k.Berat,'Jumlah':k.bil}))),'Ikut Kelas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKesalahan.map(k=>({'Kesalahan':k.label,'Bilangan':k.bil}))),'Ikut Kesalahan');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.topMurid.map((m,i)=>({'#':i+1,'No. Pendaftaran':m.NoDaftar,'Nama':m.NamaPenuh,'Kelas':m.Kelas,'Bilangan':m.bil,'Tahap terkini':m.tahap}))),'Murid Kerap');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.trend.map(t=>({'Tempoh':d.trendHarian?fmtD(t.label):t.label,'Bilangan':t.bil}))),'Trend');
+  XLSX.writeFile(wb,`Laporan_Demerit_${d.dari}_${d.hingga}.xlsx`);
 }
 
 /* =====================================================================
@@ -576,11 +911,12 @@ function vAkaun(){
 /* =====================================================================
    TETAPAN (GURU PENTADBIR)
    ===================================================================== */
-const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas']];
+const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],
+  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['sistem','🗄️ Sandaran & Arkib'],['log','📜 Log Aktiviti']];
 function vTetapan(){
   $('#view').innerHTML = `<div class="tabs">${TABS.map(([k,t])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${t}</button>`).join('')}</div><div id="tBody"></div>`;
   $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; vTetapan(); });
-  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS')})[S.tab]();
+  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),sistem:tSistem,log:tLog})[S.tab]();
 }
 
 /* ---------- Umum & Logo ---------- */
@@ -607,6 +943,7 @@ function tUmum(){
     <label>Skop kiraan</label>
     <select id="sSkop"><option value="TAHUN" ${s.SkopKiraan!=='SEMUA'?'selected':''}>Bermula semula setiap tahun</option><option value="SEMUA" ${s.SkopKiraan==='SEMUA'?'selected':''}>Terkumpul (sepanjang persekolahan)</option></select>
     <div class="info" id="sPrev" style="margin-top:10px"></div>
+    <div class="muted" style="margin-top:6px">Jika had atau skop diubah, semua rekod sedia ada akan dikira semula secara automatik.</div>
     <h3 style="margin-top:20px">Kebenaran Pengawas</h3>
     <label>Pengawas boleh merekod kesalahan</label>
     <select id="sPR"><option value="YA" ${s.PengawasRekod==='YA'?'selected':''}>Ya</option><option value="TIDAK" ${s.PengawasRekod!=='YA'?'selected':''}>Tidak</option></select>
@@ -619,9 +956,10 @@ function tUmum(){
   $('#sA').oninput=prev; $('#sB').oninput=prev; prev();
   $('#sSave').onclick=async()=>{
     try{
-      S.set=await api('saveSettings',{NamaSekolah:$('#sSek').value,NamaSistem:$('#sSys').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,
+      const r=await api('saveSettings',{NamaSekolah:$('#sSek').value,NamaSistem:$('#sSys').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,
         SkopKiraan:$('#sSkop').value,PengawasRekod:$('#sPR').value,PengawasLihat:$('#sPL').value});
-      applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo); toast('Tetapan disimpan.','ok');
+      S.set=r.settings; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
+      toast('Tetapan disimpan.'+(r.berubah?` ${r.berubah} rekod dikira semula.`:''),'ok');
     }catch(e){ toast(e.message,'err'); }
   };
   $('#sLogoIn').onchange=async e=>{
@@ -664,7 +1002,7 @@ function tKesalahan(){
   $('#tBody').innerHTML = `
   <div class="card"><h3>Senarai Kesalahan Ringan</h3>
     <div class="info" style="margin-bottom:12px">Bagi kesalahan yang mempunyai beberapa butiran (cth. Mengganggu PdP → Bising / Bercakap), ulang nama kesalahan yang sama pada setiap baris dengan butiran berbeza. Biarkan butiran kosong jika tiada pecahan.<br>
-    Untuk berhenti menggunakan sesuatu kesalahan, tukar <b>Aktif</b> kepada <b>Tidak</b> — rekod lama tidak terjejas.</div>
+    Untuk berhenti menggunakan sesuatu kesalahan, tukar <b>Aktif</b> kepada <b>Tidak</b>. Rekod lama tidak terjejas.</div>
     <div class="tw"><table class="tbl"><thead><tr><th>Kesalahan</th><th>Butiran</th><th>Aktif</th><th></th></tr></thead><tbody id="kBody"></tbody></table></div>
     <div class="toolbar" style="margin-top:12px;justify-content:space-between">
       <button class="btn sec" id="kAdd">+ Tambah baris</button><button class="btn" id="kSave">💾 Simpan Senarai</button>
@@ -688,11 +1026,12 @@ function tKesalahan(){
   };
 }
 
-/* ---------- Kelas ---------- */
+/* ---------- Kelas + Naik Kelas ---------- */
 function tKelas(){
   const cnt={}; S.murid.forEach(m=>cnt[m.Kelas]=(cnt[m.Kelas]||0)+1);
   $('#tBody').innerHTML = `
   <div class="card"><h3>Senarai Kelas</h3>
+    <div class="toolbar"><button class="btn amb" id="cPromo">⬆️ Naik Kelas Hujung Tahun</button></div>
     <div class="row" style="max-width:520px"><div><input id="cNew" placeholder="Nama kelas baharu, cth. 1 Amanah"></div><button class="btn" id="cAdd">+ Tambah</button></div>
     <div class="muted" style="margin:8px 0 12px">Menukar nama kelas akan turut mengemas kini kelas semua murid dalam kelas tersebut. Rekod kesalahan lama kekal dengan nama kelas asal.</div>
     <div class="tw"><table class="tbl"><thead><tr><th>Kelas</th><th class="right">Bil. murid</th><th></th></tr></thead><tbody>
@@ -703,6 +1042,7 @@ function tKelas(){
   const add=async()=>{ const n=$('#cNew').value.trim(); if(!n) return;
     try{ S.kelas=(await api('addKelas',{nama:n})).kelas; toast('Kelas ditambah.','ok'); tKelas(); }catch(e){ toast(e.message,'err'); } };
   $('#cAdd').onclick=add; $('#cNew').onkeydown=e=>{ if(e.key==='Enter') add(); };
+  $('#cPromo').onclick=promoteForm;
   $('#tBody').querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{
     const lama=b.dataset.ren;
     modal('Tukar Nama Kelas',`<label>Nama asal</label><input value="${esc(lama)}" disabled><label>Nama baharu</label><input id="cRen" value="${esc(lama)}">`,[
@@ -715,13 +1055,60 @@ function tKelas(){
     try{ S.kelas=(await api('deleteKelas',{nama:b.dataset.del})).kelas; toast('Kelas dipadam.','ok'); tKelas(); }catch(e){ toast(e.message,'err'); }
   });
 }
+function guessNext(k){
+  const m=String(k).match(/^(\s*)(\d+)(.*)$/);
+  if(!m) return '';
+  const n=+m[2]; if(n>=5) return '__TAMAT__';
+  return m[1]+(n+1)+m[3];
+}
+function promoteForm(){
+  const cnt={}; S.murid.forEach(m=>cnt[m.Kelas]=(cnt[m.Kelas]||0)+1);
+  const kel=S.kelas.filter(k=>cnt[k]);
+  if(!kel.length) return toast('Tiada murid dalam mana-mana kelas.','err');
+  modal('Naik Kelas Hujung Tahun',`
+    <div class="info" style="margin-bottom:10px">Tetapkan kelas baharu bagi setiap kelas. Cadangan diisi automatik (cth. 1 Amanah → 2 Amanah, Tingkatan 5 → Tamat). Semak sebelum memproses.<br>
+    <b>Tamat</b> = murid dipindahkan ke senarai Murid Arkib. Rekod kesalahan murid tidak berubah.</div>
+    <div class="tw"><table class="tbl"><thead><tr><th>Kelas semasa</th><th class="right">Murid</th><th>Kelas baharu</th></tr></thead><tbody>
+    ${kel.map((k,i)=>{ const g=guessNext(k); return `<tr><td>${esc(k)}</td><td class="right">${cnt[k]}</td><td>
+      <select data-i="${i}" class="pSel"><option value="">(Kekal)</option><option value="__TAMAT__" ${g==='__TAMAT__'?'selected':''}>Tamat / arkib</option><option value="__LAIN__" ${g&&g!=='__TAMAT__'?'selected':''}>Pindah ke…</option></select>
+      <input data-i="${i}" class="pIn" style="margin-top:4px" list="pKL" value="${g&&g!=='__TAMAT__'?esc(g):''}" placeholder="Nama kelas baharu" ${g&&g!=='__TAMAT__'?'':'hidden'}></td></tr>`; }).join('')}
+    </tbody></table></div><datalist id="pKL">${S.kelas.map(k=>`<option value="${esc(k)}">`).join('')}</datalist>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pDel" checked> Padam kelas yang tiada murid selepas proses</label>
+    <div class="info warn" style="margin-top:8px">Disyorkan: buat <b>Sandaran Sekarang</b> (tab Sandaran & Arkib) sebelum memproses.</div>`,[
+    {t:'Batal',cls:'sec'},
+    {t:'Proses Naik Kelas',cls:'amb',fn:async()=>{
+      const map={};
+      document.querySelectorAll('.pSel').forEach(s=>{
+        const k=kel[+s.dataset.i];
+        if(s.value==='__TAMAT__') map[k]='__TAMAT__';
+        else if(s.value==='__LAIN__'){ const v=document.querySelector(`.pIn[data-i="${s.dataset.i}"]`).value.trim(); if(v) map[k]=v; }
+      });
+      if(!Object.keys(map).length){ toast('Tiada perubahan dipilih.','err'); return false; }
+      const r=await api('promoteKelas',{map,padamKosong:$('#pDel').checked});
+      S.kelas=r.kelas; S.murid=r.murid; S.muridArkib=r.muridArkib;
+      toast(`Selesai: ${r.pindah} murid naik kelas, ${r.tamat} murid tamat, ${r.padam} kelas kosong dipadam.`,'ok'); tKelas();
+    }}
+  ]);
+  document.querySelectorAll('.pSel').forEach(s=>s.onchange=()=>{
+    const inp=document.querySelector(`.pIn[data-i="${s.dataset.i}"]`); inp.hidden=s.value!=='__LAIN__'; if(!inp.hidden) inp.focus();
+  });
+}
 
 /* ---------- Murid ---------- */
 function tMurid(){
+  S.muridView=S.muridView||'aktif';
   $('#tBody').innerHTML = `
-  <div class="card"><h3>Senarai Nama Murid (<span id="mCount">${S.murid.length}</span>)</h3>
+  <div class="card">
+    <div class="tabs" style="margin-bottom:10px"><button data-mv="aktif" class="${S.muridView==='aktif'?'on':''}">Murid Aktif (${S.murid.length})</button><button data-mv="arkib" class="${S.muridView==='arkib'?'on':''}">Murid Arkib (${S.muridArkib.length})</button></div>
+    <div id="mWrap"></div>
+  </div>`;
+  $('#tBody').querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{ S.muridView=b.dataset.mv; tMurid(); });
+  S.muridView==='aktif' ? muridAktif() : muridArkibView();
+}
+function muridAktif(){
+  $('#mWrap').innerHTML=`
     <div class="toolbar">
-      <button class="btn sec" id="mTpl">⬇ Muat Turun Templat Excel</button>
+      <button class="btn sec" id="mTpl">⬇ Templat Excel</button>
       <button class="btn grn" id="mImp">⬆ Import dari Excel</button>
       <button class="btn" id="mAdd">+ Tambah Murid</button>
     </div>
@@ -729,8 +1116,7 @@ function tMurid(){
       <div style="flex:0 0 190px"><select id="mKelas">${optKelas('','Semua kelas')}</select></div>
       <div><input id="mQ" placeholder="Cari nama atau no. pendaftaran…"></div>
     </div>
-    <div class="tw" id="mTbl"></div>
-  </div>`;
+    <div class="tw" id="mTbl"></div>`;
   const draw=()=>{
     const k=$('#mKelas').value, q=$('#mQ').value.trim().toLowerCase();
     let l=S.murid.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)))
@@ -739,20 +1125,46 @@ function tMurid(){
     $('#mTbl').innerHTML = (tot?`<div class="muted" style="margin-bottom:6px">${tot} murid${tot>300?' (300 pertama dipaparkan — gunakan penapis)':''}</div>`:'')+
       (l.length?`<table class="tbl"><thead><tr><th>No. Pendaftaran</th><th>Nama Penuh</th><th>Kelas</th><th></th></tr></thead><tbody>
       ${l.map(m=>`<tr><td>${esc(m.NoDaftar)}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.Kelas)}</td><td class="right nowrap">
-      <button class="btn sm sec" data-ed="${esc(m.NoDaftar)}">Edit</button> <button class="btn sm red" data-del="${esc(m.NoDaftar)}">Padam</button></td></tr>`).join('')}</tbody></table>`
+      <button class="btn sm sec" data-ed="${esc(m.NoDaftar)}">Edit</button> <button class="btn sm amb" data-ar="${esc(m.NoDaftar)}">Arkib</button> <button class="btn sm red" data-del="${esc(m.NoDaftar)}">Padam</button></td></tr>`).join('')}</tbody></table>`
       :'<div class="muted">Tiada murid. Muat turun templat Excel, isi senarai nama dan import.</div>');
-    $('#mTbl').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>muridForm(muridByNo(b.dataset.ed)));
+    $('#mTbl').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>muridForm(S.murid.find(m=>m.NoDaftar===b.dataset.ed)));
+    $('#mTbl').querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>{
+      const m=S.murid.find(x=>x.NoDaftar===b.dataset.ar);
+      modal('Arkib Murid',`<p><b>${esc(m.NamaPenuh)}</b> (${esc(m.NoDaftar)}) · ${esc(m.Kelas)}</p>
+        <label>Sebab</label><select id="aSb"><option>Berpindah sekolah</option><option>Tamat persekolahan</option><option>Berhenti sekolah</option><option>Lain-lain</option></select>
+        <div class="muted" style="margin-top:8px">Murid arkib tidak muncul semasa merekod kesalahan, tetapi profil dan rekodnya kekal dan boleh dipulihkan.</div>`,[
+        {t:'Batal',cls:'sec'},
+        {t:'Arkibkan',cls:'amb',fn:async()=>{ const r=await api('archiveMurid',{noList:[m.NoDaftar],sebab:$('#aSb').value}); S.murid=r.murid; S.muridArkib=r.muridArkib; toast('Murid diarkibkan.','ok'); tMurid(); }}
+      ]);
+    });
     $('#mTbl').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
-      const m=muridByNo(b.dataset.del);
-      if(!await ask(`Padam murid <b>${esc(m.NamaPenuh)}</b> (${esc(m.NoDaftar)})?<br><span class="muted">Rekod kesalahan murid ini tidak dipadam.</span>`,'Padam')) return;
-      try{ S.murid=(await api('deleteMurid',{NoDaftar:m.NoDaftar})).murid; toast('Murid dipadam.','ok'); $('#mCount').textContent=S.murid.length; draw(); }catch(e){ toast(e.message,'err'); }
+      const m=S.murid.find(x=>x.NoDaftar===b.dataset.del);
+      if(!await ask(`Padam murid <b>${esc(m.NamaPenuh)}</b> (${esc(m.NoDaftar)}) secara kekal?<br><span class="muted">Untuk murid berpindah atau tamat, gunakan <b>Arkib</b>. Rekod kesalahan tidak dipadam.</span>`,'Padam')) return;
+      try{ S.murid=(await api('deleteMurid',{NoDaftar:m.NoDaftar})).murid; toast('Murid dipadam.','ok'); tMurid(); }catch(e){ toast(e.message,'err'); }
     });
   };
-  S.drawMurid=draw;
   $('#mKelas').onchange=draw; $('#mQ').oninput=draw; draw();
   $('#mTpl').onclick=templateMurid;
   $('#mAdd').onclick=()=>muridForm(null);
   $('#mImp').onclick=()=>pickFile(importMuridFile);
+}
+function muridArkibView(){
+  $('#mWrap').innerHTML=`<div class="row" style="margin-bottom:10px"><div><input id="maQ" placeholder="Cari nama atau no. pendaftaran…"></div></div><div class="tw" id="maTbl"></div>`;
+  const draw=()=>{
+    const q=$('#maQ').value.trim().toLowerCase();
+    const l=S.muridArkib.filter(m=>!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)).sort((a,b)=>b.TarikhArkib.localeCompare(a.TarikhArkib)).slice(0,300);
+    $('#maTbl').innerHTML = l.length?`<table class="tbl"><thead><tr><th>No. Pendaftaran</th><th>Nama Penuh</th><th>Kelas terakhir</th><th>Sebab</th><th>Tarikh arkib</th><th></th></tr></thead><tbody>
+      ${l.map(m=>`<tr><td>${esc(m.NoDaftar)}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.Kelas)}</td><td>${esc(m.Sebab)}</td><td class="nowrap">${fmtD(m.TarikhArkib)}</td>
+      <td><button class="btn sm grn" data-rs="${esc(m.NoDaftar)}">Pulihkan</button></td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada murid arkib.</div>';
+    $('#maTbl').querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>{
+      const m=S.muridArkib.find(x=>x.NoDaftar===b.dataset.rs);
+      modal('Pulihkan Murid',`<p><b>${esc(m.NamaPenuh)}</b> (${esc(m.NoDaftar)})</p><label>Masukkan ke kelas</label><input id="rsK" list="rsKL" value="${esc(m.Kelas)}"><datalist id="rsKL">${S.kelas.map(k=>`<option value="${esc(k)}">`).join('')}</datalist>`,[
+        {t:'Batal',cls:'sec'},
+        {t:'Pulihkan',cls:'grn',fn:async()=>{ const r=await api('restoreMurid',{NoDaftar:m.NoDaftar,Kelas:$('#rsK').value}); S.murid=r.murid; S.muridArkib=r.muridArkib; S.kelas=r.kelas; toast('Murid dipulihkan.','ok'); tMurid(); }}
+      ]);
+    });
+  };
+  $('#maQ').oninput=draw; draw();
 }
 function muridForm(m){
   modal(m?'Edit Murid':'Tambah Murid', `
@@ -780,7 +1192,8 @@ function templateMurid(){
     ['2. Jangan ubah tajuk lajur pada baris 1.'],
     ['3. No. Pendaftaran Murid mesti unik bagi setiap murid.'],
     ['4. Kelas yang belum wujud akan ditambah secara automatik ketika import.'],
-    ['5. Murid dengan No. Pendaftaran yang sudah ada akan dikemas kini (nama & kelas).']]); ws3['!cols']=[{wch:90}];
+    ['5. Murid dengan No. Pendaftaran yang sudah ada akan dikemas kini (nama & kelas).'],
+    ['6. Murid arkib yang terdapat dalam fail akan diaktifkan semula.']]); ws3['!cols']=[{wch:90}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Senarai Murid'); XLSX.utils.book_append_sheet(wb,ws2,'Rujukan Kelas'); XLSX.utils.book_append_sheet(wb,ws3,'Arahan');
   XLSX.writeFile(wb,'Templat_Senarai_Nama_Murid.xlsx');
@@ -816,20 +1229,20 @@ async function importMuridFile(file){
     if(!rows.length) throw new Error('Tiada data murid dalam fail.');
     const sah=rows.filter(r=>r.NoDaftar&&r.NamaPenuh&&r.Kelas).length;
     const ada=new Set(S.murid.map(m=>m.NoDaftar));
-    const baru=rows.filter(r=>r.NoDaftar&&!ada.has(r.NoDaftar)).length;
+    const baru=rows.filter(r=>r.NoDaftar&&r.NamaPenuh&&r.Kelas&&!ada.has(r.NoDaftar)).length;
     modal('Import Senarai Murid',`
       <p><b>${rows.length}</b> baris dibaca daripada <i>${esc(file.name)}</i> · <b>${sah}</b> lengkap · ${rows.length-sah} tidak lengkap (akan diabaikan).</p>
       <div class="tw" style="max-height:220px"><table class="tbl"><thead><tr><th>No.</th><th>Nama</th><th>Kelas</th></tr></thead><tbody>
       ${rows.slice(0,15).map(r=>`<tr><td>${esc(r.NoDaftar)}</td><td>${esc(r.NamaPenuh)}</td><td>${esc(r.Kelas)}</td></tr>`).join('')}
       ${rows.length>15?`<tr><td colspan="3" class="muted">…dan ${rows.length-15} lagi</td></tr>`:''}</tbody></table></div>
       <label>Kaedah import</label>
-      <select id="iMode"><option value="TAMBAH">Tambah & kemas kini (${baru} murid baharu, ${sah-baru>0?sah-baru:0} dikemas kini)</option>
-      <option value="GANTI">Ganti keseluruhan senarai murid sedia ada</option></select>
-      <div class="info warn" style="margin-top:10px">"Ganti keseluruhan" akan memadam semua murid sedia ada yang tiada dalam fail ini. Rekod kesalahan tidak terjejas.</div>`,[
+      <select id="iMode"><option value="TAMBAH">Tambah & kemas kini (${baru} murid baharu, ${Math.max(0,sah-baru)} dikemas kini)</option>
+      <option value="GANTI">Ganti keseluruhan senarai murid aktif</option></select>
+      <div class="info warn" style="margin-top:10px">"Ganti keseluruhan" akan membuang semua murid aktif yang tiada dalam fail ini. Rekod kesalahan tidak terjejas.</div>`,[
       {t:'Batal',cls:'sec'},
       {t:'Import',cls:'grn',fn:async()=>{
         const r=await api('importMurid',{rows,mode:$('#iMode').value});
-        S.murid=r.murid; S.kelas=r.kelas;
+        S.murid=r.murid; S.kelas=r.kelas; S.muridArkib=r.muridArkib||S.muridArkib;
         toast(`Import selesai: ${r.tambah} baharu, ${r.kemaskini} dikemas kini.`,'ok');
         tMurid();
         if(r.ralat.length) setTimeout(()=>modal('Catatan Import',`<p>${r.ralat.length} catatan:</p><div style="max-height:300px;overflow:auto" class="muted">${r.ralat.map(esc).join('<br>')}</div>`),50);
@@ -845,8 +1258,9 @@ function tUsers(role){
   $('#tBody').innerHTML = `
   <div class="card"><h3>Akses ${title} (${list.length})</h3>
     <div class="info" style="margin-bottom:12px">${isG
-      ?'Guru boleh merekod, melihat semua rekod dan memadam rekod. Guru bertanda <b>Pentadbir</b> boleh mengakses menu Tetapan.'
-      :`Pengawas ${S.set.PengawasRekod==='YA'?'boleh':'<b>tidak</b> boleh'} merekod kesalahan dan melihat ${S.set.PengawasLihat==='SEMUA'?'semua rekod':'rekod yang dimasukkan sendiri sahaja'}. Ubah di tab Umum & Logo.`}</div>
+      ?'Guru boleh merekod, melihat semua rekod, mengedit/memadam rekod, mengurus tindakan susulan dan menjana laporan. Guru bertanda <b>Pentadbir</b> boleh mengakses menu Tetapan.'
+      :`Pengawas ${S.set.PengawasRekod==='YA'?'boleh':'<b>tidak</b> boleh'} merekod kesalahan dan melihat ${S.set.PengawasLihat==='SEMUA'?'semua rekod':'rekod yang dimasukkan sendiri sahaja'}. Ubah di tab Umum & Logo.`}
+      <br>Akaun baharu dan kata laluan yang ditetapkan semula <b>wajib ditukar</b> oleh pengguna semasa log masuk.</div>
     <div class="toolbar">
       <button class="btn" id="uAdd">+ Tambah ${title}</button>
       <button class="btn sec" id="uTpl">⬇ Templat Excel</button>
@@ -855,7 +1269,7 @@ function tUsers(role){
     <div class="tw"><table class="tbl"><thead><tr><th>Nama</th><th>ID Log Masuk</th>${isG?'<th>Pentadbir</th>':''}<th>Status</th><th></th></tr></thead><tbody>
     ${list.length?list.map(u=>`<tr><td>${esc(u.Nama)}${u.ID===S.user.ID?' <span class="muted">(anda)</span>':''}</td><td>${esc(u.Login)}</td>
       ${isG?`<td>${u.Pentadbir==='YA'?'<span class="badge b-on">Ya</span>':'<span class="muted">—</span>'}</td>`:''}
-      <td>${u.Aktif==='YA'?'<span class="badge b-Ringan">Aktif</span>':'<span class="badge b-off">Tidak aktif</span>'}</td>
+      <td>${u.Aktif==='YA'?'<span class="badge b-Ringan">Aktif</span>':'<span class="badge b-off">Tidak aktif</span>'}${u.TukarKL==='YA'?' <span class="badge b-PROSES">Belum tukar KL</span>':''}</td>
       <td class="right nowrap"><button class="btn sm sec" data-ed="${esc(u.ID)}">Edit</button>${u.ID!==S.user.ID?` <button class="btn sm red" data-del="${esc(u.ID)}">Padam</button>`:''}</td></tr>`).join('')
       :`<tr><td colspan="5" class="muted">Belum ada akaun ${title.toLowerCase()}.</td></tr>`}
     </tbody></table></div>
@@ -881,7 +1295,7 @@ function tUsers(role){
       const rows=[];
       for(let i=mp.start;i<aoa.length;i++){ const r=aoa[i]; const o={Login:String(r[mp.idx.login]||'').trim(),Nama:String(r[mp.idx.nama]||'').trim(),Password:String(r[mp.idx.pw]||'').trim(),baris:i+1}; if(o.Login||o.Nama) rows.push(o); }
       if(!rows.length) throw new Error('Tiada data dalam fail.');
-      if(!await ask(`Import <b>${rows.length}</b> akaun ${title.toLowerCase()} daripada <i>${esc(file.name)}</i>?<br><span class="muted">ID yang sudah wujud akan diabaikan.</span>`,'Import','grn')) return;
+      if(!await ask(`Import <b>${rows.length}</b> akaun ${title.toLowerCase()} daripada <i>${esc(file.name)}</i>?<br><span class="muted">ID yang sudah wujud akan diabaikan. Kata laluan dalam fail dianggap sementara.</span>`,'Import','grn')) return;
       const r=await api('importUsers',{rows,peranan:role});
       S.users=r.users; toast(`${r.tambah} akaun ditambah.`,'ok'); tUsers(role);
       if(r.ralat.length) setTimeout(()=>modal('Catatan Import',`<div style="max-height:300px;overflow:auto" class="muted">${r.ralat.map(esc).join('<br>')}</div>`),50);
@@ -892,21 +1306,100 @@ function userForm(u,role){
   const isG=role==='GURU';
   modal(u?'Edit Akaun':'Tambah Akaun '+(isG?'Guru':'Pengawas'),`
     <label>Nama penuh</label><input id="uNama" value="${esc(u?u.Nama:'')}">
-    <label>ID log masuk</label><input id="uLogin" value="${esc(u?u.Login:'')}" placeholder="cth. cikgu.aminah atau emel">
+    <label>ID log masuk</label><input id="uLogin" value="${esc(u?u.Login:'')}" placeholder="cth. cikgu.aminah atau emel" autocapitalize="none">
     <div class="muted">Huruf kecil, nombor, titik, sengkang atau @ sahaja, tanpa jarak.</div>
     ${isG?`<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="uAdm" ${u&&u.Pentadbir==='YA'?'checked':''}> Pentadbir (boleh akses Tetapan)</label>`:''}
     <label>Status</label><select id="uAktif"><option value="YA" ${!u||u.Aktif==='YA'?'selected':''}>Aktif</option><option value="TIDAK" ${u&&u.Aktif!=='YA'?'selected':''}>Tidak aktif</option></select>
-    <label>${u?'Kata laluan baharu (biarkan kosong jika tidak mahu tukar)':'Kata laluan (min. 6 aksara)'}</label>
-    <input id="uPw" type="text" autocomplete="off">`,[
+    <label>${u?'Tetapkan semula kata laluan (biarkan kosong jika tidak mahu tukar)':'Kata laluan sementara (min. 6 aksara)'}</label>
+    <input id="uPw" type="text" autocomplete="off">
+    <div class="muted">Pengguna akan diminta menukar kata laluan ini semasa log masuk.</div>`,[
     {t:'Batal',cls:'sec'},
     {t:'Simpan',fn:async()=>{
       S.users=await api('saveUser',{ID:u?u.ID:'',Nama:$('#uNama').value,Login:$('#uLogin').value,Peranan:role,
         Pentadbir:isG&&$('#uAdm').checked?'YA':'TIDAK',Aktif:$('#uAktif').value,Password:$('#uPw').value});
       toast('Akaun disimpan.','ok');
-      if(u && u.ID===S.user.ID){ await boot(); S.tab=role==='GURU'?'guru':'pengawas'; if(isAdmin()) vTetapan(); }
+      if(u && u.ID===S.user.ID){ S.tab=isG?'guru':'pengawas'; S.view='tetapan'; await boot(); }
       else tUsers(role);
     }}
   ]);
+}
+
+/* ---------- Sandaran & Arkib ---------- */
+async function tSistem(){
+  $('#tBody').innerHTML='<div class="card muted">Memuatkan…</div>';
+  let d;
+  try{ d=await api('systemInfo'); }catch(e){ $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
+  const sb=d.sandaran;
+  $('#tBody').innerHTML=`
+  <div class="grid g2">
+    <div class="card"><h3>💾 Sandaran Data</h3>
+      <div class="sp"><span>Sandaran terakhir</span><b>${sb.terakhir?fmtD(sb.terakhir):'Belum pernah'}</b></div>
+      <div class="sp" style="margin-top:6px"><span>Salinan disimpan</span><b>${sb.bil} / ${sb.simpan}</b></div>
+      <div class="sp" style="margin-top:6px"><span>Sandaran automatik mingguan</span><b>${sb.auto?'<span class="badge b-Ringan">Hidup</span>':'<span class="badge b-off">Mati</span>'}</b></div>
+      <div class="muted" style="margin-top:8px">Salinan penuh Google Sheet disimpan dalam folder Drive "Sandaran Sistem Demerit". Salinan lama melebihi ${sb.simpan} dibuang secara automatik. Sandaran automatik berjalan setiap Jumaat sekitar jam 6 petang.</div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn" id="bNow">Sandaran Sekarang</button>
+        <button class="btn ${sb.auto?'red':'grn'}" id="bAuto">${sb.auto?'Matikan':'Hidupkan'} Sandaran Automatik</button>
+        ${sb.folderUrl?`<a class="btn sec" href="${esc(sb.folderUrl)}" target="_blank" rel="noopener">Buka Folder</a>`:''}
+      </div>
+    </div>
+    <div class="card"><h3>🔢 Kira Semula Kiraan</h3>
+      <p class="muted">Susun semula "kesalahan ke-" dan tahap bagi semua murid mengikut tarikh kejadian. Ini berlaku secara automatik selepas rekod disimpan, diedit atau dipadam, tetapi boleh dijalankan secara manual, contohnya selepas data diubah terus dalam Google Sheet.</p>
+      <button class="btn amb" id="bRe">Kira Semula Semua Rekod</button>
+      <h3 style="margin-top:20px">📊 Ringkasan Data</h3>
+      <div class="sp"><span>Murid aktif</span><b>${d.bilMurid}</b></div>
+      <div class="sp"><span>Murid arkib</span><b>${d.bilMuridArkib}</b></div>
+      <div class="sp"><span>Akaun pengguna</span><b>${d.bilPengguna}</b></div>
+      <div class="sp"><span>Tindakan belum selesai</span><b>${d.bilTindakanBuka}</b></div>
+    </div>
+  </div>
+  <div class="card"><h3>🗃️ Arkib Rekod Mengikut Tahun</h3>
+    <p class="muted">Rekod tahun lepas boleh dipindahkan ke helaian berasingan (Arkib_TAHUN) supaya sistem kekal laju. Rekod arkib masih boleh dilihat dalam Senarai Rekod, Profil Murid dan Laporan, tetapi tidak boleh diedit atau dipadam.</p>
+    <div class="grid g2" style="margin:0">
+      <div><b>Rekod aktif</b><table class="tbl"><thead><tr><th>Tahun</th><th class="right">Rekod</th><th></th></tr></thead><tbody>
+        ${d.rekodAktif.length?d.rekodAktif.map(y=>`<tr><td>${esc(y.tahun)}</td><td class="right">${y.bil}</td><td class="right">${y.bolehArkib?`<button class="btn sm amb" data-yr="${esc(y.tahun)}">Arkibkan</button>`:'<span class="muted">Tahun semasa</span>'}</td></tr>`).join(''):'<tr><td colspan="3" class="muted">Tiada rekod.</td></tr>'}
+      </tbody></table></div>
+      <div><b>Telah diarkib</b><table class="tbl"><thead><tr><th>Helaian</th><th class="right">Rekod</th></tr></thead><tbody>
+        ${d.arkib.length?d.arkib.map(a=>`<tr><td>Arkib_${esc(a.tahun)}</td><td class="right">${a.bil}</td></tr>`).join(''):'<tr><td colspan="2" class="muted">Belum ada arkib.</td></tr>'}
+      </tbody></table></div>
+    </div>
+  </div>`;
+  $('#bNow').onclick=async()=>{ try{ toast('Membuat sandaran…'); await api('backupNow'); toast('Sandaran berjaya dibuat.','ok'); tSistem(); }catch(e){ toast(e.message,'err'); } };
+  $('#bAuto').onclick=async()=>{ try{ await api('setAutoBackup',{on:!sb.auto}); toast(sb.auto?'Sandaran automatik dimatikan.':'Sandaran automatik dihidupkan.','ok'); tSistem(); }catch(e){ toast(e.message,'err'); } };
+  $('#bRe').onclick=async()=>{
+    if(!await ask('Kira semula "kesalahan ke-" dan tahap bagi semua rekod aktif?','Kira Semula','amb')) return;
+    try{ const r=await api('recomputeAll'); toast(r.berubah?`${r.berubah} rekod dikemas kini.`:'Semua kiraan sudah tepat.','ok'); }catch(e){ toast(e.message,'err'); }
+  };
+  $('#tBody').querySelectorAll('[data-yr]').forEach(b=>b.onclick=async()=>{
+    const y=b.dataset.yr;
+    if(!await ask(`Arkibkan semua rekod tahun <b>${esc(y)}</b> ke helaian Arkib_${esc(y)}?<br><span class="muted">Rekod arkib tidak boleh diedit atau dipadam. Disyorkan buat sandaran dahulu.</span>`,'Arkibkan','amb')) return;
+    try{ await api('archiveYear',{tahun:y}); S.tahunArkib.push(y); toast(`Rekod tahun ${y} diarkibkan.`,'ok'); tSistem(); }catch(e){ toast(e.message,'err'); }
+  });
+}
+
+/* ---------- Log Aktiviti ---------- */
+function tLog(){
+  $('#tBody').innerHTML=`
+  <div class="card"><h3>📜 Log Aktiviti</h3>
+    <div class="row" style="margin-bottom:10px">
+      <div><input id="lgQ" placeholder="Cari pengguna, tindakan atau butiran…"></div>
+      <div style="flex:0 0 220px"><select id="lgT"><option value="">Semua tindakan</option>
+        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI LOGO','BUANG LOGO']
+          .map(t=>`<option>${t}</option>`).join('')}</select></div>
+      <button class="btn" id="lgGo">🔍 Cari</button>
+    </div>
+    <div class="tw" id="lgTbl"></div>
+  </div>`;
+  const load=async()=>{
+    $('#lgTbl').innerHTML='<div class="muted">Memuatkan…</div>';
+    try{
+      const l=await api('listLog',{q:$('#lgQ').value.trim(),tindakan:$('#lgT').value,limit:500});
+      $('#lgTbl').innerHTML = l.length?`<div class="muted" style="margin-bottom:6px">${l.length} entri terkini${l.length>=500?' (dihadkan 500)':''}</div><table class="tbl"><thead><tr><th>Masa</th><th>Pengguna</th><th>Tindakan</th><th>Butiran</th></tr></thead><tbody>
+        ${l.map(x=>`<tr><td class="nowrap">${fmtD(x.Masa)}</td><td>${esc(x.Pengguna)}</td><td class="nowrap"><b>${esc(x.Tindakan)}</b></td><td style="word-break:break-word">${esc(x.Butiran)}</td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada entri.</div>';
+    }catch(e){ $('#lgTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+  };
+  $('#lgGo').onclick=load; $('#lgT').onchange=load; $('#lgQ').onkeydown=e=>{if(e.key==='Enter')load();};
+  load();
 }
 
 /* ===================================================================== */
