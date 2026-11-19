@@ -1745,7 +1745,8 @@ async function tSistem(){
   let d;
   try{ d=await api('systemInfo'); }catch(e){ $('#tBody').innerHTML=`<div class="card err">${esc(e.message)}</div>`; return; }
   const sb=d.sandaran;
-  $('#tBody').innerHTML=`
+  $('#tBody').innerHTML=(d.perluKebenaran?`<div class="card info warn"><b>⚠️ Kebenaran Google belum lengkap.</b> Sandaran automatik tidak dapat digunakan sehingga pemilik skrip memberi kebenaran:
+    <ol style="margin:6px 0 0 18px;padding:0"><li>Buka Google Sheet sistem → <b>Extensions → Apps Script</b>.</li><li>Pilih fungsi <b>benarkanAkses</b> di bar atas → klik <b>Run</b>.</li><li>Klik <b>Review permissions</b> → pilih akaun → <b>Advanced</b> → <b>Go to … (unsafe)</b> → <b>Allow</b>.</li><li>Kembali ke sini dan muat semula tab ini.</li></ol></div>`:'')+`
   <div class="grid g2">
     <div class="card"><h3>💾 Sandaran Data</h3>
       <div class="sp"><span>Sandaran terakhir</span><b>${sb.terakhir?fmtD(sb.terakhir):'Belum pernah'}</b></div>
