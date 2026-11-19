@@ -327,8 +327,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '4.1';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
-const BACKEND_VERSI = 4;
+const APP_VERSI = '5.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const BACKEND_VERSI = 5;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -570,7 +570,7 @@ async function printMoeisDoc(land){
         <div class="fill">T/tangan: <span class="dl"></span></div></td></tr>`).join('')}
     </tbody></table>`;
   }
-  printDoc(head+body+pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin']]), false, land);
+  printDoc(head+body+pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disemak oleh','','Guru Disiplin']]), false, land);
 }
 function moeisModal(ids, after){
   modal(ids.length>1?`Kemas Kini MOEIS (${ids.length} item)`:'Kemas Kini MOEIS',`
@@ -586,16 +586,16 @@ function moeisModal(ids, after){
   $('#moS').onchange=()=>$('#moW').classList.toggle('hidden',$('#moS').value!=='SUDAH');
 }
 
-function printRecs(){
-  const F=S.recFilter||{}, L=S.recs||[];
+function printRecs(list, terpilih){
+  const F=S.recFilter||{}, L=list||S.recs||[];
   if(!L.length) return toast('Tiada rekod untuk dicetak.','err');
-  printDoc(pdHead('Senarai Rekod Kesalahan Murid','',[
+  printDoc(pdHead('Senarai Rekod Kesalahan Murid',terpilih?'Rekod terpilih':'',[
       ['Tempoh',(F.dari?fmtD(F.dari):'-')+' hingga '+(F.hingga?fmtD(F.hingga):'-')],['Kelas',F.kelas||'Semua kelas'],
-      ['Tahap',F.tahap||'Semua tahap'],['Carian',F.q||'-'],['Jumlah rekod',String(L.length)+(S.recTotal>L.length?' daripada '+S.recTotal:'')]])+
+      ['Tahap',F.tahap||'Semua tahap'],['Carian',F.q||'-'],['Jumlah rekod',String(L.length)+(!terpilih&&S.recTotal>L.length?' daripada '+S.recTotal:'')]])+
     `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th>Kesalahan</th><th class="c">Ke-</th><th class="c">Tahap</th><th>Direkod oleh</th></tr></thead><tbody>
     ${L.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.NamaPenuh)}<br><small>${esc(r.NoDaftar)}</small></td><td class="nw">${esc(r.Kelas)}</td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Catatan?`<br><small><i>${esc(r.Catatan)}</i></small>`:''}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}</td></tr>`).join('')}
     </tbody></table>
-    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin']])}`);
+    ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disemak oleh','','Guru Disiplin']])}`);
 }
 
 function printTind(){
@@ -606,7 +606,7 @@ function printTind(){
     `<table class="pd-tbl" style="margin-top:8px"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th>Nama murid</th><th>Kelas</th><th class="c">Tahap</th><th class="c">Status</th><th>Catatan tindakan</th></tr></thead><tbody>
     ${L.map((t,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(t.TarikhWujud.slice(0,10))}</td><td>${esc(t.NamaPenuh)}<br><small>${esc(t.NoDaftar)}</small></td><td class="nw">${esc(t.Kelas)}</td><td class="c">${pdTag(t.Tahap)}</td><td class="c">${pdTag(t.Status)}</td><td>${esc(t.Catatan)||'-'}${t.DikemaskiniOleh?`<br><small>${esc(t.DikemaskiniOleh)}, ${fmtD(t.DikemaskiniPada.slice(0,10))}</small>`:''}</td></tr>`).join('')}
     </tbody></table>
-    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
+    ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
 }
 
 function printReport(){
@@ -635,7 +635,7 @@ function printReport(){
     <table class="pd-tbl"><thead><tr><th>Status</th><th class="r">Bilangan</th></tr></thead><tbody>
       <tr><td>${STATUS.BELUM}</td><td class="r">${d.tindakan.BELUM}</td></tr><tr><td>${STATUS.PROSES}</td><td class="r">${d.tindakan.PROSES}</td></tr><tr><td>${STATUS.SELESAI}</td><td class="r">${d.tindakan.SELESAI}</td></tr></tbody>
       <tfoot><tr><td>JUMLAH</td><td class="r">${tT}</td></tr></tfoot></table>
-    ${pdSign([['Disediakan oleh',S.user.Nama,''],['Disemak oleh','','Guru Disiplin'],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
+    ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disemak oleh','','Guru Disiplin'],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
 }
 
 /* =====================================================================
@@ -711,7 +711,7 @@ $('#btnOut').onclick = async()=>{ try{ await api('logout'); }catch(e){} endSessi
 async function boot(){
   const d = await api('bootstrap');
   S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
-  S.kes=d.kesalahan; S.users=d.users||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[];
+  S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[];
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
   $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=roleName(S.user);
   showOnly('#app');
@@ -764,10 +764,10 @@ async function vDashboard(){
   <div class="hero"><h2>${salam}, ${esc(S.user.Nama)} 👋</h2><p>${esc(tkh)} · Skop kiraan: ${esc(d.skop)}${ownOnly()?' · rekod yang anda masukkan sahaja':''}</p></div>
   <div class="grid g6">
     ${stat('Jumlah rekod',d.jumlah)}${stat('Hari ini',d.hariIni)}${stat('Bulan ini',d.bulanIni)}
-    ${stat('Rekod tahap Ringan',d.rekodTahap.Ringan,'ringan')}${stat('Rekod tahap Sederhana',d.rekodTahap.Sederhana,'sederhana')}${stat('Rekod tahap Berat',d.rekodTahap.Berat,'berat')}
+    ${stat('Rekod tahap Ringan',d.rekodTahap.Ringan,'ringan click','data-rt="Ringan"')}${stat('Rekod tahap Sederhana',d.rekodTahap.Sederhana,'sederhana click','data-rt="Sederhana"')}${stat('Rekod tahap Berat',d.rekodTahap.Berat,'berat click','data-rt="Berat"')}
   </div>
   ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g6" style="margin:0">
-    ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat')}
+    ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan click','data-mt="Ringan"')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana click','data-mt="Sederhana"')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat click','data-mt="Berat"')}
     ${d.tindakanBuka!=null?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
     ${d.moeisBelum!=null?stat('Belum dimasukkan ke MOEIS',d.moeisBelum,'berat click','id="dMoe"'):''}
   </div></div>`:''}
@@ -781,6 +781,8 @@ async function vDashboard(){
   </div>`;
   v.querySelectorAll('tr[data-no]').forEach(tr=>tr.onclick=()=>{ S.profilNo=tr.dataset.no; go('profil'); });
   if($('#dTind')) $('#dTind').onclick=()=>go('tindakan');
+  v.querySelectorAll('[data-mt]').forEach(el=>{ el.title='Klik untuk lihat senarai murid'; el.onclick=()=>{ S.profilFilter={tahap:el.dataset.mt}; go('profil'); }; });
+  v.querySelectorAll('[data-rt]').forEach(el=>{ el.title='Klik untuk lihat rekod'; el.onclick=()=>{ S.senaraiFilter={tahap:el.dataset.rt}; go('senarai'); }; });
   if($('#dMoe')) $('#dMoe').onclick=()=>go('moeis');
 }
 
@@ -917,12 +919,15 @@ function vSenarai(){
       <div><input id="fQ" placeholder="Carian nama, no. pendaftaran, kesalahan, pegawai…"></div>
       <button class="btn" id="fGo">🔍 Cari</button>
       <button class="btn grn" id="fXls">⬇ Eksport Excel</button>
-      <button class="btn sec" id="fPrt">🖨 Cetak</button>
+      <button class="btn sec" id="fPrt">🖨 Cetak Semua</button>
     </div>
   </div>
-  <div class="card"><div id="fInfo" class="muted" style="margin-bottom:8px"></div><div class="tw" id="fTbl"></div></div>`;
+  <div class="card"><div class="sp" style="align-items:center;flex-wrap:wrap;margin-bottom:8px"><div id="fInfo" class="muted"></div>
+    <div class="toolbar" style="margin:0"><button class="btn sm" id="fSelR" disabled>🖨 Cetak Rekod Terpilih (0)</button><button class="btn sm amb" id="fSelP" disabled>🖨 Cetak Profil Murid Terpilih (0)</button></div></div>
+    <div class="tw" id="fTbl"></div></div>`;
   $('#fGo').onclick=loadRecs; $('#fQ').onkeydown=e=>{if(e.key==='Enter')loadRecs();};
-  $('#fXls').onclick=exportRecs; $('#fPrt').onclick=printRecs;
+  $('#fXls').onclick=exportRecs; $('#fPrt').onclick=()=>printRecs();
+  if(S.senaraiFilter){ if(S.senaraiFilter.tahap) $('#fTahap').value=S.senaraiFilter.tahap; S.senaraiFilter=null; }
   loadRecs();
 }
 async function loadRecs(){
@@ -932,14 +937,23 @@ async function loadRecs(){
     const r=await api('listRecords',F);
     S.recs=r.records; S.recFilter=F; S.recTotal=r.total;
     $('#fInfo').textContent = `${r.total} rekod dijumpai`+(r.total>r.records.length?` (dipaparkan ${r.records.length} terkini)`:'');
-    $('#fTbl').innerHTML = recTable(r.records, isGuru());
+    $('#fTbl').innerHTML = recTable(r.records, isGuru(), true);
     bindRecActions($('#fTbl'), r.records, loadRecs);
+    const sel=()=>[...document.querySelectorAll('#fTbl .rC:checked')].map(c=>c.value);
+    const upd=()=>{ const ids=sel(), murid=[...new Set(S.recs.filter(x=>ids.includes(x.ID)).map(x=>x.NoDaftar))];
+      $('#fSelR').disabled=!ids.length; $('#fSelR').textContent=`🖨 Cetak Rekod Terpilih (${ids.length})`;
+      $('#fSelP').disabled=!murid.length||!isGuru(); $('#fSelP').textContent=`🖨 Cetak Profil Murid Terpilih (${murid.length})`;
+      $('#fSelP').classList.toggle('hidden',!isGuru()); };
+    if($('#rAll')) $('#rAll').onchange=e=>{ document.querySelectorAll('#fTbl .rC').forEach(c=>c.checked=e.target.checked); upd(); };
+    document.querySelectorAll('#fTbl .rC').forEach(c=>c.onchange=upd); upd();
+    $('#fSelR').onclick=()=>{ const ids=sel(); printRecs(S.recs.filter(x=>ids.includes(x.ID)), true); };
+    $('#fSelP').onclick=()=>{ const ids=sel(); printBulk([...new Set(S.recs.filter(x=>ids.includes(x.ID)).map(x=>x.NoDaftar))]); };
   }catch(e){ $('#fTbl').innerHTML=`<div class="err">${esc(e.message)}</div>`; }
 }
-function recTable(list, canEdit){
+function recTable(list, canEdit, pick){
   if(!list.length) return '<div class="muted">Tiada rekod.</div>';
-  return `<table class="tbl"><thead><tr><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th>${canEdit?'<th class="noprint"></th>':''}</tr></thead><tbody>
-  ${list.map(r=>`<tr><td class="nowrap">${fmtD(r.Tarikh)}<div class="muted">${esc(r.Masa)}</div>${r.Arkib==='YA'?'<span class="badge b-arkib">Arkib</span>':''}</td>
+  return `<table class="tbl"><thead><tr>${pick?'<th class="noprint"><input type="checkbox" id="rAll" title="Pilih semua"></th>':''}<th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Ke-</th><th>Tahap</th><th>Direkod oleh</th>${canEdit?'<th class="noprint"></th>':''}</tr></thead><tbody>
+  ${list.map(r=>`<tr>${pick?`<td class="noprint"><input type="checkbox" class="rC" value="${esc(r.ID)}"></td>`:''}<td class="nowrap">${fmtD(r.Tarikh)}<div class="muted">${esc(r.Masa)}</div>${r.Arkib==='YA'?'<span class="badge b-arkib">Arkib</span>':''}</td>
     <td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.NoDaftar)}</div></td><td>${esc(r.Kelas)}</td>
     <td>${esc(r.Kesalahan)}${r.Butiran?`<div class="muted">${esc(r.Butiran)}</div>`:''}${r.Catatan?`<div class="muted"><i>${esc(r.Catatan)}</i></div>`:''}</td>
     <td>${esc(r.Bilangan)}</td><td>${badge(r.Tahap)}</td>
@@ -987,6 +1001,52 @@ function exportRecs(){
    PROFIL MURID
    ===================================================================== */
 function vProfil(){
+  if(!isGuru()) return vProfilCari();
+  const F=Object.assign({kelas:'',tahap:'',moeis:'',q:''},S.profilFilter||{}); S.profilFilter=null;
+  $('#view').innerHTML = `
+  <div class="card noprint"><h3>👤 Profil Demerit Murid</h3>
+    <div class="row">
+      <div><label>Kelas</label><select id="pKelas">${optKelas(F.kelas,'Semua kelas')}</select></div>
+      <div><label>Tahap semasa</label><select id="pTahap"><option value="">Semua tahap</option><option value="Ringan">Ringan</option><option value="Sederhana">Sederhana</option><option value="Berat">Berat</option><option value="TIADA">Tiada kesalahan</option></select></div>
+      <div><label>MOEIS</label><select id="pMoe"><option value="">Semua</option><option value="BELUM">Ada yang belum dimasukkan</option></select></div>
+      <div><label>Carian</label><input id="pCari" placeholder="Nama atau no. pendaftaran…" autocomplete="off" value="${esc(F.q)}"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="pArk"> Termasuk murid arkib</label>
+    <div class="muted" style="margin-top:4px">Pilih kelas untuk melihat semua murid dalam kelas, atau pilih tahap untuk melihat murid dari semua kelas. Skop kiraan: ${esc(skopLabel())}.</div>
+  </div>
+  <div class="card noprint"><div class="sp" style="align-items:center;flex-wrap:wrap;margin-bottom:8px"><div id="pInfo" class="muted"></div>
+    <div class="toolbar" style="margin:0"><button class="btn sm" id="pBulk" disabled>🖨 Cetak Profil Terpilih (0)</button></div></div>
+    <div class="tw" id="pTbl2"></div></div>
+  <div id="pOut"></div>`;
+  $('#pTahap').value=F.tahap; $('#pMoe').value=F.moeis;
+  let tm; const reload=()=>{ clearTimeout(tm); tm=setTimeout(loadProfilTable,250); };
+  ['#pKelas','#pTahap','#pMoe','#pArk'].forEach(x=>$(x).onchange=loadProfilTable); $('#pCari').oninput=reload;
+  loadProfilTable();
+  if(S.profilNo){ const n=S.profilNo; S.profilNo=null; showProfil(n); }
+}
+async function loadProfilTable(){
+  const kelas=$('#pKelas').value, tahap=$('#pTahap').value, q=$('#pCari').value.trim();
+  const el=$('#pTbl2'); el.innerHTML='<div class="muted">Memuatkan…</div>';
+  try{
+    const L=await api('studentSummary',{kelas,tahap,moeis:$('#pMoe').value,q,termasukArkib:$('#pArk').checked,semua:!!kelas||tahap==='TIADA'||!!q});
+    const {a,b}=had();
+    $('#pInfo').innerHTML=`<b>${L.length}</b> murid${kelas?' dalam '+esc(kelas):''}${tahap&&tahap!=='TIADA'?' · tahap '+esc(tahap):''}${!kelas&&!tahap&&!q?' yang mempunyai rekod kesalahan':''}`;
+    if(!L.length){ el.innerHTML='<div class="muted">Tiada murid sepadan.</div>'; $('#pBulk').disabled=true; return; }
+    el.innerHTML=`<table class="tbl"><thead><tr><th><input type="checkbox" id="pAll"></th><th>Bil</th><th>Murid</th><th>Kelas</th><th class="right">Jumlah</th><th class="right">Ringan</th><th class="right">Sederhana</th><th class="right">Berat</th><th>Tahap</th><th class="right">MOEIS belum</th><th>Kesalahan terakhir</th><th></th></tr></thead><tbody>
+      ${L.map((m,i)=>{ const c=m.count; return `<tr><td><input type="checkbox" class="pC" value="${esc(m.NoDaftar)}"></td><td>${i+1}</td>
+        <td><a href="#" data-v="${esc(m.NoDaftar)}">${esc(m.NamaPenuh)}</a>${m.Arkib?' <span class="badge b-arkib">Arkib</span>':''}<div class="muted">${esc(m.NoDaftar)}</div></td><td class="nowrap">${esc(m.Kelas)}</td>
+        <td class="right"><b>${c}</b></td><td class="right">${Math.min(c,a)}/${a}</td><td class="right">${Math.max(0,Math.min(c-a,b))}/${b}</td><td class="right">${Math.max(0,c-a-b)}</td>
+        <td>${c?badge(m.tahap):'<span class="muted">—</span>'}</td><td class="right">${m.moeisBelum?`<span class="badge b-BELUM">${m.moeisBelum}</span>`:'<span class="muted">—</span>'}</td>
+        <td>${m.akhirTarikh?`${fmtD(m.akhirTarikh)}<div class="muted">${esc(m.akhirKes)}</div>`:'<span class="muted">—</span>'}</td>
+        <td><button class="btn sm sec" data-v="${esc(m.NoDaftar)}">Lihat</button></td></tr>`; }).join('')}</tbody></table>`;
+    const upd=()=>{ const n=document.querySelectorAll('.pC:checked').length; $('#pBulk').disabled=!n||n>300; $('#pBulk').textContent=`🖨 Cetak Profil Terpilih (${n})`; };
+    $('#pAll').onchange=e=>{ document.querySelectorAll('.pC').forEach(c=>c.checked=e.target.checked); upd(); };
+    document.querySelectorAll('.pC').forEach(c=>c.onchange=upd); upd();
+    $('#pBulk').onclick=()=>printBulk([...document.querySelectorAll('.pC:checked')].map(c=>c.value));
+    el.querySelectorAll('[data-v]').forEach(x=>x.onclick=e=>{ e.preventDefault(); showProfil(x.dataset.v); });
+  }catch(e){ el.innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+}
+function vProfilCari(){
   $('#view').innerHTML = `
   <div class="card noprint"><h3>👤 Profil Demerit Murid</h3>
     <div class="row">
@@ -999,10 +1059,9 @@ function vProfil(){
   const draw=()=>{
     const k=$('#pKelas').value, q=$('#pCari').value.trim().toLowerCase();
     if(!k && q.length<2){ $('#pList').innerHTML='<div class="em">Pilih kelas atau taip sekurang-kurangnya 2 huruf.</div>'; return; }
-    const pool=S.murid.map(m=>Object.assign({_a:0},m)).concat(k?[]:S.muridArkib.map(m=>Object.assign({_a:1},m)));
-    const l=pool.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)))
-      .sort((x,y)=>x._a-y._a||x.NamaPenuh.localeCompare(y.NamaPenuh)).slice(0,80);
-    $('#pList').innerHTML = l.length?l.map(m=>`<div data-no="${esc(m.NoDaftar)}">${esc(m.NamaPenuh)} <span class="muted">· ${esc(m.Kelas)} · ${esc(m.NoDaftar)}</span>${m._a?' <span class="badge b-arkib">Arkib</span>':''}</div>`).join(''):'<div class="em">Tiada murid dijumpai.</div>';
+    const l=S.murid.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)))
+      .sort((x,y)=>x.NamaPenuh.localeCompare(y.NamaPenuh)).slice(0,80);
+    $('#pList').innerHTML = l.length?l.map(m=>`<div data-no="${esc(m.NoDaftar)}">${esc(m.NamaPenuh)} <span class="muted">· ${esc(m.Kelas)} · ${esc(m.NoDaftar)}</span></div>`).join(''):'<div class="em">Tiada murid dijumpai.</div>';
     $('#pList').querySelectorAll('div[data-no]').forEach(d=>d.onclick=()=>showProfil(d.dataset.no));
   };
   $('#pKelas').onchange=draw; $('#pCari').oninput=draw; draw();
@@ -1255,7 +1314,7 @@ function exportReport(){
 function vAkaun(){
   $('#view').innerHTML = `
   <div class="card" style="max-width:480px"><h3>🔑 Akaun Saya</h3>
-    <div class="muted">Nama: <b>${esc(S.user.Nama)}</b><br>ID log masuk: <b>${esc(S.user.Login)}</b><br>Peranan: <b>${esc(roleName(S.user))}</b><br>Versi sistem: <b>${esc(APP_VERSI)}</b></div>
+    <div class="muted">Nama: <b>${esc(S.user.Nama)}</b><br>ID log masuk: <b>${esc(S.user.Login)}</b><br>Peranan: <b>${esc(roleName(S.user))}</b>${S.user.Jawatan?`<br>Jawatan: <b>${esc(S.user.Jawatan)}</b>`:''}<br>Versi sistem: <b>${esc(APP_VERSI)}</b></div>
     <div style="margin-top:8px"><button class="btn sec sm" id="aUpd">🔄 Semak kemas kini</button></div>
     <label>Kata laluan semasa</label><input type="password" id="aOld" autocomplete="current-password">
     <label>Kata laluan baharu (min. 6 aksara)</label><input type="password" id="aNew" autocomplete="new-password">
@@ -1279,11 +1338,11 @@ function vAkaun(){
    TETAPAN (GURU PENTADBIR)
    ===================================================================== */
 const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],
-  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['sistem','🗄️ Sandaran & Arkib'],['log','📜 Log Aktiviti']];
+  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['jawatan','🎖️ Jawatan'],['sistem','🗄️ Sandaran & Arkib'],['log','📜 Log Aktiviti']];
 function vTetapan(){
   $('#view').innerHTML = `<div class="tabs">${TABS.map(([k,t])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${t}</button>`).join('')}</div><div id="tBody"></div>`;
   $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; vTetapan(); });
-  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),sistem:tSistem,log:tLog})[S.tab]();
+  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),jawatan:tJawatan,sistem:tSistem,log:tLog})[S.tab]();
 }
 
 /* ---------- Umum & Logo ---------- */
@@ -1681,12 +1740,12 @@ function tUsers(role){
       <button class="btn sec" id="uTpl">⬇ Templat Excel</button>
       <button class="btn grn" id="uImp">⬆ Import dari Excel</button>
     </div>
-    <div class="tw"><table class="tbl"><thead><tr><th>Nama</th><th>ID Log Masuk</th>${isG?'<th>Pentadbir</th>':''}<th>Status</th><th></th></tr></thead><tbody>
-    ${list.length?list.map(u=>`<tr><td>${esc(u.Nama)}${u.ID===S.user.ID?' <span class="muted">(anda)</span>':''}</td><td>${esc(u.Login)}</td>
+    <div class="tw"><table class="tbl"><thead><tr><th>Nama</th><th>Jawatan</th><th>ID Log Masuk</th>${isG?'<th>Pentadbir</th>':''}<th>Status</th><th></th></tr></thead><tbody>
+    ${list.length?list.map(u=>`<tr><td>${esc(u.Nama)}${u.ID===S.user.ID?' <span class="muted">(anda)</span>':''}</td><td>${u.Jawatan?esc(u.Jawatan):'<span class="muted">—</span>'}</td><td>${esc(u.Login)}</td>
       ${isG?`<td>${u.Pentadbir==='YA'?'<span class="badge b-on">Ya</span>':'<span class="muted">—</span>'}</td>`:''}
       <td>${u.Aktif==='YA'?'<span class="badge b-Ringan">Aktif</span>':'<span class="badge b-off">Tidak aktif</span>'}${u.TukarKL==='YA'?' <span class="badge b-PROSES">Belum tukar KL</span>':''}</td>
       <td class="right nowrap"><button class="btn sm sec" data-ed="${esc(u.ID)}">Edit</button>${u.ID!==S.user.ID?` <button class="btn sm red" data-del="${esc(u.ID)}">Padam</button>`:''}</td></tr>`).join('')
-      :`<tr><td colspan="5" class="muted">Belum ada akaun ${title.toLowerCase()}.</td></tr>`}
+      :`<tr><td colspan="6" class="muted">Belum ada akaun ${title.toLowerCase()}.</td></tr>`}
     </tbody></table></div>
   </div>`;
   $('#uAdd').onclick=()=>userForm(null,role);
@@ -1697,9 +1756,11 @@ function tUsers(role){
     try{ S.users=await api('deleteUser',{ID:u.ID}); toast('Akaun dipadam.','ok'); tUsers(role); }catch(e){ toast(e.message,'err'); }
   });
   $('#uTpl').onclick=()=>{
-    const ws=XLSX.utils.aoa_to_sheet([['ID Log Masuk','Nama','Kata Laluan'],[isG?'cikgu.aminah':'p.ali2027',isG?'AMINAH BINTI ISMAIL':'ALI BIN AHMAD','sementara123']]);
-    ws['!cols']=[{wch:24},{wch:40},{wch:18}];
-    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Akaun '+title);
+    const jw=S.jawatan.filter(j=>j.Peranan===role).map(j=>j.Nama);
+    const ws=XLSX.utils.aoa_to_sheet([['ID Log Masuk','Nama','Kata Laluan','Jawatan'],[isG?'cikgu.aminah':'p.ali2027',isG?'AMINAH BINTI ISMAIL':'ALI BIN AHMAD','sementara123',jw[jw.length-1]||'']]);
+    ws['!cols']=[{wch:24},{wch:40},{wch:18},{wch:30}];
+    const ws2=XLSX.utils.aoa_to_sheet([['Senarai jawatan (salin tepat ke lajur Jawatan)'],...jw.map(n=>[n])]); ws2['!cols']=[{wch:44}];
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Akaun '+title); XLSX.utils.book_append_sheet(wb,ws2,'Rujukan Jawatan');
     XLSX.writeFile(wb,`Templat_Akaun_${title}.xlsx`);
   };
   $('#uImp').onclick=()=>pickFile(async file=>{
@@ -1708,7 +1769,8 @@ function tUsers(role){
       const mp=mapCols(aoa,{login:['log masuk','login','id'],nama:['nama'],pw:['kata laluan','password']});
       if(!mp) throw new Error('Tajuk lajur tidak dijumpai. Gunakan templat: "ID Log Masuk", "Nama", "Kata Laluan".');
       const rows=[];
-      for(let i=mp.start;i<aoa.length;i++){ const r=aoa[i]; const o={Login:String(r[mp.idx.login]||'').trim(),Nama:String(r[mp.idx.nama]||'').trim(),Password:String(r[mp.idx.pw]||'').trim(),baris:i+1}; if(o.Login||o.Nama) rows.push(o); }
+      const jc=aoa[mp.start-1].map(c=>String(c).toLowerCase()).findIndex(c=>c.includes('jawatan'));
+      for(let i=mp.start;i<aoa.length;i++){ const r=aoa[i]; const o={Login:String(r[mp.idx.login]||'').trim(),Nama:String(r[mp.idx.nama]||'').trim(),Password:String(r[mp.idx.pw]||'').trim(),Jawatan:jc>=0?String(r[jc]||'').trim():'',baris:i+1}; if(o.Login||o.Nama) rows.push(o); }
       if(!rows.length) throw new Error('Tiada data dalam fail.');
       if(!await ask(`Import <b>${rows.length}</b> akaun ${title.toLowerCase()} daripada <i>${esc(file.name)}</i>?<br><span class="muted">ID yang sudah wujud akan diabaikan. Kata laluan dalam fail dianggap sementara.</span>`,'Import','grn')) return;
       const r=await api('importUsers',{rows,peranan:role});
@@ -1723,6 +1785,8 @@ function userForm(u,role){
     <label>Nama penuh</label><input id="uNama" value="${esc(u?u.Nama:'')}">
     <label>ID log masuk</label><input id="uLogin" value="${esc(u?u.Login:'')}" placeholder="cth. cikgu.aminah atau emel" autocapitalize="none">
     <div class="muted">Huruf kecil, nombor, titik, sengkang atau @ sahaja, tanpa jarak.</div>
+    <label>Jawatan</label><select id="uJwt"><option value="">— Pilih jawatan —</option>${S.jawatan.filter(j=>j.Peranan===role).map(j=>`<option ${u&&u.Jawatan===j.Nama?'selected':''}>${esc(j.Nama)}</option>`).join('')}</select>
+    <div class="muted">Senarai jawatan boleh diubah di tab <b>🎖️ Jawatan</b>.</div>
     ${isG?`<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="uAdm" ${u&&u.Pentadbir==='YA'?'checked':''}> Pentadbir (boleh akses Tetapan)</label>`:''}
     <label>Status</label><select id="uAktif"><option value="YA" ${!u||u.Aktif==='YA'?'selected':''}>Aktif</option><option value="TIDAK" ${u&&u.Aktif!=='YA'?'selected':''}>Tidak aktif</option></select>
     <label>${u?'Tetapkan semula kata laluan (biarkan kosong jika tidak mahu tukar)':'Kata laluan sementara (min. 6 aksara)'}</label>
@@ -1731,12 +1795,41 @@ function userForm(u,role){
     {t:'Batal',cls:'sec'},
     {t:'Simpan',fn:async()=>{
       S.users=await api('saveUser',{ID:u?u.ID:'',Nama:$('#uNama').value,Login:$('#uLogin').value,Peranan:role,
-        Pentadbir:isG&&$('#uAdm').checked?'YA':'TIDAK',Aktif:$('#uAktif').value,Password:$('#uPw').value});
+        Jawatan:$('#uJwt').value,Pentadbir:isG&&$('#uAdm').checked?'YA':'TIDAK',Aktif:$('#uAktif').value,Password:$('#uPw').value});
       toast('Akaun disimpan.','ok');
       if(u && u.ID===S.user.ID){ S.tab=isG?'guru':'pengawas'; S.view='tetapan'; await boot(); }
       else tUsers(role);
     }}
   ]);
+}
+
+/* ---------- Jawatan ---------- */
+function tJawatan(){
+  const L={GURU:S.jawatan.filter(j=>j.Peranan==='GURU').map(j=>Object.assign({},j)),PENGAWAS:S.jawatan.filter(j=>j.Peranan==='PENGAWAS').map(j=>Object.assign({},j))};
+  const used=(p,n)=>S.users.filter(u=>u.Peranan===p&&u.Jawatan===n).length;
+  $('#tBody').innerHTML=`
+  <div class="info" style="margin-bottom:12px">Senarai jawatan ini dipilih semasa mendaftar akses guru dan pengawas. Jawatan pengguna juga dicetak pada ruangan "Disediakan oleh" dalam dokumen. Menukar nama jawatan akan turut mengemas kini pengguna yang memegang jawatan tersebut.</div>
+  <div class="grid g2">${['GURU','PENGAWAS'].map(p=>`<div class="card"><h3>${p==='GURU'?'👩‍🏫 Jawatan Guru':'🛡️ Jawatan Pengawas'}</h3>
+    <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Nama jawatan</th><th class="right">Pengguna</th><th></th></tr></thead><tbody id="j_${p}"></tbody></table></div>
+    <button class="btn sec sm" style="margin-top:10px" data-add="${p}">+ Tambah jawatan</button></div>`).join('')}</div>
+  <div style="text-align:right"><button class="btn" id="jSave">💾 Simpan Jawatan</button></div>`;
+  const draw=p=>{
+    $('#j_'+p).innerHTML=L[p].map((j,i)=>`<tr><td>${i+1}</td><td><input data-p="${p}" data-i="${i}" value="${esc(j.Nama)}"></td><td class="right">${j.ID?used(p,j.Nama):0}</td>
+      <td class="nowrap right"><button class="btn sm sec" data-up="${p}|${i}" ${i?'':'disabled'}>↑</button> <button class="btn sm sec" data-dn="${p}|${i}" ${i<L[p].length-1?'':'disabled'}>↓</button> <button class="btn sm red" data-x="${p}|${i}">✕</button></td></tr>`).join('')||'<tr><td colspan="4" class="muted">Tiada jawatan.</td></tr>';
+    $('#j_'+p).querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[p][+el.dataset.i].Nama=el.value; });
+    const mv=(k,d)=>{ const [pp,ii]=k.split('|'); const i=+ii, t=L[pp][i]; L[pp].splice(i,1); L[pp].splice(i+d,0,t); draw(pp); };
+    $('#j_'+p).querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>mv(b.dataset.up,-1));
+    $('#j_'+p).querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>mv(b.dataset.dn,1));
+    $('#j_'+p).querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ const [pp,ii]=b.dataset.x.split('|'); const j=L[pp][+ii];
+      if(j.ID&&used(pp,j.Nama)) return toast(`Jawatan "${j.Nama}" masih digunakan oleh ${used(pp,j.Nama)} pengguna. Tukar jawatan pengguna dahulu.`,'err');
+      L[pp].splice(+ii,1); draw(pp); });
+  };
+  draw('GURU'); draw('PENGAWAS');
+  $('#tBody').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{ const p=b.dataset.add; L[p].push({ID:'',Nama:'',Peranan:p}); draw(p); const ins=$('#j_'+p).querySelectorAll('input'); ins[ins.length-1].focus(); });
+  $('#jSave').onclick=async()=>{
+    try{ const r=await api('saveJawatan',L); S.jawatan=r.jawatan; S.users=r.users; toast('Senarai jawatan disimpan.','ok'); tJawatan(); }
+    catch(e){ toast(e.message,'err'); }
+  };
 }
 
 /* ---------- Sandaran & Arkib ---------- */
@@ -1800,7 +1893,7 @@ function tLog(){
     <div class="row" style="margin-bottom:10px">
       <div><input id="lgQ" placeholder="Cari pengguna, tindakan atau butiran…"></div>
       <div style="flex:0 0 220px"><select id="lgT"><option value="">Semua tindakan</option>
-        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
+        ${['LOG MASUK','REKOD KESALAHAN','EDIT REKOD','PADAM REKOD','KEMAS KINI TINDAKAN','KEMAS KINI TETAPAN','KEMAS KINI KESALAHAN','TAMBAH MURID','KEMAS KINI MURID','PADAM MURID','ARKIB MURID','PULIH MURID','IMPORT MURID','NAIK KELAS','TAMBAH KELAS','TUKAR NAMA KELAS','PADAM KELAS','TAMBAH PENGGUNA','KEMAS KINI PENGGUNA','PADAM PENGGUNA','IMPORT PENGGUNA','TUKAR KATA LALUAN','SANDARAN','SANDARAN AUTOMATIK','ARKIB REKOD','KIRA SEMULA','KEMAS KINI MOEIS','KEMAS KINI JAWATAN','KEMAS KINI LOGO','BUANG LOGO','KEMAS KINI LATAR LOG MASUK','BUANG LATAR LOG MASUK']
           .map(t=>`<option>${t}</option>`).join('')}</select></div>
       <button class="btn" id="lgGo">🔍 Cari</button>
     </div>
