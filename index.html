@@ -59,6 +59,22 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 /* ---------- Petunjuk kitaran & rekod terdahulu ---------- */
 .badge.b-kit{background:#7c3aed}.badge.b-lama{background:#0e7490}
 @media print{.badge.b-kit,.badge.b-lama{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* ---------- Panel profil murid (terapung di atas paparan) ---------- */
+.pov{position:fixed;inset:0;z-index:45;background:rgba(11,29,77,.38);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .18s}
+.pov.hidden{display:none}
+.pov-box{width:100%;max-width:1000px;max-height:92vh;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;
+  background:rgba(240,245,255,.94);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--glass-bd);box-shadow:0 30px 70px rgba(11,29,77,.35);animation:povIn .22s ease-out}
+@keyframes povIn{from{transform:translateY(18px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.pov-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:linear-gradient(125deg,#0b1d4d,#1d3f94 60%,#2a5bd7);color:#fff}
+.pov-head h3{margin:0;font-size:16px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pov-head button{border:0;background:rgba(255,255,255,.18);color:#fff;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer;flex:0 0 34px}
+.pov-head button:hover{background:rgba(255,255,255,.3)}
+.pov-body{overflow:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.pov-body .card:last-child{margin-bottom:0}
+body.pov-on{overflow:hidden}
+@media(max-width:700px){.pov{padding:0;align-items:flex-end}.pov-box{max-height:94vh;border-radius:20px 20px 0 0}.pov-body{padding:10px 10px calc(14px + env(safe-area-inset-bottom))}}
+html[data-theme=dark] .pov-box{background:rgba(10,18,40,.96)}
+@media print{.pov{display:none!important}}
 /* ---------- Kad pengesahan (telefon) ---------- */
 .sk-cards{display:none}
 .sk-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--glass-hi);transition:transform .2s,opacity .25s,background .2s;touch-action:pan-y}
@@ -421,6 +437,12 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
     <div class="modal-foot" id="mFoot"></div>
   </div>
 </div>
+<div id="prof" class="pov hidden" role="dialog" aria-modal="true" aria-labelledby="povT">
+  <div class="pov-box">
+    <div class="pov-head"><h3 id="povT">👤 Profil Murid</h3><button id="povX" title="Tutup (Esc)">×</button></div>
+    <div class="pov-body" id="pOut"></div>
+  </div>
+</div>
 <div id="toast"></div>
 <div id="updBar" class="upd hidden" role="status">
   <span class="upd-ic">🔄</span>
@@ -437,7 +459,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '14.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '14.1';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 14;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -1119,6 +1141,7 @@ window.addEventListener('error',ev=>{ if(isStaleDom(ev.error||ev.message)){ ev.p
 let navSeq=0;
 async function go(v){
   const my=++navSeq;
+  if(profOpen()) closeProf();
   if(!navItems().some(x=>x[0]===v)) v=navItems()[0][0];
   S.view=v; renderNav(); window.scrollTo(0,0);
   const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,moeis:vMoeis,sahkan:vSahkan,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun,arkib:vArkib,
@@ -1588,8 +1611,7 @@ function vProfil(){
   </div>
   <div class="card noprint"><div class="sp" style="align-items:center;flex-wrap:wrap;margin-bottom:8px"><div id="pInfo" class="muted"></div>
     <div class="toolbar" style="margin:0"><button class="btn sm" id="pBulk" disabled>🖨 Cetak Profil Terpilih (0)</button></div></div>
-    <div class="tw" id="pTbl2"></div></div>
-  <div id="pOut"></div>`;
+    <div class="tw" id="pTbl2"></div></div>`;
   $('#pTahap').value=F.tahap; $('#pMoe').value=F.moeis;
   let tm; const reload=()=>{ clearTimeout(tm); tm=setTimeout(loadProfilTable,250); };
   ['#pKelas','#pTahap','#pMoe','#pArk'].forEach(x=>$(x).onchange=loadProfilTable); $('#pCari').oninput=reload;
@@ -1627,8 +1649,7 @@ function vProfilCari(){
       <div><input id="pCari" placeholder="Taip nama atau no. pendaftaran…" autocomplete="off"></div>
     </div>
     <div class="pick" id="pList"></div>
-  </div>
-  <div id="pOut"></div>`;
+  </div>`;
   const draw=()=>{
     const k=$('#pKelas').value, q=$('#pCari').value.trim().toLowerCase();
     if(!k && q.length<2){ $('#pList').innerHTML='<div class="em">Pilih kelas atau taip sekurang-kurangnya 2 huruf.</div>'; return; }
@@ -1640,13 +1661,23 @@ function vProfilCari(){
   $('#pKelas').onchange=draw; $('#pCari').oninput=draw; draw();
   if(S.profilNo){ const n=S.profilNo; S.profilNo=null; showProfil(n); }
 }
+let profSeq=0;
+function profOpen(){ return !$('#prof').classList.contains('hidden'); }
+function closeProf(){ profSeq++; $('#prof').classList.add('hidden'); document.body.classList.remove('pov-on'); $('#pOut').innerHTML=''; S.prof=null; }
+$('#povX').onclick=closeProf;
+$('#prof').addEventListener('mousedown',e=>{ if(e.target.id==='prof') closeProf(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && profOpen() && $('#modal').classList.contains('hidden')) closeProf(); });
 async function showProfil(no){
   const m=muridByNo(no)||{NoDaftar:no,NamaPenuh:'(Murid tiada dalam senarai)',Kelas:'-'};
   const arkib=S.muridArkib.some(x=>x.NoDaftar===no);
-  const out=$('#pOut'); out.innerHTML='<div class="card muted">Memuatkan…</div>';
+  const my=++profSeq, out=$('#pOut'), wasOpen=profOpen();
+  $('#povT').textContent='👤 '+m.NamaPenuh+' · '+m.Kelas;
+  $('#prof').classList.remove('hidden'); document.body.classList.add('pov-on');
+  if(!wasOpen || !out.innerHTML) out.innerHTML='<div class="card muted">Memuatkan profil…</div>';
+  const keepTop=wasOpen?out.parentElement.scrollTop:0;
   try{
     const [st,lr,mo]=await Promise.all([api('studentStatus',{noDaftarList:[no]}), api('listRecords',{noDaftar:no}), isGuru()?api('listMoeis',{noDaftar:no}):Promise.resolve({list:[]})]);
-    if(!document.body.contains(out)) return;
+    if(my!==profSeq || !profOpen()) return;   // panel ditutup / murid lain dibuka
     const c=st[no].count;
     out.innerHTML = `
     <div class="card">
@@ -1676,8 +1707,8 @@ async function showProfil(no){
     $('#pPrt').onclick=printProfil;
     if($('#pFull')) $('#pFull').onclick=()=>printPenuh(no);
     bindRecActions($('#pTbl'), lr.records, ()=>showProfil(no));
-    out.scrollIntoView({behavior:'smooth'});
-  }catch(e){ if(document.body.contains(out)) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
+    out.parentElement.scrollTop=keepTop;
+  }catch(e){ if(my===profSeq && profOpen()) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
 }
 
 /* =====================================================================
