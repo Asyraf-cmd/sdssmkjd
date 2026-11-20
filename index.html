@@ -13,6 +13,7 @@
 -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1d4d">
+<script>try{var z=localStorage.getItem('dm_fon');if(z&&z!=='1')document.documentElement.style.zoom=z;}catch(e){}</script>
 <script>try{var t=localStorage.getItem('dm_tema');if(t==='gelap'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark';}catch(e){}</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -58,6 +59,14 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 /* ---------- Petunjuk kitaran & rekod terdahulu ---------- */
 .badge.b-kit{background:#7c3aed}.badge.b-lama{background:#0e7490}
 @media print{.badge.b-kit,.badge.b-lama{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* ---------- Kad pengesahan (telefon) ---------- */
+.sk-cards{display:none}
+.sk-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--glass-hi);transition:transform .2s,opacity .25s,background .2s;touch-action:pan-y}
+.sk-card.ok{transform:translateX(110%)!important;opacity:0}.sk-card.no{transform:translateX(-110%)!important;opacity:0}
+.sk-btn{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}.sk-btn .btn.grn{flex:1}
+@media(max-width:700px){.sk-cards{display:block}.sk-tbl{display:none}#sSah,#sTolak{display:none}}
+/* ---------- Saiz tulisan ---------- */
+@media print{html{zoom:1!important}}
 /* ---------- Garis masa sejarah ---------- */
 .tl{position:relative;padding-left:4px}.tl::before{content:"";position:absolute;left:19px;top:8px;bottom:8px;width:2px;background:var(--line)}
 .tl-i{position:relative;display:flex;gap:12px;padding:8px 0}
@@ -428,8 +437,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '13.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
-const BACKEND_VERSI = 13;
+const APP_VERSI = '14.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const BACKEND_VERSI = 14;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
 /* =====================================================================
@@ -475,6 +484,37 @@ function loading(on){ busy=Math.max(0,busy+(on?1:-1)); $('#loader').classList.to
 /* ---------- Pustaka Excel dimuat hanya apabila diperlukan ---------- */
 const XLSX_URL='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
 let xlsxP=null;
+/** Muat skrip luaran sekali sahaja (QR dsb.) */
+const jsP={};
+function loadJS(url,test,nama){
+  if(test()) return Promise.resolve();
+  if(!jsP[url]) jsP[url]=new Promise((ok,ko)=>{ loading(true); const sc=document.createElement('script'); sc.src=url;
+    sc.onload=()=>{ loading(false); ok(); }; sc.onerror=()=>{ loading(false); delete jsP[url]; ko(new Error('Pustaka '+nama+' gagal dimuatkan. Semak sambungan internet.')); };
+    document.head.appendChild(sc); });
+  return jsP[url];
+}
+/** Kalendar: amaran hujung minggu / cuti sekolah bagi tarikh t (yyyy-mm-dd) */
+function cutiWarn(t){
+  if(!t) return '';
+  const c=(S.set.CutiSekolah||[]).find(x=>x.dari<=t&&t<=(x.hingga||x.dari));
+  if(c) return `Tarikh ${fmtD(t)} jatuh pada cuti sekolah: ${c.nama}`;
+  const d=new Date(t+'T00:00:00').getDay(), hm=S.set.HujungMinggu==='JUM_SAB'?[5,6]:[6,0];
+  if(hm.includes(d)) return `Tarikh ${fmtD(t)} ialah hujung minggu (${['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'][d]})`;
+  return '';
+}
+/** Rekod dikunci daripada edit/padam (guru bukan pentadbir, melebihi had jam) */
+function editLocked(r){
+  if(isAdmin()) return false;
+  const jam=+(S.set.HadEditJam??48); if(!jam||!r.DimasukkanPada) return false;
+  const m=String(r.DimasukkanPada).match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/); if(!m) return false;
+  return Date.now()-new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5]).getTime() > jam*3600000;
+}
+function perantiDesc(){
+  const u=navigator.userAgent;
+  const os=/Android/i.test(u)?'Android':/iPhone|iPad|iPod/i.test(u)?'iOS':/Windows/i.test(u)?'Windows':/Mac OS/i.test(u)?'macOS':/CrOS/i.test(u)?'ChromeOS':/Linux/i.test(u)?'Linux':'Peranti lain';
+  const br=/Edg\//.test(u)?'Edge':/SamsungBrowser/.test(u)?'Samsung Internet':/Firefox\//.test(u)?'Firefox':/Chrome\//.test(u)?'Chrome':/Safari\//.test(u)?'Safari':'Pelayar';
+  return os+' · '+br+(matchMedia('(display-mode: standalone)').matches?' (aplikasi)':'');
+}
 function needXLSX(){
   if(window.XLSX) return Promise.resolve();
   if(!xlsxP) xlsxP=new Promise((ok,ko)=>{ loading(true); const sc=document.createElement('script'); sc.src=XLSX_URL;
@@ -652,11 +692,16 @@ function moeisPrint(P){
     </tbody></table>`;
 }
 function printProfil(){ if(S.prof) printDoc(profilHtml(S.prof)); }
+/** Rekod disiplin penuh murid: semua tahun (termasuk arkib) + tindakan susulan */
+async function printPenuh(no){
+  try{ toast('Menyediakan rekod penuh…'); const r=await api('bulkProfiles',{noList:[no],penuh:true}); printDoc(profilHtml(r.profiles[no])); }
+  catch(e){ toast(e.message,'err'); }
+}
 function profilHtml(P){
   const {a,b}=had(), hc=had().c, c=P.c, m=P.m, B=brk(c);
   const recs=P.recs.slice().sort((x,y)=>(x.Tarikh+x.Masa).localeCompare(y.Tarikh+y.Masa));
-  return (pdHead('Profil Demerit Murid','Rekod Kesalahan Disiplin Ringan',[
-      ['Nama murid',m.NamaPenuh],['No. pendaftaran',m.NoDaftar],['Kelas',m.Kelas],['Status murid',P.arkib?'Arkib':'Aktif']])+
+  return (pdHead(P.penuh?'Rekod Disiplin Penuh Murid':'Profil Demerit Murid',P.penuh?'Semua tahun persekolahan (termasuk rekod arkib)':'Rekod Kesalahan Disiplin Ringan',[
+      ['Nama murid',m.NamaPenuh],['No. pendaftaran',m.NoDaftar],['Kelas',m.Kelas],['Status murid',P.arkib?'Arkib'+(m.Sebab?' — '+m.Sebab:'')+(m.TarikhArkib?' ('+fmtD(m.TarikhArkib)+')':''):'Aktif']])+
     `<h4>A. Ringkasan Demerit (${esc(skopLabel())})</h4>
     <table class="pd-tbl"><thead><tr><th class="c">Jumlah kesalahan</th>${kitaranOn()?'<th class="c">Kitaran</th>':''}<th class="c">Ringan (ke-1 – ${a})</th><th class="c">Sederhana (ke-${a+1} – ${a+b})</th><th class="c">Berat (ke-${a+b+1}${kitaranOn()?(hc>1?' – '+(a+b+hc):''):' ke atas'})</th><th class="c">Tahap semasa</th></tr></thead>
     <tbody><tr><td class="c"><b>${c}</b></td>${kitaranOn()?`<td class="c">ke-${B.k}</td>`:''}<td class="c">${B.r} / ${a}</td><td class="c">${B.s} / ${b}</td><td class="c">${B.br}${kitaranOn()?' / '+hc:''}</td><td class="c">${pdTag(tahapOf(c))}</td></tr></tbody></table>
@@ -666,6 +711,10 @@ function profilHtml(P){
     ${recs.length?recs.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(r.Tarikh)}<br><small>${esc(r.Masa)}</small></td><td>${esc(r.Kesalahan)}${r.Butiran?`<br><small>${esc(r.Butiran)}</small>`:''}${r.Sumber?`<br><small>📍 ${esc(r.Sumber)}</small>`:''}</td><td>${esc(r.Catatan)||'-'}</td><td class="c">${esc(r.Bilangan)}</td><td class="c">${pdTag(r.Tahap)}</td><td>${esc(r.DirekodOleh)}<br><small>${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</small></td></tr>`).join(''):'<tr><td colspan="7" class="c">Tiada rekod kesalahan.</td></tr>'}
     </tbody></table>
     ${ownOnly()?'<div class="pd-note">Nota: Hanya rekod yang dimasukkan oleh pengguna ini dipaparkan.</div>':''}
+    ${P.penuh?`<div class="pd-note">Jumlah rekod sah sepanjang persekolahan: <b>${recs.length}</b>${recs.some(r=>r.Arkib==='YA')?` (termasuk ${recs.filter(r=>r.Arkib==='YA').length} rekod arkib)`:''}.</div>
+    <h4>B2. Tindakan Susulan</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Tarikh</th><th class="c">Tahap</th><th class="c">Status</th><th>Tindakan diambil</th><th>Catatan</th></tr></thead><tbody>
+    ${(P.tindakan||[]).length?P.tindakan.map((t,i)=>`<tr><td class="c">${i+1}</td><td class="nw">${fmtD(String(t.TarikhWujud).slice(0,10))}</td><td class="c">${pdTag(t.Tahap)}</td><td class="c">${esc(STATUS[t.Status]||t.Status)}</td><td>${esc(t.JenisTindakan||'-')}${t.TarikhTindakan?`<br><small>${fmtD(t.TarikhTindakan)}</small>`:''}</td><td>${esc(t.Catatan||'-')}</td></tr>`).join(''):'<tr><td colspan="6" class="c">Tiada tindakan susulan.</td></tr>'}</tbody></table>`:''}
     ${isGuru()?moeisPrint(P):''}
     ${pdSign([['Disediakan oleh','','Guru Disiplin'],['Disahkan oleh','','Pengetua / PK HEM / PK Petang / Ketua Guru Disiplin*'],['Ibu Bapa / Penjaga','','']])}
     <div class="pd-note">* Potong yang tidak berkenaan.</div>`);
@@ -793,6 +842,13 @@ function printReport(){
     <div class="pd-note" style="font-style:normal;margin-bottom:4px">Sesi pagi (sebelum 1:00 ptg): <b>${d.sesi.Pagi}</b> · Sesi petang: <b>${d.sesi.Petang}</b></div>
     ${vchart(d.ikutJam.map(x=>({label:x.label,bil:x.bil})),'jam')}
     <div style="margin-top:8px">${heatmap(d)}</div>
+    <h4>J. Mengikut Tingkatan</h4>
+    <table class="pd-tbl"><thead><tr><th>Tingkatan</th><th class="r">Murid terlibat</th><th class="r">Ringan</th><th class="r">Sederhana</th><th class="r">Berat</th><th class="r">Jumlah</th></tr></thead><tbody>
+    ${(d.ikutTingkatan||[]).map(k=>`<tr><td>${esc(k.label)}</td><td class="r">${k.murid}</td><td class="r">${k.Ringan}</td><td class="r">${k.Sederhana}</td><td class="r">${k.Berat}</td><td class="r"><b>${k.bil}</b></td></tr>`).join('')||'<tr><td colspan="6" class="c">Tiada data.</td></tr>'}</tbody></table>
+    ${d.ikutKitaran?`<div style="margin-top:8px">${simple('Kitaran semasa murid',d.ikutKitaran).replace('<th class="r">%</th>','<th class="r"></th>').replace(/<td class="r">[0-9.]+%<\/td>/g,'<td class="r"></td>')}</div>`:''}
+    <h4>K. Prestasi Pengawas</h4>
+    <table class="pd-tbl"><thead><tr><th class="c">Bil</th><th>Nama pengawas</th><th class="r">Dihantar</th><th class="r">Disahkan</th><th class="r">Menunggu</th><th class="r">Ditolak</th><th class="r">Kadar ditolak</th><th>Sumber utama</th></tr></thead><tbody>
+    ${(d.pengawas||[]).map((p,i)=>`<tr><td class="c">${i+1}</td><td>${esc(p.nama)}${p.jawatan?`<br><small>${esc(p.jawatan)}</small>`:''}</td><td class="r">${p.dihantar}</td><td class="r">${p.sah}</td><td class="r">${p.menunggu}</td><td class="r">${p.ditolak}</td><td class="r">${p.kadarTolak}%</td><td>${esc(p.sumberUtama)}</td></tr>`).join('')||'<tr><td colspan="8" class="c">Tiada rekod oleh pengawas dalam tempoh ini.</td></tr>'}</tbody></table>
     ${pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disemak oleh','','Guru Disiplin'],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])}`);
 }
 
@@ -884,7 +940,7 @@ function setupGoogle(clientId){
   const go=()=>{ try{
     window.google.accounts.id.initialize({client_id:clientId, callback:async resp=>{
       $('#lgErr').textContent='';
-      try{ const r=await api('loginGoogle',{credential:resp.credential}); S.token=r.token; LS.set('dm_token',r.token); S.view='dashboard'; await boot({welcome:true}); }
+      try{ const r=await api('loginGoogle',{credential:resp.credential,peranti:perantiDesc()}); S.token=r.token; LS.set('dm_token',r.token); S.view='dashboard'; await boot({welcome:true}); }
       catch(err){ $('#lgErr').textContent=err.message; }
     }});
     $('#gBtn').innerHTML=''; window.google.accounts.id.renderButton($('#gBtn'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',locale:'ms',width:300});
@@ -922,7 +978,7 @@ function endSession(){ S.token=''; S.user=null; LS.del('dm_token'); LS.del('dm_b
 $('#lgForm').onsubmit = async e=>{
   e.preventDefault(); $('#lgErr').textContent=''; $('#lgBtn').disabled=true;
   try{
-    const r = await api('login',{login:$('#lgUser').value,password:$('#lgPass').value});
+    const r = await api('login',{login:$('#lgUser').value,password:$('#lgPass').value,peranti:perantiDesc()});
     S.token=r.token; LS.set('dm_token',r.token);
     if(r.user.mustChange){ $('#pwOld').value=$('#lgPass').value; $('#lgPass').value=''; showPwChange(); $('#pwNew').focus(); return; }
     $('#lgPass').value=''; S.view='dashboard'; await boot({welcome:true});
@@ -1019,7 +1075,7 @@ function bootCached(){
 function bootData(d,opt){
   opt=opt||{};
   S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
-  S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[]; S.akhirTahun=d.akhirTahun||null; S.menunggu=d.menunggu||0; S.kesKerap=d.kesKerap||[];
+  S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.tertunggak=d.tertunggak||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[]; S.akhirTahun=d.akhirTahun||null; S.menunggu=d.menunggu||0; S.kesKerap=d.kesKerap||[];
   document.body.classList.toggle('latihan',!!S.latihan); $('#latBar').classList.toggle('hidden',!S.latihan); renderOffBar(); lastAct=Date.now();
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
   $('#hdUser').textContent=S.user.Nama; $('#hdRole').textContent=jawatanUser(); $('#hdRole').title=roleName(S.user);
@@ -1116,6 +1172,7 @@ function renderDashboard(d){
   ${d.muridTahap?`<div class="card"><h3>Status Murid Semasa</h3><div class="grid g6" style="margin:0">
     ${stat('Murid di tahap Ringan',d.muridTahap.Ringan,'ringan click','data-mt="Ringan"')}${stat('Murid di tahap Sederhana',d.muridTahap.Sederhana,'sederhana click','data-mt="Sederhana"')}${stat('Murid di tahap Berat',d.muridTahap.Berat,'berat click','data-mt="Berat"')}
     ${d.tindakanBuka!=null&&can('TINDAKAN')?stat('Tindakan susulan belum selesai',d.tindakanBuka,'amber click','id="dTind"'):''}
+    ${d.tertunggak&&can('TINDAKAN')?stat(`Tindakan tertunggak > ${esc(S.set.TindakanHadHari||14)} hari`,d.tertunggak,'berat click','id="dTung"'):''}
     ${d.moeisBelum!=null&&can('MOEIS')?stat('Belum dimasukkan ke MOEIS',d.moeisBelum,'berat click','id="dMoe"'):''}
     ${sahOn()&&d.menunggu?stat('Rekod menunggu pengesahan',d.menunggu,'amber click','id="dSah"'):''}
   </div></div>`:''}
@@ -1129,6 +1186,7 @@ function renderDashboard(d){
   </div>`;
   v.querySelectorAll('tr[data-no]').forEach(tr=>tr.onclick=()=>{ S.profilNo=tr.dataset.no; go('profil'); });
   if($('#dTind')) $('#dTind').onclick=()=>go('tindakan');
+  if($('#dTung')) $('#dTung').onclick=()=>{ S.tindStatus='TERTUNGGAK'; go('tindakan'); };
   v.querySelectorAll('[data-mt]').forEach(el=>{ el.title='Klik untuk lihat senarai murid'; el.onclick=()=>{ S.profilFilter={tahap:el.dataset.mt}; go('profil'); }; });
   v.querySelectorAll('[data-rt]').forEach(el=>{ el.title='Klik untuk lihat rekod'; el.onclick=()=>{ S.senaraiFilter={tahap:el.dataset.rt}; go('senarai'); }; });
   if($('#dMoe')) $('#dMoe').onclick=()=>go('moeis');
@@ -1155,11 +1213,13 @@ function vRekod(){
       <div><label>Tarikh</label><input type="date" id="rTarikh" value="${today()}" max="${today()}"></div>
       <div><label>Masa</label><input type="time" id="rMasa" value="${nowHM()}"></div>
     </div>
+    <div id="rCuti" class="info warn hidden" style="margin-top:6px"></div>
     ${recentList().length?`<label>Murid terkini</label><div class="qk" id="rRecent">${recentList().map(m=>`<button data-no="${esc(m.NoDaftar)}">${esc(m.NamaPenuh.split(' ').slice(0,2).join(' '))} · ${esc(m.Kelas)}</button>`).join('')}</div>`:''}
     <label>Cari & Pilih Murid <span class="muted">(boleh pilih lebih daripada seorang)</span></label>
     <div class="row">
       <div style="flex:0 0 170px"><select id="rKelas">${optKelas('', 'Semua kelas')}</select></div>
       <div><input id="rCari" placeholder="Taip nama atau no. pendaftaran…" autocomplete="off"></div>
+      <button class="btn sec" id="rScan" title="Imbas kod QR / kod bar kad murid" style="flex:0 0 auto">📷 Imbas Kad</button>
     </div>
     <div class="pick" id="rList"></div>
     <label>Murid dipilih (<span id="rBil">0</span>)</label>
@@ -1193,7 +1253,9 @@ function vRekod(){
     $('#rSubW').classList.toggle('hidden',!needSub);
     $('#rSub').innerHTML = needSub ? '<option value="">— Pilih butiran —</option>'+grp.map(k=>`<option value="${esc(k.ID)}">${esc(k.Butiran||'(Umum)')}</option>`).join('') : '';
   };
-  $('#rTarikh').onchange=()=>refreshCounts(S.pick.map(p=>p.NoDaftar));
+  const cutiNote=()=>{ const w=cutiWarn($('#rTarikh').value); $('#rCuti').textContent=w?'📅 '+w+'. Pastikan tarikh kejadian betul.':''; $('#rCuti').classList.toggle('hidden',!w); };
+  $('#rTarikh').onchange=()=>{ refreshCounts(S.pick.map(p=>p.NoDaftar)); cutiNote(); }; cutiNote();
+  $('#rScan').onclick=()=>scanKad(no=>{ if(!S.pick.some(p=>p.NoDaftar===no)) togglePick(no); });
   document.querySelectorAll('#rRecent button').forEach(b=>b.onclick=()=>togglePick(b.dataset.no));
   document.querySelectorAll('#rQuick button').forEach(b=>b.onclick=()=>{
     const k=S.kes.find(x=>x.ID===b.dataset.k); if(!k) return;
@@ -1202,8 +1264,66 @@ function vRekod(){
     document.querySelectorAll('#rQuick button').forEach(x=>x.classList.toggle('on',x===b));
   });
   $('#rReset').onclick=()=>vRekod();
-  $('#rSave').onclick=saveRekod;
+  $('#rSave').onclick=()=>saveRekod(false);
   renderPickList(); renderChips();
+}
+/* ---------- Imbas kod QR / kod bar kad murid ---------- */
+const JSQR_URL='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+const QRGEN_URL='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+function muridFromCode(txt){
+  const t=String(txt||'').trim(); if(!t) return null;
+  const cands=[t, t.split(/[:|;,\s\/=]+/).pop(), t.replace(/^\D+/,'')];
+  for(const c of cands){ const m=S.murid.find(x=>x.NoDaftar.toLowerCase()===String(c).toLowerCase()); if(m) return m; }
+  return null;
+}
+async function scanKad(onPick){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) return toast('Kamera tidak disokong oleh pelayar ini.','err');
+  let det=null;
+  try{ if('BarcodeDetector' in window){ const f=await BarcodeDetector.getSupportedFormats(); if(f.length) det=new BarcodeDetector({formats:f.filter(x=>['qr_code','code_128','code_39','ean_13','ean_8','codabar','itf','upc_a','data_matrix'].includes(x))}); } }catch(e){ det=null; }
+  if(!det){ try{ await loadJS(JSQR_URL,()=>window.jsQR,'pengimbas QR'); }catch(e){ return toast(e.message,'err'); } }
+  let stream=null, stop=false, last='', lastT=0, n=0;
+  modal('📷 Imbas Kad Murid',`<div style="position:relative;border-radius:12px;overflow:hidden;background:#000"><video id="qV" playsinline muted style="width:100%;display:block;max-height:60vh;object-fit:cover"></video>
+      <div style="position:absolute;inset:18% 18%;border:3px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.25)"></div></div>
+    <div id="qMsg" class="muted" style="margin-top:8px">Halakan kamera ke kod QR / kod bar pada kad murid. Boleh imbas beberapa kad berturut-turut.</div>
+    <div id="qList" class="chips" style="margin-top:6px"></div>
+    ${det?'':'<div class="muted" style="margin-top:4px">Pelayar ini hanya menyokong kod QR.</div>'}`,[{t:'Selesai',cls:'sec'}]);
+  const end=()=>{ stop=true; if(stream) stream.getTracks().forEach(t=>t.stop()); };
+  const obs=new MutationObserver(()=>{ if($('#modal').classList.contains('hidden')||!$('#qV')){ end(); obs.disconnect(); } });
+  obs.observe($('#modal'),{attributes:true,childList:true,subtree:true});
+  try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}); }
+  catch(e){ end(); $('#qMsg').innerHTML='<span class="err">Kamera tidak dapat dibuka. Benarkan akses kamera untuk laman ini.</span>'; return; }
+  const v=$('#qV'); if(!v){ end(); return; } v.srcObject=stream; await v.play().catch(()=>{});
+  const cv=document.createElement('canvas'), cx=cv.getContext('2d',{willReadFrequently:true});
+  const hit=txt=>{
+    const now=Date.now(); if(txt===last&&now-lastT<2500) return; last=txt; lastT=now;
+    const m=muridFromCode(txt);
+    if(navigator.vibrate) navigator.vibrate(m?60:[40,60,40]);
+    if(!m){ $('#qMsg').innerHTML=`<span class="err">Kod "${esc(txt.slice(0,40))}" tidak sepadan dengan mana-mana murid aktif.</span>`; return; }
+    onPick(m.NoDaftar); n++;
+    $('#qMsg').innerHTML=`✅ <b>${esc(m.NamaPenuh)}</b> · ${esc(m.Kelas)} ditambah (${n} murid diimbas).`;
+    $('#qList').insertAdjacentHTML('beforeend',`<span class="chip" style="padding:4px 10px">${esc(m.NamaPenuh.split(' ').slice(0,2).join(' '))}</span>`);
+  };
+  const tick=async()=>{
+    if(stop) return;
+    try{
+      if(v.readyState>=2){
+        if(det){ const r=await det.detect(v); if(r.length) hit(r[0].rawValue); }
+        else { cv.width=v.videoWidth; cv.height=v.videoHeight; cx.drawImage(v,0,0); const im=cx.getImageData(0,0,cv.width,cv.height); const r=window.jsQR(im.data,im.width,im.height,{inversionAttempts:'dontInvert'}); if(r&&r.data) hit(r.data); }
+      }
+    }catch(e){}
+    setTimeout(tick,det?120:220);
+  };
+  tick();
+}
+/** Cetak kad / pelekat QR murid (No. Pendaftaran) */
+async function printKadQR(list){
+  if(!list.length) return toast('Tiada murid untuk dicetak.','err');
+  try{ await loadJS(QRGEN_URL,()=>window.qrcode,'penjana QR'); }catch(e){ return toast(e.message,'err'); }
+  const svg=t=>{ const q=window.qrcode(0,'M'); q.addData(String(t)); q.make(); return q.createSvgTag({cellSize:3,margin:0,scalable:true}); };
+  printDoc(`<style>.qr-g{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.qr-c{border:1px dashed #94a3b8;border-radius:3mm;padding:3mm;display:flex;gap:3mm;align-items:center;break-inside:avoid;page-break-inside:avoid}
+    .qr-c svg{width:24mm;height:24mm;flex:0 0 24mm}.qr-c b{font-size:9pt;display:block;line-height:1.2}.qr-c small{font-size:8pt;color:#334155}</style>
+    <div style="font-size:9pt;margin-bottom:3mm"><b>${esc(S.set.NamaSekolah||'')}</b> · Kad QR Murid (${list.length}) — gunting mengikut garisan dan lekatkan pada kad / buku murid.</div>
+    <div class="qr-g">${list.map(m=>`<div class="qr-c">${svg(m.NoDaftar)}<div><b>${esc(m.NamaPenuh)}</b><small>${esc(m.Kelas)}<br>No. Daftar: ${esc(m.NoDaftar)}</small></div></div>`).join('')}</div>`, true);
 }
 function renderPickList(){
   const k=$('#rKelas').value, q=$('#rCari').value.trim().toLowerCase();
@@ -1250,16 +1370,18 @@ function selectedKesID(){
 function recentKey(){ return 'dm_recent_'+(S.user?S.user.ID:'')+(S.latihan?'_L':''); }
 function recentList(){ try{ return JSON.parse(LS.get(recentKey())||'[]').map(no=>S.murid.find(m=>m.NoDaftar===no)).filter(Boolean).slice(0,8); }catch(e){ return []; } }
 function addRecent(nos){ let l=[]; try{ l=JSON.parse(LS.get(recentKey())||'[]'); }catch(e){} l=nos.concat(l.filter(x=>!nos.includes(x))).slice(0,8); LS.set(recentKey(),JSON.stringify(l)); }
-async function saveRekod(){
+async function saveRekod(force){
   if(!S.pick.length) return toast('Sila pilih sekurang-kurangnya seorang murid.','err');
   const kid=selectedKesID();
   if(!kid) return toast('Sila pilih kesalahan dan butirannya.','err');
   const sumber=$('#rSumber').value;
   if(!sumber) return toast('Sila pilih sumber kesalahan.','err');
   LS.set('dm_sumber_'+S.user.ID,sumber);
+  if(!force){ const w=cutiWarn($('#rTarikh').value); if(w && !await ask(`📅 ${esc(w)}.<br>Adakah tarikh kejadian ini betul?`,'Ya, teruskan','amb')) return; }
   const btn=$('#rSave'); btn.disabled=true;
   try{
     const payload={noDaftarList:S.pick.map(p=>p.NoDaftar),kesalahanID:kid,sumber,tarikh:$('#rTarikh').value,masa:$('#rMasa').value,catatan:$('#rCat').value};
+    if(force) payload.abaikanPendua=true;
     let res;
     try{ res=await api('recordOffence',payload); }
     catch(e){
@@ -1267,6 +1389,14 @@ async function saveRekod(){
       enqueue(payload); addRecent(payload.noDaftarList);
       toast(`📴 Luar talian: ${payload.noDaftarList.length} rekod disimpan dalam peranti dan akan dihantar secara automatik.`,'ok');
       S.pick=[]; $('#rCat').value=''; renderChips(); renderPickList(); return;
+    }
+    if(res.amaranPendua){
+      modal('⚠️ Kemungkinan Rekod Berganda',`<div class="info warn" style="margin-bottom:10px">Kesalahan yang sama bagi murid berikut telah direkod pada tarikh yang sama dalam lingkungan 30 minit. Kemungkinan kejadian yang sama telah direkod oleh orang lain.</div>
+        <div class="tw"><table class="tbl"><thead><tr><th>Murid</th><th>Masa</th><th>Direkod oleh</th><th>Status</th></tr></thead><tbody>
+        ${res.amaranPendua.map(x=>`<tr><td>${esc(x.NamaPenuh)}<div class="muted">${esc(x.Kelas)}</div></td><td>${esc(x.Masa)}</td><td>${esc(x.DirekodOleh)}${x.Sumber?`<div class="muted">📍 ${esc(x.Sumber)}</div>`:''}</td><td>${x.Status==='SAH'?'<span class="badge b-Ringan">Sah</span>':stBadge(x.Status)}</td></tr>`).join('')}</tbody></table></div>
+        <div class="muted" style="margin-top:8px">Tiada rekod disimpan lagi. Pilih <b>Simpan juga</b> hanya jika ini kejadian yang berasingan.</div>`,
+        [{t:'Batal',cls:'sec'},{t:'Simpan juga',cls:'amb',fn:()=>{ setTimeout(()=>saveRekod(true),60); }}]);
+      return;
     }
     const out=Array.isArray(res)?res:res.records;
     addRecent(payload.noDaftarList);
@@ -1383,7 +1513,7 @@ function recTable(list, canEdit, pick){
     <td>${esc(r.Kesalahan)}${r.Butiran?`<div class="muted">${esc(r.Butiran)}</div>`:''}${r.Sumber?`<div class="muted">📍 ${esc(r.Sumber)}</div>`:''}${r.Catatan?`<div class="muted"><i>${esc(r.Catatan)}</i></div>`:''}</td>
     <td class="nowrap">${r.Status&&r.Status!=='SAH'?'—':esc(r.Bilangan)+(r.Bilangan?kitTag(r.Bilangan):'')}</td><td>${r.Status&&r.Status!=='SAH'?stBadge(r.Status):badge(r.Tahap)}</td>
     <td>${esc(r.DirekodOleh)}<div class="muted">${r.Peranan==='PENGAWAS'?'Pengawas':'Guru'}</div></td>
-    <td class="nowrap noprint">${isGuru()||(r.DirekodOlehID===S.user.ID&&r.Arkib!=='YA')?`<button class="btn sm sec" data-hist="${esc(r.ID)}" title="Sejarah perubahan">🕘</button> `:''}${canEdit&&r.Arkib!=='YA'?`<button class="btn sm sec" data-ed="${esc(r.ID)}">Edit</button> <button class="btn sm red" data-del="${esc(r.ID)}">Padam</button>`:''}</td></tr>`).join('')}
+    <td class="nowrap noprint">${isGuru()||(r.DirekodOlehID===S.user.ID&&r.Arkib!=='YA')?`<button class="btn sm sec" data-hist="${esc(r.ID)}" title="Sejarah perubahan">🕘</button> `:''}${canEdit&&r.Arkib!=='YA'?(editLocked(r)?`<span class="badge b-off" title="Dimasukkan lebih ${esc(S.set.HadEditJam)} jam lalu — hanya guru pentadbir boleh edit/padam">🔒 Dikunci</span>`:`<button class="btn sm sec" data-ed="${esc(r.ID)}">Edit</button> <button class="btn sm red" data-del="${esc(r.ID)}">Padam</button>`):''}</td></tr>`).join('')}
   </tbody></table>`;
 }
 function bindRecActions(root, list, after){
@@ -1422,8 +1552,8 @@ function editRecord(r, after){
     <div class="muted" style="margin-top:8px">Jika tarikh diubah, kedudukan "kesalahan ke-" dan tahap murid ini dikira semula secara automatik.</div>`,[
     {t:'Batal',cls:'sec'},
     {t:'Simpan',fn:async()=>{
-      await api('updateRecord',{ID:r.ID,tarikh:$('#eT').value,masa:$('#eM').value,kesalahanID:$('#eK').value,sumber:$('#eS').value,catatan:$('#eC').value});
-      toast('Rekod dikemas kini.','ok'); after();
+      const x=await api('updateRecord',{ID:r.ID,tarikh:$('#eT').value,masa:$('#eM').value,kesalahanID:$('#eK').value,sumber:$('#eS').value,catatan:$('#eC').value});
+      toast(x&&x.ulangSah?'Rekod dikemas kini. Sumber baharu wajib disahkan — rekod kini menunggu pengesahan guru.':'Rekod dikemas kini.','ok'); after();
     }}
   ]);
 }
@@ -1521,7 +1651,7 @@ async function showProfil(no){
     out.innerHTML = `
     <div class="card">
       <div class="sp" style="align-items:flex-start"><div><h3 style="margin:0">${esc(m.NamaPenuh)} ${arkib?'<span class="badge b-arkib">Arkib</span>':''}</h3><div class="muted">No. Pendaftaran: ${esc(m.NoDaftar)} · Kelas: ${esc(m.Kelas)}</div></div>
-      <button class="btn sec sm noprint" id="pPrt">🖨 Cetak Profil</button></div>
+      <div class="toolbar noprint" style="margin:0"><button class="btn sec sm" id="pPrt">🖨 Cetak Profil</button>${isGuru()?'<button class="btn sec sm" id="pFull" title="Semua tahun termasuk arkib dan tindakan susulan">📚 Rekod Penuh</button>':''}</div></div>
       <div style="margin-top:14px" class="sp"><span>Jumlah kesalahan (${kitaranOn()?'sejak mula':S.set.SkopKiraan==='SEMUA'?'keseluruhan':'tahun '+today().slice(0,4)}): <b>${c}</b></span><span>Tahap semasa: ${badge(tahapOf(c))}${kitTag(c)}</span></div>
       ${lvlBar(c)}
       ${kitOf(c)>1?`<div class="info" style="margin-top:8px">🔁 Murid ini telah <b>mengulangi kitaran tahap</b>: ${kitOf(c)-1} kali melengkapkan Ringan → Sederhana → Berat, kini dalam <b>kitaran ke-${kitOf(c)}</b>.</div>`:''}
@@ -1544,6 +1674,7 @@ async function showProfil(no){
     };
     out.querySelectorAll('[data-mo]').forEach(b=>b.onclick=()=>moeisModal([b.dataset.mo],()=>showProfil(no)));
     $('#pPrt').onclick=printProfil;
+    if($('#pFull')) $('#pFull').onclick=()=>printPenuh(no);
     bindRecActions($('#pTbl'), lr.records, ()=>showProfil(no));
     out.scrollIntoView({behavior:'smooth'});
   }catch(e){ if(document.body.contains(out)) out.innerHTML=`<div class="card err">${esc(e.message)}</div>`; }
@@ -1558,7 +1689,7 @@ function vTindakan(){
     <div class="info" style="margin-bottom:10px">Tindakan diwujudkan secara automatik apabila murid mencapai tahap <b>Sederhana</b> (sekali bagi setiap tempoh kiraan)
     atau <b>Berat</b> (setiap kali tiada tindakan Berat yang masih terbuka). Kemas kini status dan catatkan tindakan yang diambil, cth. kaunseling, panggilan ibu bapa.</div>
     <div class="row">
-      <div><label>Status</label><select id="tS"><option value="BUKA">Belum selesai</option><option value="BELUM">Belum diambil tindakan</option><option value="PROSES">Dalam proses</option><option value="SELESAI">Selesai</option><option value="">Semua</option></select></div>
+      <div><label>Status</label><select id="tS"><option value="BUKA">Belum selesai</option><option value="BELUM">Belum diambil tindakan</option><option value="PROSES">Dalam proses</option><option value="TERTUNGGAK">⏰ Tertunggak (> ${esc(S.set.TindakanHadHari||14)} hari)</option><option value="SELESAI">Selesai</option><option value="">Semua</option></select></div>
       <div><label>Kelas</label><select id="tK">${optKelas('','Semua')}</select></div>
       <div><label>Jenis tindakan</label><select id="tJ"><option value="">Semua</option>${(S.set.JenisTindakan||[]).map(j=>`<option>${esc(j)}</option>`).join('')}</select></div>
       <div><label>Carian</label><input id="tQ" placeholder="Nama, no. pendaftaran, catatan…"></div>
@@ -1573,15 +1704,19 @@ function vTindakan(){
 async function loadTind(){
   $('#tTbl').innerHTML='<div class="muted">Memuatkan…</div>';
   try{
+    if(S.tindStatus){ $('#tS').value=S.tindStatus; S.tindStatus=null; }
     const F={status:$('#tS').value,kelas:$('#tK').value,jenis:$('#tJ').value,q:$('#tQ').value.trim()};
-    const r=await api('listTindakan',F);
+    const r=await api('listTindakan',Object.assign({},F,F.status==='TERTUNGGAK'?{status:'BUKA'}:{}));
+    const had=+(S.set.TindakanHadHari||14);
+    r.list.forEach(t=>{ t._umur=t.Status==='SELESAI'?0:Math.floor((Date.now()-new Date(String(t.TarikhWujud).slice(0,10)+'T00:00:00').getTime())/86400000); });
+    if(F.status==='TERTUNGGAK') r.list=r.list.filter(t=>t._umur>had).sort((a,b)=>b._umur-a._umur);
     if(!$('#tTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.tind=r.list; S.tindFilter=F;
     setOpenCount(r.buka);
     $('#tTbl').innerHTML = r.list.length ? `<table class="tbl"><thead><tr><th>Diwujudkan</th><th>Murid</th><th>Kelas</th><th>Tahap</th><th>Status</th><th>Tindakan diambil</th><th></th></tr></thead><tbody>
       ${r.list.map(t=>`<tr><td class="nowrap">${fmtD(t.TarikhWujud)}<div class="muted">Tempoh: ${esc(t.Tempoh==='SEMUA'?'Keseluruhan':t.Tempoh)}</div></td>
       <td><a href="#" data-no="${esc(t.NoDaftar)}">${esc(t.NamaPenuh)}</a><div class="muted">${esc(t.NoDaftar)}</div></td><td>${esc(t.Kelas)}</td>
-      <td>${badge(t.Tahap)}</td><td>${sBadge(t.Status)}</td>
+      <td>${badge(t.Tahap)}</td><td>${sBadge(t.Status)}${t._umur>had?`<div style="margin-top:3px"><span class="badge b-BELUM" title="Melebihi had ${had} hari">⏰ ${t._umur} hari</span></div>`:''}</td>
       <td>${t.JenisTindakan?`<div class="qk" style="margin:0 0 4px">${t.JenisTindakan.split(';').map(j=>`<span class="badge b-on" style="font-weight:600">${esc(j.trim())}</span>`).join(' ')}</div>`:''}${t.TarikhTindakan?`<div class="muted">Tarikh tindakan: ${fmtD(t.TarikhTindakan)}</div>`:''}${esc(t.Catatan)||(t.JenisTindakan?'':'<span class="muted">—</span>')}${t.DikemaskiniOleh?`<div class="muted">${esc(t.DikemaskiniOleh)} · ${fmtD(t.DikemaskiniPada)}</div>`:''}</td>
       <td><button class="btn sm" data-id="${esc(t.ID)}">Kemas kini</button></td></tr>`).join('')}</tbody></table>`
       : '<div class="muted">Tiada tindakan bagi tapisan ini.</div>';
@@ -1616,10 +1751,34 @@ async function vSahkan(){
     if(!$('#sTbl')) return;   // halaman telah ditukar semasa memuatkan
     S.menunggu=r.total; renderNav();
     const L=r.records;
-    $('#sTbl').innerHTML=L.length?`<table class="tbl"><thead><tr><th><input type="checkbox" id="sAll"></th><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Direkod oleh</th></tr></thead><tbody>
+    const cards=L.length?`<div class="sk-cards">${L.map(x=>`<div class="sk-card" data-id="${esc(x.ID)}">
+        <div class="sp"><b>${esc(x.NamaPenuh)}</b><span class="muted">${esc(x.Kelas)}</span></div>
+        <div style="margin:4px 0">${esc(x.Kesalahan)}${x.Butiran?' – '+esc(x.Butiran):''}</div>
+        <div class="muted">${fmtD(x.Tarikh)} ${esc(x.Masa)}${x.Sumber?' · 📍 '+esc(x.Sumber):''} · ${esc(x.DirekodOleh)}</div>${x.Catatan?`<div class="muted"><i>${esc(x.Catatan)}</i></div>`:''}
+        <div class="sk-btn"><button class="btn red sm" data-tk="${esc(x.ID)}">✕ Tolak</button><button class="btn grn" data-sk="${esc(x.ID)}">✓ Sahkan</button></div></div>`).join('')}
+        <div class="muted" style="text-align:center;font-size:12px">Leret kad ke kanan untuk sahkan, ke kiri untuk tolak.</div></div>`:'';
+    $('#sTbl').innerHTML=cards+(L.length?`<table class="tbl sk-tbl"><thead><tr><th><input type="checkbox" id="sAll"></th><th>Tarikh</th><th>Murid</th><th>Kelas</th><th>Kesalahan</th><th>Direkod oleh</th></tr></thead><tbody>
       ${L.map(x=>`<tr><td><input type="checkbox" class="sC" value="${esc(x.ID)}"></td><td class="nowrap">${fmtD(x.Tarikh)}<div class="muted">${esc(x.Masa)}</div></td><td>${esc(x.NamaPenuh)}<div class="muted">${esc(x.NoDaftar)}</div></td><td>${esc(x.Kelas)}</td>
         <td>${esc(x.Kesalahan)}${x.Butiran?`<div class="muted">${esc(x.Butiran)}</div>`:''}${x.Sumber?`<div class="muted">📍 ${esc(x.Sumber)}</div>`:''}${x.Catatan?`<div class="muted"><i>${esc(x.Catatan)}</i></div>`:''}</td><td>${esc(x.DirekodOleh)}<div class="muted">${fmtD(x.DimasukkanPada)}</div></td></tr>`).join('')}</tbody></table>`
-      :'<div class="muted">🎉 Tiada rekod menunggu pengesahan.</div>';
+      :'<div class="muted">🎉 Tiada rekod menunggu pengesahan.</div>');
+    const satu=async(id,kep,el)=>{
+      let sebab='';
+      if(kep==='DITOLAK'){ sebab=await new Promise(res=>modal('Tolak Rekod',`<label>Sebab ditolak</label><textarea id="tSb1" placeholder="Cth: Salah murid / maklumat tidak tepat"></textarea>`,[{t:'Batal',cls:'sec',fn:()=>res('')},{t:'Tolak',cls:'red',fn:()=>{ const v=$('#tSb1').value.trim(); if(!v){ toast('Sila nyatakan sebab.','err'); return false; } res(v); }}])); if(!sebab) return; }
+      el.style.opacity='.4';
+      try{ const x=await api('sahkanRekod',{IDs:[id],keputusan:kep,sebab}); S.menunggu=x.menunggu; renderNav();
+        if(x.tindakanBaru) setOpenCount(S.tindakanBuka+x.tindakanBaru); if(x.moeisBaru) setMoeisCount(S.moeisBelum+x.moeisBaru);
+        el.classList.add(kep==='SAH'?'ok':'no'); setTimeout(()=>{ el.remove(); if(!document.querySelector('.sk-card')) vSahkan(); },280);
+        toast(kep==='SAH'?'Rekod disahkan.':'Rekod ditolak.','ok');
+      }catch(e){ el.style.opacity=''; toast(e.message,'err'); }
+    };
+    document.querySelectorAll('.sk-card').forEach(c=>{
+      c.querySelector('[data-sk]').onclick=()=>satu(c.dataset.id,'SAH',c);
+      c.querySelector('[data-tk]').onclick=()=>satu(c.dataset.id,'DITOLAK',c);
+      let x0=null; c.addEventListener('touchstart',e=>{ x0=e.touches[0].clientX; },{passive:true});
+      c.addEventListener('touchmove',e=>{ if(x0==null) return; const dx=e.touches[0].clientX-x0; c.style.transform=`translateX(${dx}px)`; c.style.background=dx>40?'rgba(34,197,94,.18)':dx<-40?'rgba(227,34,43,.15)':''; },{passive:true});
+      c.addEventListener('touchend',e=>{ const dx=(e.changedTouches[0].clientX-(x0??0)); x0=null; c.style.transform=''; c.style.background='';
+        if(dx>90) satu(c.dataset.id,'SAH',c); else if(dx<-90) satu(c.dataset.id,'DITOLAK',c); });
+    });
     const sel=()=>[...document.querySelectorAll('.sC:checked')].map(c=>c.value);
     const upd=()=>{ const n=sel().length; $('#sSah').disabled=$('#sTolak').disabled=!n; $('#sSah').textContent=`✓ Sahkan terpilih (${n})`; $('#sTolak').textContent=`✕ Tolak terpilih (${n})`; };
     if($('#sAll')) $('#sAll').onchange=e=>{ document.querySelectorAll('.sC').forEach(c=>c.checked=e.target.checked); upd(); };
@@ -1849,6 +2008,15 @@ async function genReport(){
       <div class="card"><h3>Kesalahan Mengikut Jenis</h3>${bars(d.ikutKesalahan)}</div>
       <div class="card"><h3>📍 Sumber Kesalahan</h3>${bars(d.ikutSumber||[])}</div>
       <div class="card"><h3>Mengikut Hari</h3>${bars(d.ikutHari.filter(x=>x.bil||(x.label!=='Sabtu'&&x.label!=='Ahad')))}</div>
+      ${d.ikutKitaran?`<div class="card"><h3>🔁 Murid Mengikut Kitaran</h3>${bars(d.ikutKitaran)}<div class="muted" style="margin-top:6px">Kitaran semasa murid yang terlibat dalam tempoh ini. Kitaran 2 ke atas = murid yang telah mengulangi Ringan → Sederhana → Berat.</div></div>`:''}
+    </div>
+    <div class="card"><h3>🎓 Mengikut Tingkatan</h3><div class="tw"><table class="tbl"><thead><tr><th>Tingkatan</th><th class="right">Murid terlibat</th><th class="right">Ringan</th><th class="right">Sederhana</th><th class="right">Berat</th><th class="right">Jumlah</th><th style="width:30%"></th></tr></thead><tbody>
+      ${(d.ikutTingkatan||[]).length?d.ikutTingkatan.map(k=>`<tr><td><b>${esc(k.label)}</b></td><td class="right">${k.murid}</td><td class="right">${k.Ringan}</td><td class="right">${k.Sederhana}</td><td class="right">${k.Berat}</td><td class="right"><b>${k.bil}</b></td><td><div class="bar"><i style="width:${(k.bil/Math.max(1,...d.ikutTingkatan.map(x=>x.bil))*100).toFixed(0)}%"></i></div></td></tr>`).join(''):'<tr><td colspan="7" class="muted">Tiada data.</td></tr>'}
+    </tbody></table></div></div>
+    <div class="card"><h3>🛡️ Prestasi Pengawas</h3>
+      ${(d.pengawas||[]).length?`<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Pengawas</th><th class="right">Dihantar</th><th class="right">Disahkan</th><th class="right">Menunggu</th><th class="right">Ditolak</th><th class="right">Kadar ditolak</th><th class="right">Murid</th><th>Sumber utama</th></tr></thead><tbody>
+      ${d.pengawas.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.nama)}${p.jawatan?`<div class="muted">${esc(p.jawatan)}</div>`:''}</td><td class="right"><b>${p.dihantar}</b></td><td class="right">${p.sah}</td><td class="right">${p.menunggu}</td><td class="right">${p.ditolak}</td><td class="right">${p.kadarTolak>=30?`<span class="badge b-Berat">${p.kadarTolak}%</span>`:p.kadarTolak+'%'}</td><td class="right">${p.murid}</td><td>${esc(p.sumberUtama)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="muted" style="margin-top:6px">Kadar ditolak = ditolak ÷ (disahkan + ditolak). Kadar tinggi (≥ 30%) mungkin menunjukkan pengawas memerlukan bimbingan semasa merekod.</div>`:'<div class="muted">Tiada rekod oleh pengawas dalam tempoh ini.</div>'}
     </div>
     <div class="card"><h3>🕒 Analisis Waktu Kejadian</h3>
       <div class="sp" style="margin-bottom:6px"><span>Sesi pagi (sebelum 1:00 ptg): <b>${d.sesi.Pagi}</b></span><span>Sesi petang: <b>${d.sesi.Petang}</b></span></div>
@@ -1890,6 +2058,9 @@ async function exportReport(){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.topMurid.map((m,i)=>({'#':i+1,'No. Pendaftaran':m.NoDaftar,'Nama':m.NamaPenuh,'Kelas':m.Kelas,'Bilangan':m.bil,'Tahap terkini':m.tahap}))),'Murid Kerap');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.ikutJenisTindakan||[]).map(k=>({'Jenis tindakan':k.label,'Bilangan':k.bil})).concat((d.ikutJenisTindakan||[]).length?[]:[{'Jenis tindakan':'(tiada)','Bilangan':0}])),'Jenis Tindakan');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.trend.map(t=>({'Tempoh':d.trendHarian?fmtD(t.label):t.label,'Bilangan':t.bil}))),'Trend');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.ikutTingkatan||[]).map(k=>({'Tingkatan':k.label,'Murid terlibat':k.murid,'Ringan':k.Ringan,'Sederhana':k.Sederhana,'Berat':k.Berat,'Jumlah':k.bil}))),'Ikut Tingkatan');
+  if(d.ikutKitaran) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ikutKitaran.map(k=>({'Kitaran':k.label,'Bilangan murid':k.bil}))),'Ikut Kitaran');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((d.pengawas||[]).map(p=>({'Pengawas':p.nama,'Jawatan':p.jawatan,'Dihantar':p.dihantar,'Disahkan':p.sah,'Menunggu':p.menunggu,'Ditolak':p.ditolak,'Kadar ditolak (%)':p.kadarTolak,'Murid':p.murid,'Sumber utama':p.sumberUtama})).concat((d.pengawas||[]).length?[]:[{'Pengawas':'(tiada)'}])),'Prestasi Pengawas');
   XLSX.writeFile(wb,`Laporan_Demerit_${d.dari}_${d.hingga}.xlsx`);
 }
 
@@ -1902,6 +2073,8 @@ function vAkaun(){
     <div class="muted">Nama: <b>${esc(S.user.Nama)}</b><br>ID log masuk: <b>${esc(S.user.Login)}</b><br>Peranan: <b>${esc(roleName(S.user))}</b>${S.user.Jawatan?`<br>Jawatan: <b>${esc(S.user.Jawatan)}</b>`:''}${isGuru()&&S.user.perms&&!S.user.Pentadbir&&S.user.perms.length<PERMS.length?`<br>Kebenaran: <b>${esc(PERMS.filter(x=>S.user.perms.includes(x[0])).map(x=>x[1]).join(', ')||'Lihat sahaja')}</b>`:''}<br>Versi sistem: <b>${esc(APP_VERSI)}</b></div>
     <label>Tema paparan</label>
     <select id="aTema" style="max-width:260px"><option value="cerah">☀️ Cerah</option><option value="gelap">🌙 Gelap</option><option value="auto">🖥️ Ikut tetapan peranti</option></select>
+    <label>Saiz tulisan</label>
+    <select id="aFon" style="max-width:260px"><option value="0.9">Kecil</option><option value="1">Biasa</option><option value="1.12">Besar</option><option value="1.25">Sangat besar</option></select>
     <div class="toolbar" style="margin-top:8px"><button class="btn sec sm" id="aUpd">🔄 Semak kemas kini</button>
       <button class="btn sm ${S.latihan?'sec':'amb'}" id="aLat">${S.latihan?'↩ Keluar mod latihan':'🧪 Masuk mod latihan'}</button>
       ${S.latihan&&isAdmin()?'<button class="btn sm sec" id="aSeed">♻ Jana semula data latihan</button>':''}</div>
@@ -1917,6 +2090,7 @@ function vAkaun(){
     catch(e){ toast(e.message,'err'); }
   };
   $('#aTema').value=LS.get('dm_tema')||'cerah'; $('#aTema').onchange=()=>setTheme($('#aTema').value);
+  $('#aFon').value=LS.get('dm_fon')||'1'; $('#aFon').onchange=()=>{ const z=$('#aFon').value; LS.set('dm_fon',z); document.documentElement.style.zoom=z==='1'?'':z; toast('Saiz tulisan ditukar.','ok'); };
   $('#aLat').onclick=()=>setLatihan(!S.latihan);
   if($('#aSeed')) $('#aSeed').onclick=async()=>{ if(!await ask('Padam semua data latihan dan jana semula data contoh?','Jana Semula','amb')) return; try{ await api('seedLatihan'); toast('Data latihan dijana semula.','ok'); boot({}); }catch(e){ toast(e.message,'err'); } };
   $('#aUpd').onclick=async()=>{
@@ -1931,11 +2105,11 @@ function vAkaun(){
    TETAPAN (GURU PENTADBIR)
    ===================================================================== */
 const TABS=[['umum','🏫 Umum & Logo'],['kesalahan','⚠️ Kesalahan'],['kelas','🏷️ Kelas'],['murid','🎓 Murid'],
-  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['data','🗂️ Akses Data Murid'],['jawatan','🎖️ Jawatan'],['sumber','📍 Sumber Kesalahan'],['jenistindakan','🛠️ Jenis Tindakan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['kesihatan','🩺 Kesihatan Sistem'],['log','📜 Log Aktiviti']];
+  ['guru','👩‍🏫 Akses Guru'],['pengawas','🛡️ Akses Pengawas'],['data','🗂️ Akses Data Murid'],['jawatan','🎖️ Jawatan'],['sumber','📍 Sumber Kesalahan'],['jenistindakan','🛠️ Jenis Tindakan'],['notif','🔔 Notifikasi'],['keselamatan','🔐 Keselamatan'],['cuti','📅 Kalendar Cuti'],['sistem','🗄️ Sandaran & Arkib'],['tahunbaru','🎓 Tahun Baharu'],['kesihatan','🩺 Kesihatan Sistem'],['log','📜 Log Aktiviti']];
 function vTetapan(){
   $('#view').innerHTML = `<div class="tabs">${TABS.map(([k,t])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${t}</button>`).join('')}</div><div id="tBody"></div>`;
   $('#view').querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ navSeq++; S.tab=b.dataset.t; vTetapan(); });
-  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),data:()=>tUsers('DATA'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,sistem:tSistem,tahunbaru:tTahunBaru,kesihatan:tKesihatan,jenistindakan:tJenisTindakan,sumber:tSumber,log:tLog})[S.tab]();
+  ({umum:tUmum,kesalahan:tKesalahan,kelas:tKelas,murid:tMurid,guru:()=>tUsers('GURU'),pengawas:()=>tUsers('PENGAWAS'),data:()=>tUsers('DATA'),jawatan:tJawatan,notif:tNotif,keselamatan:tKeselamatan,cuti:tCuti,sistem:tSistem,tahunbaru:tTahunBaru,kesihatan:tKesihatan,jenistindakan:tJenisTindakan,sumber:tSumber,log:tLog})[S.tab]();
 }
 
 /* ---------- Umum & Logo ---------- */
@@ -2185,6 +2359,7 @@ function muridAktif(){
       <button class="btn sec" id="mTpl">⬇ Templat Excel</button>
       <button class="btn grn" id="mImp">⬆ Import dari Excel</button>
       <button class="btn" id="mAdd">+ Tambah Murid</button>
+      <button class="btn sec" id="mQR" title="Cetak pelekat / kad QR bagi murid yang dipaparkan (ikut penapis kelas)">🪪 Cetak Kad QR</button>
     </div>
     <div class="row" style="margin-bottom:10px">
       <div style="flex:0 0 190px"><select id="mKelas">${optKelas('','Semua kelas')}</select></div>
@@ -2208,7 +2383,8 @@ function muridAktif(){
         <label>Sebab</label><select id="aSb"><option>Berpindah sekolah</option><option>Tamat persekolahan</option><option>Berhenti sekolah</option><option>Lain-lain</option></select>
         <div class="muted" style="margin-top:8px">Murid arkib tidak muncul semasa merekod kesalahan, tetapi profil dan rekodnya kekal dan boleh dipulihkan.</div>`,[
         {t:'Batal',cls:'sec'},
-        {t:'Arkibkan',cls:'amb',fn:async()=>{ const r=await api('archiveMurid',{noList:[m.NoDaftar],sebab:$('#aSb').value}); S.murid=r.murid; S.muridArkib=r.muridArkib; toast('Murid diarkibkan.','ok'); tMurid(); }}
+        {t:'Arkibkan',cls:'amb',fn:async()=>{ const r=await api('archiveMurid',{noList:[m.NoDaftar],sebab:$('#aSb').value}); S.murid=r.murid; S.muridArkib=r.muridArkib; tMurid();
+          if(isGuru()) toastAct('Murid diarkibkan.','📚 Cetak rekod penuh',()=>printPenuh(m.NoDaftar),10000); else toast('Murid diarkibkan.','ok'); }}
       ]);
     });
     $('#mTbl').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
@@ -2219,6 +2395,9 @@ function muridAktif(){
   };
   $('#mKelas').onchange=draw; $('#mQ').oninput=draw; draw();
   $('#mTpl').onclick=templateMurid;
+  $('#mQR').onclick=()=>{ const k=$('#mKelas').value, q=$('#mQ').value.trim().toLowerCase();
+    const l=S.murid.filter(m=>(!k||m.Kelas===k)&&(!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q))).sort((x,y)=>kelasSort(x.Kelas,y.Kelas)||x.NamaPenuh.localeCompare(y.NamaPenuh));
+    if(l.length>600) return toast('Terlalu ramai murid. Pilih satu kelas dahulu.','err'); printKadQR(l); };
   $('#mAdd').onclick=()=>muridForm(null);
   $('#mImp').onclick=()=>pickFile(importMuridFile);
 }
@@ -2229,7 +2408,8 @@ function muridArkibView(){
     const l=S.muridArkib.filter(m=>!q||(m.NamaPenuh+' '+m.NoDaftar).toLowerCase().includes(q)).sort((a,b)=>b.TarikhArkib.localeCompare(a.TarikhArkib)).slice(0,300);
     $('#maTbl').innerHTML = l.length?`<table class="tbl"><thead><tr><th>No. Pendaftaran</th><th>Nama Penuh</th><th>Kelas terakhir</th><th>Sebab</th><th>Tarikh arkib</th><th></th></tr></thead><tbody>
       ${l.map(m=>`<tr><td>${esc(m.NoDaftar)}</td><td>${esc(m.NamaPenuh)}</td><td>${esc(m.Kelas)}</td><td>${esc(m.Sebab)}</td><td class="nowrap">${fmtD(m.TarikhArkib)}</td>
-      <td><button class="btn sm grn" data-rs="${esc(m.NoDaftar)}">Pulihkan</button></td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada murid arkib.</div>';
+      <td class="nowrap">${isGuru()?`<button class="btn sm sec" data-full="${esc(m.NoDaftar)}" title="Cetak rekod disiplin penuh (untuk murid berpindah / tamat)">📚 Rekod Penuh</button> `:''}<button class="btn sm grn" data-rs="${esc(m.NoDaftar)}">Pulihkan</button></td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada murid arkib.</div>';
+    $('#maTbl').querySelectorAll('[data-full]').forEach(b=>b.onclick=()=>printPenuh(b.dataset.full));
     $('#maTbl').querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>{
       const m=S.muridArkib.find(x=>x.NoDaftar===b.dataset.rs);
       modal('Pulihkan Murid',`<p><b>${esc(m.NamaPenuh)}</b> (${esc(m.NoDaftar)})</p><label>Masukkan ke kelas</label><input id="rsK" list="rsKL" value="${esc(m.Kelas)}"><datalist id="rsKL">${S.kelas.map(k=>`<option value="${esc(k)}">`).join('')}</datalist>`,[
@@ -2556,11 +2736,18 @@ async function tNotif(){
     ${yn('nMoe',n.NotifMoeis,'Murid perlu dimasukkan ke sistem MOEIS')}
     ${yn('nPen',n.NotifPengesahan,'Pengawas menghantar rekod yang menunggu pengesahan')}
     <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="nMg" ${n.mingguan?'checked':''}> Ringkasan mingguan setiap Jumaat (~3 petang)</label>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="nEs" ${n.eskalasi?'checked':''}> Eskalasi harian tindakan susulan tertunggak (~7 pagi)</label>
+    <div class="row" style="margin-top:6px"><div style="flex:0 0 220px"><label>Tertunggak selepas (hari)</label><input type="number" id="nHH" min="1" max="365" value="${esc(S.set.TindakanHadHari||14)}"></div>
+      <div><label>Hantar eskalasi kepada jawatan <span class="muted">(guru dengan emel di akaun)</span></label><div id="nJw" style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px">
+      ${S.jawatan.filter(j=>j.Peranan==='GURU').map(j=>`<label style="display:flex;gap:6px;align-items:center;font-weight:500;margin:0"><input type="checkbox" value="${esc(j.Nama)}" ${(S.set.EskalasiJawatan||[]).includes(j.Nama)?'checked':''} style="width:auto"> ${esc(j.Nama)}</label>`).join('')}</div></div></div>
+    <div class="muted">Eskalasi juga dihantar ke saluran emel/Telegram di atas. Tindakan tertunggak turut dipaparkan di papan pemuka dan menu Tindakan.</div>
     <div class="toolbar" style="margin-top:14px"><button class="btn" id="nSave">💾 Simpan</button><button class="btn sec" id="nTest">📨 Hantar notifikasi ujian</button></div>
     <div class="muted">Notifikasi tidak dihantar dalam mod latihan.</div>
   </div>`;
   const val=()=>({NotifEmel:$('#nE').value,NotifTgToken:$('#nT').value,NotifTgChat:$('#nC').value,NotifTahap:$('#nTah').checked?'YA':'TIDAK',NotifMoeis:$('#nMoe').checked?'YA':'TIDAK',NotifPengesahan:$('#nPen').checked?'YA':'TIDAK',mingguan:$('#nMg').checked});
-  $('#nSave').onclick=async()=>{ try{ await api('saveNotif',val()); toast('Tetapan notifikasi disimpan.','ok'); }catch(e){ toast(e.message,'err'); } };
+  $('#nSave').onclick=async()=>{ try{ await api('saveNotif',Object.assign(val(),{eskalasi:$('#nEs').checked}));
+    const r=await api('saveSettings',{TindakanHadHari:$('#nHH').value,EskalasiJawatan:JSON.stringify([...$('#nJw').querySelectorAll('input:checked')].map(c=>c.value))}); S.set=r.settings;
+    toast('Tetapan notifikasi disimpan.','ok'); }catch(e){ toast(e.message,'err'); } };
   $('#nTest').onclick=async()=>{ try{ await api('saveNotif',val()); const r=await api('testNotif'); toast(`Ujian dihantar${r.emel?' · emel: '+r.emel+' penerima':''}${r.telegram?' · Telegram ✓':''}${r.ralat.length?' · ralat: '+r.ralat.join('; '):''}`,r.ralat.length?'err':'ok'); }catch(e){ toast(e.message,'err'); } };
 }
 
@@ -2580,9 +2767,48 @@ function tKeselamatan(){
       <li><b>Credentials → Create credentials → OAuth client ID</b> → <i>Web application</i>.</li>
       <li>Di <b>Authorized JavaScript origins</b>, tambah: <code>${esc(origin)}</code></li><li>Salin Client ID ke sini dan simpan.</li>
       <li>Isi <b>Emel Google</b> bagi setiap akaun di tab Akses Guru / Pengawas.</li></ol></details>
+  </div>
+  <div class="card"><h3>🔒 Had Masa Edit Rekod</h3>
+    <label>Guru (bukan pentadbir) boleh edit / padam rekod dalam tempoh (jam)</label><input type="number" id="kHE" min="0" max="8760" value="${esc(s.HadEditJam??48)}">
+    <div class="muted">Selepas tempoh ini rekod dikunci dan hanya guru pentadbir boleh mengubahnya. Masukkan 0 untuk tiada had. Cadangan: 48 jam.</div>
   </div></div>
-  <div style="text-align:right"><button class="btn" id="kSave">💾 Simpan</button></div>`;
-  $('#kSave').onclick=async()=>{ try{ const r=await api('saveSettings',{AutoLogout:$('#kAL').value,GoogleClientId:$('#kGC').value.trim(),GoogleDomain:$('#kGD').value.trim()}); S.set=r.settings; toast('Tetapan keselamatan disimpan.','ok'); }catch(e){ toast(e.message,'err'); } };
+  <div style="text-align:right"><button class="btn" id="kSave">💾 Simpan</button></div>
+  <div class="card"><div class="sp" style="align-items:center"><h3 style="margin:0">💻 Sesi Log Masuk Aktif</h3><button class="btn sm sec" id="kRef">🔄 Muat semula</button></div>
+    <div class="muted" style="margin:6px 0 10px">Senarai peranti yang sedang log masuk. Tamatkan sesi jika telefon hilang, komputer dikongsi tertinggal log masuk, atau guru berpindah. Sesi tamat sendiri selepas tidak aktif.</div>
+    <div class="tw" id="kSesi"><div class="muted">Memuatkan…</div></div></div>`;
+  $('#kSave').onclick=async()=>{ try{ const r=await api('saveSettings',{AutoLogout:$('#kAL').value,GoogleClientId:$('#kGC').value.trim(),GoogleDomain:$('#kGD').value.trim(),HadEditJam:$('#kHE').value}); S.set=r.settings; toast('Tetapan keselamatan disimpan.','ok'); }catch(e){ toast(e.message,'err'); } };
+  const RL={GURU:'Guru',PENGAWAS:'Pengawas',DATA:'Data Murid'};
+  const drawSesi=l=>{
+    if(!$('#kSesi')) return;
+    $('#kSesi').innerHTML=l.length?`<table class="tbl"><thead><tr><th>Pengguna</th><th>Peranti</th><th>Log masuk</th><th>Aktif terakhir</th><th></th></tr></thead><tbody>
+      ${l.map(x=>`<tr><td>${esc(x.nama)}${x.semasa?' <span class="badge b-on">Sesi ini</span>':''}<div class="muted">${esc(x.login)} · ${esc(RL[x.peranan]||x.peranan)}${x.jawatan?' · '+esc(x.jawatan):''}</div></td><td>${esc(x.peranti||'—')}</td><td class="nowrap">${fmtD(x.mula)}<div class="muted">${esc(String(x.mula).slice(11,16))}</div></td><td class="nowrap">${fmtD(x.akhir)}<div class="muted">${esc(String(x.akhir).slice(11,16))}</div></td>
+      <td class="nowrap right">${x.semasa?'':`<button class="btn sm red" data-sid="${esc(x.sid)}">Tamatkan</button> <button class="btn sm sec" data-uid="${esc(x.id)}" data-nm="${esc(x.nama)}" title="Tamatkan semua sesi pengguna ini">Semua</button>`}</td></tr>`).join('')}</tbody></table>`:'<div class="muted">Tiada sesi aktif lain.</div>';
+    $('#kSesi').querySelectorAll('[data-sid]').forEach(b=>b.onclick=async()=>{ try{ drawSesi(await api('tamatSesi',{sid:b.dataset.sid})); toast('Sesi ditamatkan.','ok'); }catch(e){ toast(e.message,'err'); } });
+    $('#kSesi').querySelectorAll('[data-uid]').forEach(b=>b.onclick=async()=>{ if(!await ask(`Tamatkan semua sesi <b>${esc(b.dataset.nm)}</b>?`,'Tamatkan')) return; try{ drawSesi(await api('tamatSesi',{userId:b.dataset.uid})); toast('Semua sesi pengguna ditamatkan.','ok'); }catch(e){ toast(e.message,'err'); } });
+  };
+  const loadSesi=async()=>{ try{ drawSesi(await api('listSesi')); }catch(e){ if($('#kSesi')) $('#kSesi').innerHTML=`<div class="err">${esc(e.message)}</div>`; } };
+  $('#kRef').onclick=loadSesi; loadSesi();
+}
+
+/* ---------- Kalendar cuti sekolah ---------- */
+function tCuti(){
+  const L=(S.set.CutiSekolah||[]).map(x=>Object.assign({},x));
+  $('#tBody').innerHTML=`<div class="card" style="max-width:900px"><h3>📅 Kalendar Cuti Sekolah</h3>
+    <div class="info" style="margin-bottom:12px">Apabila guru atau pengawas merekod kesalahan pada <b>hujung minggu</b> atau <b>hari cuti</b> dalam senarai ini, sistem akan memaparkan amaran dan meminta pengesahan tarikh. Ini membantu mengelakkan salah pilih tarikh. Rekod masih boleh disimpan (cth. program sekolah pada hari cuti).</div>
+    <label>Hujung minggu</label>
+    <select id="cHM" style="max-width:320px"><option value="SAB_AHD" ${S.set.HujungMinggu!=='JUM_SAB'?'selected':''}>Sabtu & Ahad</option><option value="JUM_SAB" ${S.set.HujungMinggu==='JUM_SAB'?'selected':''}>Jumaat & Sabtu (Kedah, Kelantan, Terengganu)</option></select>
+    <div class="tw" style="margin-top:12px"><table class="tbl"><thead><tr><th>#</th><th>Nama cuti</th><th>Dari</th><th>Hingga</th><th></th></tr></thead><tbody id="cB"></tbody></table></div>
+    <div class="toolbar" style="margin-top:10px;justify-content:space-between"><button class="btn sec" id="cAdd">+ Tambah cuti</button><button class="btn" id="cSave">💾 Simpan</button></div></div>`;
+  const draw=()=>{
+    $('#cB').innerHTML=L.map((c,i)=>`<tr><td>${i+1}</td><td><input data-k="nama" data-i="${i}" value="${esc(c.nama||'')}" placeholder="Cth: Cuti Penggal 1" maxlength="80"></td>
+      <td><input type="date" data-k="dari" data-i="${i}" value="${esc(c.dari||'')}"></td><td><input type="date" data-k="hingga" data-i="${i}" value="${esc(c.hingga||'')}"></td>
+      <td><button class="btn sm red" data-x="${i}">✕</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">Belum ada cuti. Tambah cuti penggal, cuti umum dan cuti peristiwa.</td></tr>';
+    $('#cB').querySelectorAll('input').forEach(el=>el.oninput=()=>{ L[+el.dataset.i][el.dataset.k]=el.value; });
+    $('#cB').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ L.splice(+b.dataset.x,1); draw(); });
+  };
+  draw();
+  $('#cAdd').onclick=()=>{ L.push({nama:'',dari:'',hingga:''}); draw(); const ins=$('#cB').querySelectorAll('input[data-k="nama"]'); ins[ins.length-1].focus(); };
+  $('#cSave').onclick=async()=>{ try{ const r=await api('saveSettings',{CutiSekolah:JSON.stringify(L.filter(c=>c.nama||c.dari)),HujungMinggu:$('#cHM').value}); S.set=r.settings; toast('Kalendar cuti disimpan.','ok'); tCuti(); }catch(e){ toast(e.message,'err'); } };
 }
 
 /* ---------- Penutupan tahun ---------- */
