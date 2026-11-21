@@ -1,6 +1,6 @@
-/* Sistem Demerit Murid — Service Worker
+/* Sistem Perekodan Kesalahan Ringan Murid — Service Worker
    Tukar nombor versi CACHE setiap kali index.html dikemas kini supaya telefon mendapat versi baharu. */
-const CACHE = 'demerit-v14';
+const CACHE = 'demerit-v15';
 const SHELL = [
   './',
   './index.html',
