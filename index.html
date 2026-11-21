@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sistem Demerit Murid</title>
+<title>Sistem Perekodan Kesalahan Ringan Murid</title>
 <!--
   =====================================================================
-   SISTEM DEMERIT MURID — FRONTEND · Versi 2
+   SISTEM PEREKODAN KESALAHAN RINGAN MURID — FRONTEND · Versi 2
    GitHub Pages: simpan sebagai index.html bersama manifest.json,
    sw.js, icon-192.png dan icon-512.png dalam folder yang sama.
   =====================================================================
@@ -18,7 +18,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Demerit">
+<meta name="apple-mobile-web-app-title" content="Rekod Kesalahan">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--pri2) 0 60%,var(--red) 60% 82%,var(--yel) 82%)}
 .topbar img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
 .brand{flex:1;min-width:0}.brand b{display:block;font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brand small{opacity:.8;font-size:12px;letter-spacing:.3px}
+.brand small{opacity:.8;font-size:12px;letter-spacing:.3px;display:block;line-height:1.3}
+@media(max-width:560px){.brand small{font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
 .uinfo{text-align:right;font-size:12px;line-height:1.35}.uinfo b{font-size:13px;font-weight:700}
 .uinfo span{opacity:.85}
 .hd-jwt{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-weight:600}
@@ -399,7 +400,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
   <div class="login-box">
     <img id="lgLogo" alt="Logo">
     <h2 id="lgSchool">Memuatkan…</h2>
-    <div class="muted" id="lgSys">Sistem Demerit Murid</div>
+    <div class="muted" id="lgSys">Sistem Perekodan Kesalahan Ringan Murid</div>
     <form id="lgForm">
       <label>ID Log Masuk</label>
       <input id="lgUser" autocomplete="username" autocapitalize="none" required>
@@ -478,7 +479,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '15.1';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '15.2';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 15;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -789,10 +790,10 @@ function applyBrand(school, sys, logo){
   const src = logo || DEF_LOGO;
   ['#lgLogo','#hdLogo','#pwLogo'].forEach(s=>$(s).src=src);
   if(logo) $('#favicon').href=logo;
-  $('#lgSchool').textContent = school || 'Sistem Demerit';
+  $('#lgSchool').textContent = school || 'Sistem Perekodan Kesalahan Ringan Murid';
   $('#hdSchool').textContent = school || '';
-  $('#lgSys').textContent = $('#hdSys').textContent = sys || 'Sistem Demerit Murid';
-  document.title = (sys||'Sistem Demerit Murid') + (school?' | '+school:'');
+  $('#lgSys').textContent = $('#hdSys').textContent = sys || 'Sistem Perekodan Kesalahan Ringan Murid';
+  document.title = (sys||'Sistem Perekodan Kesalahan Ringan Murid') + (school?' | '+school:'');
 }
 
 /* =====================================================================
@@ -825,7 +826,7 @@ function pdSign(list){
 }
 async function printDoc(html, noEnd, land){
   const a=$('#printArea');
-  a.innerHTML=`<div class="pd">${html}${noEnd?'':`<div class="pd-end">— Dokumen ini dijana oleh ${esc(S.set.NamaSistem||'Sistem Demerit Murid')} —</div>`}</div>`;
+  a.innerHTML=`<div class="pd">${html}${noEnd?'':`<div class="pd-end">— Dokumen ini dijana oleh ${esc(S.set.NamaSistem||'Sistem Perekodan Kesalahan Ringan Murid')} —</div>`}</div>`;
   pageStyle(land); document.body.classList.add('pdoc');
   await Promise.all([...a.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r;})));
   setTimeout(()=>window.print(),80);
@@ -1195,7 +1196,7 @@ function showWelcome(){
     <div class="wel-salam"><span>${sl.i}</span>${sl.t}</div>
     <div class="wel-nama">${esc(S.user.Nama)}</div>
     <div class="wel-jwt">${esc(jawatanUser())}</div>
-    <div class="wel-sek">${esc(S.set.NamaSekolah||'')}<br><span style="opacity:.8;font-weight:500">${esc(S.set.NamaSistem||'Sistem Demerit Murid')}</span></div>
+    <div class="wel-sek">${esc(S.set.NamaSekolah||'')}<br><span style="opacity:.8;font-weight:500">${esc(S.set.NamaSistem||'Sistem Perekodan Kesalahan Ringan Murid')}</span></div>
     <div class="wel-masa"><div>📅 ${esc(tkh)}</div><div>🕒 <b id="welJam"></b></div></div>
     ${isGuru()&&S.akhirTahun&&S.akhirTahun.belum?`<div class="wel-info"><span>🗓️ Akhir tahun ${esc(S.akhirTahun.tahun)}: ${S.akhirTahun.belum} kemasukan MOEIS perlu diselesaikan</span></div>`:''}
     ${info.length?`<div class="wel-info">${info.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}
