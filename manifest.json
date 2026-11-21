@@ -1,6 +1,6 @@
 {
-  "name": "Sistem Demerit Murid",
-  "short_name": "Demerit",
+  "name": "Sistem Perekodan Kesalahan Ringan Murid",
+  "short_name": "Rekod Kesalahan",
   "description": "Sistem rekod kesalahan ringan dan demerit murid",
   "start_url": "./",
   "scope": "./",
