@@ -480,7 +480,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '17.1';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '17.2';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 17;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -2995,18 +2995,33 @@ function tUsers(role){
       <br>Akaun baharu dan kata laluan yang ditetapkan semula <b>wajib ditukar</b> oleh pengguna semasa log masuk.</div>
     <div class="toolbar">
       <button class="btn" id="uAdd">+ Tambah ${title}</button>
+      <button class="btn red hidden" id="uBulk">🗑 Padam terpilih (<span id="uBulkN">0</span>)</button>
       ${isD?'':`<button class="btn sec" id="uTpl">⬇ Templat Excel</button>
       <button class="btn grn" id="uImp">⬆ Import dari Excel</button>`}
     </div>
-    <div class="tw"><table class="tbl"><thead><tr><th>Nama</th><th>Jawatan</th><th>ID Log Masuk</th>${isG?'<th>Pentadbir</th>':''}<th>Status</th><th></th></tr></thead><tbody>
-    ${list.length?list.map(u=>`<tr><td>${esc(u.Nama)}${u.ID===S.user.ID?' <span class="muted">(anda)</span>':''}</td><td>${isD?'Pengurus Data Murid':u.Jawatan?esc(u.Jawatan):'<span class="muted">—</span>'}</td><td>${esc(u.Login)}${u.Emel?`<div class="muted">${esc(u.Emel)}</div>`:''}</td>
+    <div class="tw"><table class="tbl"><thead><tr><th style="width:32px"><input type="checkbox" id="uAll" aria-label="Pilih semua akaun" ${list.some(u=>u.ID!==S.user.ID)?'':'disabled'}></th><th>Nama</th><th>Jawatan</th><th>ID Log Masuk</th>${isG?'<th>Pentadbir</th>':''}<th>Status</th><th></th></tr></thead><tbody>
+    ${list.length?list.map(u=>`<tr><td>${u.ID!==S.user.ID?`<input type="checkbox" class="uChk" value="${esc(u.ID)}" aria-label="Pilih ${esc(u.Nama)}">`:''}</td><td>${esc(u.Nama)}${u.ID===S.user.ID?' <span class="muted">(anda)</span>':''}</td><td>${isD?'Pengurus Data Murid':u.Jawatan?esc(u.Jawatan):'<span class="muted">—</span>'}</td><td>${esc(u.Login)}${u.Emel?`<div class="muted">${esc(u.Emel)}</div>`:''}</td>
       ${isG?`<td>${u.Pentadbir==='YA'?'<span class="badge b-on">Ya</span>':'<span class="muted">—</span>'}</td>`:''}
       <td>${u.Aktif==='YA'?'<span class="badge b-Ringan">Aktif</span>':'<span class="badge b-off">Tidak aktif</span>'}${u.TukarKL==='YA'?' <span class="badge b-PROSES">Belum tukar KL</span>':''}</td>
       <td class="right nowrap"><button class="btn sm sec" data-ed="${esc(u.ID)}">Edit</button>${u.ID!==S.user.ID?` <button class="btn sm red" data-del="${esc(u.ID)}">Padam</button>`:''}</td></tr>`).join('')
-      :`<tr><td colspan="6" class="muted">Belum ada akaun ${title.toLowerCase()}.</td></tr>`}
+      :`<tr><td colspan="7" class="muted">Belum ada akaun ${title.toLowerCase()}.</td></tr>`}
     </tbody></table></div>
   </div>`;
   $('#uAdd').onclick=()=>userForm(null,role);
+  // Padam pukal
+  const chks=()=>[...$('#tBody').querySelectorAll('.uChk')];
+  const kemas=()=>{ const n=chks().filter(c=>c.checked).length, all=chks();
+    $('#uBulkN').textContent=n; $('#uBulk').classList.toggle('hidden',!n);
+    $('#uAll').checked=!!all.length&&n===all.length; $('#uAll').indeterminate=n>0&&n<all.length; };
+  $('#uAll').onchange=e=>{ chks().forEach(c=>c.checked=e.target.checked); kemas(); };
+  chks().forEach(c=>c.onchange=kemas);
+  $('#uBulk').onclick=async()=>{
+    const ids=chks().filter(c=>c.checked).map(c=>c.value); if(!ids.length) return;
+    const pil=ids.map(id=>S.users.find(x=>x.ID===id)).filter(Boolean);
+    const sen=pil.slice(0,10).map(x=>`• ${esc(x.Nama)} <span class="muted">(${esc(x.Login)})</span>`).join('<br>')+(pil.length>10?`<br><span class="muted">… dan ${pil.length-10} lagi</span>`:'');
+    if(!await ask(`Padam <b>${pil.length}</b> akaun ${title.toLowerCase()}?<div style="max-height:220px;overflow:auto;margin:8px 0">${sen}</div><span class="muted">Tindakan ini tidak boleh dibatalkan. Rekod yang telah dimasukkan oleh akaun ini kekal. Pertimbangkan "Tidak aktif" sebagai ganti.</span>`,'Padam '+pil.length+' akaun')) return;
+    try{ S.users=await api('deleteUsers',{IDs:ids}); toast(`${pil.length} akaun dipadam.`,'ok'); tUsers(role); }catch(e){ toast(e.message,'err'); }
+  };
   $('#tBody').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>userForm(S.users.find(u=>u.ID===b.dataset.ed),role));
   $('#tBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
     const u=S.users.find(x=>x.ID===b.dataset.del);
