@@ -480,7 +480,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '17.0';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '17.1';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 17;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -857,12 +857,51 @@ function pdHead(title, sub, meta){
     <div class="pd-title">${esc(title)}</div>${sub?`<div class="pd-sub">${esc(sub)}</div>`:''}
     <table class="pd-meta">${rows}</table>`;
 }
+const SG_KOSONG='..........................................';
 function pdSign(list){
-  return `<div class="pd-sign">${list.map(x=>`<div>${esc(x[0])}:<div class="ln"></div>Nama: ${x[1]?esc(x[1]):'..........................................'}<br>${x[2]?'Jawatan: '+esc(x[2])+'<br>':''}Tarikh: ...............................</div>`).join('')}</div>`;
+  // Slot tanpa nama (kecuali ibu bapa) boleh dipilih daripada senarai guru sebelum dicetak.
+  return `<div class="pd-sign">${list.map(x=>{ const pick=!x[1]&&!/ibu bapa|penjaga/i.test(x[0]);
+    return `<div${pick?` data-sg="${esc(x[0])}" data-j="${esc(x[2]||'')}"`:''}>${esc(x[0])}:<div class="ln"></div>Nama: <span class="sg-n">${x[1]?esc(x[1]):SG_KOSONG}</span><br><span class="sg-j">${x[2]?'Jawatan: '+esc(x[2])+'<br>':''}</span>Tarikh: ...............................</div>`; }).join('')}</div>`;
+}
+/** Pilih penyemak / pengesah bagi setiap slot tandatangan sebelum mencetak. */
+async function pilihPengesah(a){
+  const slots=[...a.querySelectorAll('.pd-sign [data-sg]')]; if(!slots.length) return true;
+  const labels=[...new Set(slots.map(s=>s.dataset.sg))];
+  if(!S.guruList){ try{ S.guruList=await api('senaraiGuru',{},{senyap:true}); }catch(e){ S.guruList=[]; } }
+  // Tunggu modal sebelumnya (cth. pilihan orientasi) ditutup supaya pemilih tidak tertutup bersamanya.
+  for(let i=0;i<40;i++){ await new Promise(r=>setTimeout(r,i?50:0)); if($('#modal').classList.contains('hidden')) break; }
+  const G=S.guruList||[], key='dm_sg_'+((S.user&&S.user.ID)||'');
+  let mem={}; try{ mem=JSON.parse(localStorage.getItem(key)||'{}'); }catch(e){}
+  const defJ=l=>(slots.find(s=>s.dataset.sg===l)||{dataset:{}}).dataset.j||'';
+  const opt=l=>`<option value="">— Kosong (tulis tangan) —</option>`+G.map((g,i)=>`<option value="${i}" ${mem[l]&&mem[l].n===g.Nama?'selected':''}>${esc(g.Nama)}${g.Jawatan?' — '+esc(g.Jawatan):''}</option>`).join('');
+  return new Promise(res=>{
+    let done=false; const fin=v=>{ if(!done){ done=true; res(v); } };
+    modal('Penyemak / Pengesah Dokumen',`
+      <p class="muted" style="margin-top:0">Pilih guru bagi setiap ruangan tandatangan. Pilih <b>Kosong</b> untuk diisi dengan tangan.</p>
+      ${labels.map((l,i)=>`<label>${esc(l)}</label>
+        <div class="row"><select id="sgN${i}" data-i="${i}" style="flex:2">${opt(l)}</select>
+        <input id="sgJ${i}" placeholder="Jawatan" style="flex:1" value="${esc(mem[l]&&mem[l].n?(mem[l].j||''):defJ(l))}"></div>`).join('')}
+      ${G.length?'':'<div class="info warn" style="margin-top:8px">Senarai guru tidak dapat dimuatkan. Ruangan akan dibiarkan kosong.</div>'}`,[
+      {t:'Batal',cls:'sec',fn:()=>fin(false)},
+      {t:'🖨 Teruskan cetak',fn:()=>{
+        labels.forEach((l,i)=>{ const v=$('#sgN'+i).value, g=v===''?null:G[+v], j=$('#sgJ'+i).value.trim();
+          mem[l]=g?{n:g.Nama,j}:{};
+          slots.filter(s=>s.dataset.sg===l).forEach(s=>{
+            s.querySelector('.sg-n').textContent=g?g.Nama:SG_KOSONG;
+            s.querySelector('.sg-j').innerHTML=j?'Jawatan: '+esc(j)+'<br>':'';
+          }); });
+        try{ localStorage.setItem(key,JSON.stringify(mem)); }catch(e){}
+        fin(true);
+      }}
+    ]);
+    labels.forEach((l,i)=>{ $('#sgN'+i).onchange=e=>{ const v=e.target.value; $('#sgJ'+i).value=v===''?defJ(l):(G[+v].Jawatan||defJ(l)); }; });
+    $('#mX').onclick=()=>{ fin(false); closeModal(); };
+  });
 }
 async function printDoc(html, noEnd, land){
   const a=$('#printArea');
   a.innerHTML=`<div class="pd">${html}${noEnd?'':`<div class="pd-end">— Dokumen ini dijana oleh ${esc(S.set.NamaSistem||'Sistem Perekodan Kesalahan Ringan Murid')} —</div>`}</div>`;
+  if(!(await pilihPengesah(a))){ a.innerHTML=''; return; }
   pageStyle(land); document.body.classList.add('pdoc');
   try{
     const t=a.querySelector('.pd-title'), m=[...a.querySelectorAll('.pd-meta td.k')].slice(0,2).map(k=>k.textContent+': '+((k.nextElementSibling&&k.nextElementSibling.nextElementSibling)?k.nextElementSibling.nextElementSibling.textContent:'')).join(' · ');
