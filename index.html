@@ -140,6 +140,15 @@ html[data-theme=dark] .heat td,html[data-theme=dark] .heat th{border-color:rgba(
 html[data-theme=dark] .cmp-dn{color:#4ade80}html[data-theme=dark] .cmp-up{color:#f87171}
 html[data-theme=dark] .b-none,html[data-theme=dark] .b-off{background:#475569}
 html[data-theme=dark] .hero:not([style]){background:linear-gradient(125deg,#0b1d4d 0%,#1d3f94 55%,#2a5bd7 100%);box-shadow:0 14px 34px rgba(0,0,0,.4)}
+/* --- sokongan mod gelap bagi komponen tambahan (v17.5) --- */
+:root{--tr0:#a3aec0;--tr1:#7c8799;--tr2:#b8902f;--tr3:#2a5bd7;--tr4:#0b1d4d;--tr5:#e3222b}
+html[data-theme=dark]{--tr0:#64748b;--tr1:#94a3b8;--tr2:#e0b44a;--tr3:#6f95ff;--tr4:#d4defc;--tr5:#f87171}
+.bulkbar{background:rgba(42,91,215,.07);border:1px solid var(--line);padding:8px;border-radius:10px;align-items:center}
+html[data-theme=dark] .bulkbar{background:rgba(91,132,241,.12);border-color:rgba(148,170,230,.22)}
+td.hv{color:#1c0606}html[data-theme=dark] td.hv{color:#fff5f5}
+html[data-theme=dark] .err:not(.toast){color:#fca5a5}
+html[data-theme=dark] .al-red{color:#fecdd3!important;background:rgba(248,113,113,.12)!important;border-color:rgba(248,113,113,.35)!important}
+@media print{html[data-theme=dark]{--tr0:#a3aec0;--tr1:#7c8799;--tr2:#b8902f;--tr3:#2a5bd7;--tr4:#0b1d4d;--tr5:#e3222b}html[data-theme=dark] td.hv{color:#1c0606}}
 @media print{html[data-theme=dark]{--txt:#0f1d3d;--mut:#5b6b8c;--navy:#0b1d4d;--glass:#fff;--glass-hi:#fff}html[data-theme=dark] body{background:#fff}}
 /* ---------- Rangka pemuatan ---------- */
 .sk{position:relative;overflow:hidden;background:rgba(255,255,255,.55)!important;border:1px solid var(--glass-bd)}
@@ -480,7 +489,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '17.4';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '17.5';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 17;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -1663,7 +1672,7 @@ async function saveRekod(force){
       ${out.map(r=>`<tr><td>${esc(r.NamaPenuh)}<div class="muted">${esc(r.Kelas)}</div></td><td>${pending?'—':esc(r.Bilangan)}</td><td>${pending?stBadge('MENUNGGU'):badge(r.Tahap)}</td></tr>`).join('')}</tbody></table></div>
       ${res.tindakanBaru?`<p class="info warn" style="margin-top:12px">${res.tindakanBaru} tindakan susulan baharu telah diwujudkan dalam menu <b>Tindakan</b> kerana murid mencapai tahap Sederhana/Berat.</p>`
         :(out.some(r=>r.Tahap!=='Ringan')?'<p class="info warn" style="margin-top:12px">Terdapat murid di tahap Sederhana/Berat. Sila maklumkan kepada guru disiplin / guru kelas.</p>':'')}
-      ${res.moeisBaru?`<p class="info" style="margin-top:10px;background:rgba(227,34,43,.08);border-color:rgba(227,34,43,.3);color:#9f1239">📌 <b>${res.moeisBaru} kemasukan MOEIS diperlukan.</b> Murid telah mencapai ${esc(S.set.MoeisSetiap||3)} rekod ${S.set.MoeisSkop==='SEMUA'?'kesalahan':'kesalahan ringan'}. Sila masukkan ke dalam sistem MOEIS${isGuru()?' dan tandakan dalam menu <b>MOEIS</b>':' (maklumkan kepada guru disiplin)'}.</p>`:''}`);
+      ${res.moeisBaru?`<p class="info al-red" style="margin-top:10px;background:rgba(227,34,43,.08);border-color:rgba(227,34,43,.3);color:#9f1239">📌 <b>${res.moeisBaru} kemasukan MOEIS diperlukan.</b> Murid telah mencapai ${esc(S.set.MoeisSetiap||3)} rekod ${S.set.MoeisSkop==='SEMUA'?'kesalahan':'kesalahan ringan'}. Sila masukkan ke dalam sistem MOEIS${isGuru()?' dan tandakan dalam menu <b>MOEIS</b>':' (maklumkan kepada guru disiplin)'}.</p>`:''}`);
     S.pick=[]; $('#rCat').value=''; renderChips(); renderPickList();
     if(!res.pendua) toastAct(`${out.length} rekod disimpan.`,'↶ Batal',async()=>{
       try{ const u=await api('undoRecords',{IDs:ids}); closeModal(); toast(`${u.dibatal} rekod dibatalkan.`,'ok'); if(isGuru()) boot({}).catch(()=>{}); }
@@ -2039,7 +2048,7 @@ function vTindakan(){
       <button class="btn sec" id="tPrt">🖨 Cetak</button>
     </div>
   </div>
-  <div class="card"><div class="toolbar hidden" id="tBar" style="background:var(--soft,#f1f5f9);padding:8px;border-radius:8px"><b><span id="tBarN">0</span> tindakan dipilih</b>
+  <div class="card"><div class="toolbar bulkbar hidden" id="tBar"><b><span id="tBarN">0</span> tindakan dipilih</b>
     <button class="btn sm red" id="tDel">🗑 Padam terpilih</button><button class="btn sm sec" id="tBarX">Nyahpilih</button></div><div class="tw" id="tTbl"></div></div>`;
   $('#tGo').onclick=loadTind; $('#tPrt').onclick=printTind; $('#tS').onchange=loadTind; $('#tK').onchange=loadTind; $('#tJ').onchange=loadTind; $('#tKs').onchange=loadTind; $('#tQ').onkeydown=e=>{if(e.key==='Enter')loadTind();};
   loadTind();
@@ -2238,13 +2247,13 @@ function vLaporan(){
 const BLN=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
 function trendSvg(T,bulanSemasa){
   const W=760,H=280,L=44,R=14,Tp=16,B=34, cw=(W-L-R)/11;
-  const C=['#a3aec0','#7c8799','#b8902f','#2a5bd7','#0b1d4d','#e3222b'].slice(-T.length);
+  const C=['var(--tr0)','var(--tr1)','var(--tr2)','var(--tr3)','var(--tr4)','var(--tr5)'].slice(-T.length);
   const max=Math.max(5,...T.flatMap(t=>t.bulan)); const step=Math.pow(10,Math.floor(Math.log10(max)))*(max/Math.pow(10,Math.floor(Math.log10(max)))>5?2:1); const top=Math.ceil(max/step)*step;
   const yy=v=>Tp+(H-Tp-B)*(1-v/top), xx=i=>L+i*cw;
   let g=''; for(let v=0;v<=top;v+=step) g+=`<line x1="${L}" x2="${W-R}" y1="${yy(v)}" y2="${yy(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${yy(v)+4}" text-anchor="end" font-size="11" fill="var(--mut)">${v}</text>`;
   g+=BLN.map((b,i)=>`<text x="${xx(i)}" y="${H-12}" text-anchor="middle" font-size="11" fill="var(--mut)">${b}</text>`).join('');
   const lines=T.map((t,k)=>{ const n=t.separa?bulanSemasa:12, pts=t.bulan.slice(0,n).map((v,i)=>`${xx(i).toFixed(1)},${yy(v).toFixed(1)}`).join(' ');
-    const last=k===T.length-1; return `<polyline points="${pts}" fill="none" stroke="${C[k]}" stroke-width="${last?3:2}" ${t.separa?'':''}/>`+t.bulan.slice(0,n).map((v,i)=>`<circle cx="${xx(i)}" cy="${yy(v)}" r="${last?3.5:2.5}" fill="${C[k]}"><title>${esc(t.tahun)} ${BLN[i]}: ${v}</title></circle>`).join(''); }).join('');
+    const last=k===T.length-1; return `<polyline points="${pts}" fill="none" style="stroke:${C[k]}" stroke-width="${last?3:2}"/>`+t.bulan.slice(0,n).map((v,i)=>`<circle cx="${xx(i)}" cy="${yy(v)}" r="${last?3.5:2.5}" style="fill:${C[k]}"><title>${esc(t.tahun)} ${BLN[i]}: ${v}</title></circle>`).join(''); }).join('');
   const leg=T.map((t,k)=>`<span style="display:inline-flex;align-items:center;gap:6px;margin-right:14px"><span style="width:14px;height:3px;background:${C[k]};display:inline-block;border-radius:2px"></span>${esc(t.tahun)}${t.separa?' (hingga '+BLN[bulanSemasa-1]+')':''}</span>`).join('');
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Graf bilangan kesalahan bulanan mengikut tahun">${g}${lines}</svg><div class="muted" style="margin-top:4px">${leg}</div>`;
 }
@@ -2378,7 +2387,7 @@ function heatmap(d){
   const max=Math.max(1,...Object.values(d.hariJam||{}));
   return `<table class="heat"><thead><tr><th></th>${hs.map(h=>`<th>${String(h).padStart(2,'0')}</th>`).join('')}</tr></thead><tbody>
     ${days.map(i=>`<tr><th style="text-align:left">${nm[i]}</th>${hs.map(h=>{ const v=d.hariJam[i+'|'+h]||0, a=v?0.12+0.68*v/max:0;
-      return `<td style="background:rgba(227,34,43,${a.toFixed(2)});color:${a>0?'#1c0606':'inherit'};${a>.45?'font-weight:700':''}">${v||''}</td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
+      return `<td${a>0?' class="hv"':''} style="background:rgba(227,34,43,${a.toFixed(2)});${a>.45?'font-weight:700':''}">${v||''}</td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
 }
 function vchart(list, daily){
   if(!list.length) return '<div class="muted">Tiada data.</div>';
@@ -2396,7 +2405,7 @@ function lokHeat(d){
   const lo=Math.min(...jam), hi=Math.max(...jam), H=[]; for(let h=lo;h<=hi;h++) H.push(h);
   const max=Math.max(1,...lok.flatMap(k=>Object.values(L[k])));
   return `<table class="tbl heat"><thead><tr><th>Lokasi</th>${H.map(h=>`<th style="text-align:center">${String(h).padStart(2,'0')}</th>`).join('')}<th class="right">Jumlah</th></tr></thead><tbody>
-    ${lok.map(k=>`<tr><td class="nowrap"><b>${esc(k)}</b></td>${H.map(h=>{ const n=L[k][h]||0, a=n/max; return `<td style="text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:${n?`rgba(227,34,43,${(.12+a*.66).toFixed(2)})`:'transparent'};color:${n?'#1c0606':'inherit'}">${n||''}</td>`; }).join('')}<td class="right"><b>${Object.values(L[k]).reduce((x,y)=>x+y,0)}</b></td></tr>`).join('')}</tbody></table>`;
+    ${lok.map(k=>`<tr><td class="nowrap"><b>${esc(k)}</b></td>${H.map(h=>{ const n=L[k][h]||0, a=n/max; return `<td${n?' class="hv"':''} style="text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:${n?`rgba(227,34,43,${(.12+a*.66).toFixed(2)})`:'transparent'};color:inherit">${n||''}</td>`; }).join('')}<td class="right"><b>${Object.values(L[k]).reduce((x,y)=>x+y,0)}</b></td></tr>`).join('')}</tbody></table>`;
 }
 /** Garis masa visual kesalahan murid (SVG) */
 function timelineSvg(list, opt){
@@ -2865,7 +2874,7 @@ function muridAktif(){
       <button class="btn" id="mAdd">+ Tambah Murid</button>
       <button class="btn sec" id="mQR" title="Cetak pelekat / kad QR bagi murid yang dipaparkan (ikut penapis kelas)">🪪 Cetak Kad QR</button>
     </div>
-    <div class="toolbar hidden" id="mBulkBar" style="background:var(--soft,#f1f5f9);padding:8px;border-radius:8px">
+    <div class="toolbar bulkbar hidden" id="mBulkBar">
       <b><span id="mBulkN">0</span> murid dipilih</b>
       <button class="btn sm sec" id="mBK">🔀 Tukar kelas</button>
       <button class="btn sm amb" id="mBA">📦 Arkib terpilih</button>
@@ -2943,7 +2952,7 @@ function muridAktif(){
 }
 function muridArkibView(){
   $('#mWrap').innerHTML=`<div class="row" style="margin-bottom:10px"><div><input id="maQ" placeholder="Cari nama atau no. pendaftaran…"></div></div>
-    <div class="toolbar hidden" id="maBar" style="background:var(--soft,#f1f5f9);padding:8px;border-radius:8px"><b><span id="maN">0</span> murid dipilih</b>
+    <div class="toolbar bulkbar hidden" id="maBar"><b><span id="maN">0</span> murid dipilih</b>
       <button class="btn sm grn" id="maRs">♻ Pulihkan terpilih</button><button class="btn sm sec" id="maX">Nyahpilih</button></div>
     <div class="tw" id="maTbl"></div>`;
   const PA=new Set();
