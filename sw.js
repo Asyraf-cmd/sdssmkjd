@@ -1,6 +1,6 @@
 /* Sistem Perekodan Kesalahan Ringan Murid — Service Worker
    Tukar nombor versi CACHE setiap kali index.html dikemas kini supaya telefon mendapat versi baharu. */
-const CACHE = 'demerit-v17-4';
+const CACHE = 'demerit-v17-5';
 const SHELL = [
   './',
   './index.html',
