@@ -140,6 +140,17 @@ html[data-theme=dark] .heat td,html[data-theme=dark] .heat th{border-color:rgba(
 html[data-theme=dark] .cmp-dn{color:#4ade80}html[data-theme=dark] .cmp-up{color:#f87171}
 html[data-theme=dark] .b-none,html[data-theme=dark] .b-off{background:#475569}
 html[data-theme=dark] .hero:not([style]){background:linear-gradient(125deg,#0b1d4d 0%,#1d3f94 55%,#2a5bd7 100%);box-shadow:0 14px 34px rgba(0,0,0,.4)}
+/* --- gambar latar keseluruhan sistem (v17.7) --- */
+#appBg{position:fixed;inset:0;z-index:-1;pointer-events:none;display:none;background-size:cover;background-position:center;
+  background-image:linear-gradient(rgba(232,238,252,var(--abg-o,.6)),rgba(232,238,252,var(--abg-o,.6))),var(--abg-img,none)}
+html[data-theme=dark] #appBg{background-image:linear-gradient(rgba(6,13,32,var(--abg-o,.6)),rgba(6,13,32,var(--abg-o,.6))),var(--abg-img,none)}
+body.appbg #appBg{display:block}body.appbg::before{display:none}
+@media print{#appBg{display:none!important}}
+/* --- bar "data baharu" --- */
+.db-bar{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);transition:transform .25s;z-index:60;display:flex;gap:8px;align-items:center;padding:8px 10px 8px 14px;border-radius:12px;
+  background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 8px 24px rgba(15,29,61,.18);font-weight:600;font-size:14px}
+.db-bar.on{transform:translate(-50%,0)}
+html[data-theme=dark] .db-bar{background:rgba(14,23,48,.97);border-color:rgba(148,170,230,.22)}
 /* --- sokongan mod gelap bagi komponen tambahan (v17.5) --- */
 :root{--tr0:#a3aec0;--tr1:#7c8799;--tr2:#b8902f;--tr3:#2a5bd7;--tr4:#0b1d4d;--tr5:#e3222b}
 html[data-theme=dark]{--tr0:#64748b;--tr1:#94a3b8;--tr2:#e0b44a;--tr3:#6f95ff;--tr4:#d4defc;--tr5:#f87171}
@@ -489,7 +500,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--pri2)}
    KONFIGURASI
    ===================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbz6Y7R92O10DAWw5pgEkTlS9bPkXoWccl-QA_lhylEFt-Ug_lLzE08L5GQmytY2sgZB/exec';
-const APP_VERSI = '17.5';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
+const APP_VERSI = '17.7';   // naikkan nombor ini setiap kali index.html dikemas kini (paparan sahaja)
 const BACKEND_VERSI = 17;
 const IN_GAS = !!(window.google && google.script && google.script.run);
 
@@ -732,8 +743,37 @@ function toast(msg,type){
   $('#toast').appendChild(t); setTimeout(()=>t.remove(), type==='err'?6000:3500);
 }
 
+/* ---------- Simpanan sementara di pelayar (tab dibuka serta-merta; disegarkan di latar belakang) ---------- */
+const BACA=new Set(['dashboard','listRecords','studentSummary','listMoeis','listTindakan','report','trendTahunan','studentStatus','logYears','senaraiGuru']);
+const TAK_UBAH=new Set(['appBg','logCetak','info','systemInfo','getNotif','listSesi','retensiList','previewArchive','recordHistory','loginBg','listLog','systemHealth','peringatanAkhirTahun','bulkProfiles','pakejMesyuarat','studentStatus']);
+const AC=new Map(), AC_LEMBUT=15000, AC_KERAS=600000;
+function acClear(){ AC.clear(); hideDataBaru(); }
+const klon=d=>{ try{ return structuredClone(d); }catch(e){ return JSON.parse(JSON.stringify(d)); } };
+function dataBaru(){ let b=$('#dbBar'); if(!b){ b=document.createElement('div'); b.id='dbBar'; b.className='db-bar noprint'; b.setAttribute('role','status');
+    b.innerHTML='🔄 Ada data baharu. <button class="btn sm" id="dbGo">Muat semula</button><button class="btn sm sec" id="dbX" aria-label="Tutup">✕</button>'; document.body.appendChild(b);
+    $('#dbGo').onclick=()=>{ hideDataBaru(); go(S.view); }; $('#dbX').onclick=hideDataBaru; }
+  b.classList.add('on'); }
+function hideDataBaru(){ const b=$('#dbBar'); if(b) b.classList.remove('on'); }
 async function api(action,data,opt){
-  const payload={action,data:data||{},token:S.token,latihan:S.latihan||undefined}, senyap=!!(opt&&opt.senyap);
+  if(BACA.has(action) && !(opt&&opt.segar)){
+    const key=action+'|'+(S.latihan?1:0)+'|'+JSON.stringify(data||{}), e=AC.get(key), umur=e?Date.now()-e.t:Infinity;
+    if(e && umur<AC_KERAS){
+      if(umur>AC_LEMBUT && !e.p){ e.p=true; const v=S.view;
+        apiRaw(action,data,{senyap:true}).then(d=>{ const sig=JSON.stringify(d), ubah=sig!==e.sig; AC.set(key,{t:Date.now(),d,sig}); if(ubah&&S.view===v) dataBaru(); }).catch(()=>{ e.p=false; }); }
+      return klon(e.d);
+    }
+    const d=await apiRaw(action,data,opt); AC.set(key,{t:Date.now(),d,sig:JSON.stringify(d)}); return klon(d);
+  }
+  const d=await apiRaw(action,data,opt);
+  if(!TAK_UBAH.has(action)) acClear();       // sebarang perubahan data: buang simpanan sementara
+  return d;
+}
+/** Nyahpadat respons format lajur + baris daripada pelayan. */
+function unpack(v){ if(!v||typeof v!=='object') return v; if(Array.isArray(v)) return v.map(unpack);
+  if(v.__c&&v.__r) return v.__r.map(r=>{ const o={}; v.__c.forEach((k,i)=>{ if(r[i]!==null) o[k]=unpack(r[i]); }); return o; });
+  const o={}; for(const k in v) o[k]=unpack(v[k]); return o; }
+async function apiRaw(action,data,opt){
+  const payload={action,data:data||{},token:S.token,latihan:S.latihan||undefined,pk:1}, senyap=!!(opt&&opt.senyap);
   if(!senyap) loading(true);
   try{
     let res;
@@ -749,7 +789,7 @@ async function api(action,data,opt){
       catch(e){ const er=new Error('Pelayan sedang sibuk atau tidak dapat dihubungi. Sila cuba sebentar lagi.'); er.code='SIBUK'; throw er; }
     }
     if(!res.ok){ const e=new Error(res.error||'Ralat tidak diketahui.'); e.code=res.code; throw e; }
-    return res.data;
+    return unpack(res.data);
   }catch(e){
     if(e.code==='AUTH' && action!=='login' && action!=='loginGoogle') endSession();
     if(e.code==='PWCHANGE') showPwChange();
@@ -1135,9 +1175,23 @@ async function applyLoginBg(id, overlay){
 }
 // paparkan latar tersimpan serta-merta (sebelum pelayan menjawab)
 if(LS.get('dm_bg')) setLoginBg(LS.get('dm_bg'), LS.get('dm_bg_ov')||35);
+if(LS.get('dm_abg')) setAppBg(LS.get('dm_abg'), LS.get('dm_abg_ov')||60);
+/* ---------- Latar belakang keseluruhan sistem ---------- */
+function setAppBg(data, overlay){
+  let el=$('#appBg'); if(!el){ el=document.createElement('div'); el.id='appBg'; el.setAttribute('aria-hidden','true'); document.body.prepend(el); }
+  const o=Math.max(0,Math.min(90,+overlay||0))/100;
+  el.style.setProperty('--abg-o',o); el.style.setProperty('--abg-img',data?`url("${data}")`:'none');
+  document.body.classList.toggle('appbg',!!data && !$('#app').classList.contains('hidden'));
+}
+async function applyAppBg(id, overlay){
+  LS.set('dm_abg_ov',overlay);
+  if(!id){ LS.del('dm_abg'); LS.del('dm_abg_id'); setAppBg('',0); return; }
+  if(LS.get('dm_abg_id')===id && LS.get('dm_abg')){ setAppBg(LS.get('dm_abg'), overlay); return; }
+  try{ const r=await api('appBg',{},{senyap:true}); if(r.data){ setAppBg(r.data, overlay); try{ LS.set('dm_abg',r.data); LS.set('dm_abg_id',r.id); }catch(e){} } }catch(e){}
+}
 /* ---------- Mod latihan ---------- */
 async function setLatihan(on){
-  S.latihan=!!on; on?LS.set('dm_latihan','1'):LS.del('dm_latihan');
+  acClear(); S.latihan=!!on; on?LS.set('dm_latihan','1'):LS.del('dm_latihan');
   S.view='dashboard';
   try{ await boot({}); toast(on?'Mod latihan diaktifkan. Semua data adalah contoh.':'Kembali ke data sebenar.','ok'); }catch(e){ toast(e.message,'err'); }
 }
@@ -1221,10 +1275,10 @@ async function init(){
   try{ const i=await api('info',{logoId:LS.get('dm_logo_id')||''}); applyBrand(i.NamaSekolah,i.NamaSistem,takeLogo(i)); LS.set('dm_bg_ov',i.loginOverlay); applyLoginBg(i.loginBgId,i.loginOverlay); setupGoogle(i.googleClientId); }
   catch(e){ $('#lgErr').textContent=e.message; applyBrand('','',''); }
 }
-function showOnly(id){ ['#login','#pwc','#app'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); }
+function showOnly(id){ ['#login','#pwc','#app'].forEach(s=>$(s).classList.toggle('hidden',s!==id)); document.body.classList.toggle('appbg',id==='#app'&&!!LS.get('dm_abg')&&!!(S.set&&S.set.AppBgId)); }
 function showLogin(){ showOnly('#login'); }
 function showPwChange(){ showOnly('#pwc'); $('#pwErr').textContent=''; setTimeout(()=>$('#pwOld').focus(),50); }
-function endSession(){ S.token=''; S.user=null; LS.del('dm_token'); LS.del('dm_boot'); closeModal(); showLogin(); if(!$('#gBtn').childElementCount) api('info').then(i=>setupGoogle(i.googleClientId)).catch(()=>{}); }
+function endSession(){ acClear(); S.token=''; S.user=null; LS.del('dm_token'); LS.del('dm_boot'); closeModal(); showLogin(); if(!$('#gBtn').childElementCount) api('info').then(i=>setupGoogle(i.googleClientId)).catch(()=>{}); }
 
 $('#lgForm').onsubmit = async e=>{
   e.preventDefault(); $('#lgErr').textContent=''; $('#lgBtn').disabled=true;
@@ -1325,7 +1379,7 @@ function bootCached(){
 }
 function bootData(d,opt){
   opt=opt||{};
-  S.user=d.user; S.set=d.settings||{}; S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
+  S.user=d.user; S.set=d.settings||{}; applyAppBg(S.set.AppBgId, S.set.AppOverlay||60); S.logo=d.logo; S.kelas=d.kelas; S.murid=d.murid; S.muridArkib=d.muridArkib||[];
   S.kes=d.kesalahan; S.users=d.users||[]; S.jawatan=d.jawatan||[]; S.tindakanBuka=d.tindakanBuka||0; S.tertunggak=d.tertunggak||0; S.moeisBelum=d.moeisBelum||0; S.tahunArkib=d.tahunArkib||[]; S.akhirTahun=d.akhirTahun||null; S.menunggu=d.menunggu||0; S.kesKerap=d.kesKerap||[];
   document.body.classList.toggle('latihan',!!S.latihan); $('#latBar').classList.toggle('hidden',!S.latihan); renderOffBar(); lastAct=Date.now();
   applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo);
@@ -1372,7 +1426,7 @@ async function go(v){
   const my=++navSeq;
   if(profOpen()) closeProf();
   if(!navItems().some(x=>x[0]===v)) v=navItems()[0][0];
-  S.view=v; renderNav(); window.scrollTo(0,0);
+  S.view=v; hideDataBaru(); renderNav(); window.scrollTo(0,0);
   const fn={dashboard:vDashboard,rekod:vRekod,senarai:vSenarai,profil:vProfil,tindakan:vTindakan,moeis:vMoeis,sahkan:vSahkan,laporan:vLaporan,tetapan:vTetapan,akaun:vAkaun,arkib:vArkib,
     murid:()=>{ $('#view').innerHTML='<div id="tBody"></div>'; tMurid(); }, kelas:()=>{ $('#view').innerHTML='<div id="tBody"></div>'; tKelas(); }}[v];
   try{ await fn(); }
@@ -2214,6 +2268,7 @@ function vLaporan(){
       <div id="lD1" class="hidden"><label>Dari</label><input type="date" id="lDari" value="${y}-01-01"></div>
       <div id="lD2" class="hidden"><label>Hingga</label><input type="date" id="lHingga" value="${t}"></div>
       <div id="lC1" class="hidden"><label>Tempoh A (semasa)</label><input type="month" id="lCA" value="${t.slice(0,7)}" max="${t.slice(0,7)}"></div>
+      <div id="lKW"><label>Kesalahan</label><select id="lKs" title="Laporan khusus bagi satu kesalahan">${optKes('','Semua kesalahan')}</select></div>
       <div id="lC2" class="hidden"><label>Tempoh B (dibandingkan)</label><input type="month" id="lCB" value="${prevMonth(t.slice(0,7))}" max="${t.slice(0,7)}"></div>
       <button class="btn" id="lGo">Jana Laporan</button>
       <button class="btn amb" id="lRum" title="Rumusan satu halaman untuk mesyuarat">📄 Rumusan Mesyuarat</button>
@@ -2234,6 +2289,7 @@ function vLaporan(){
   </div>
   <div id="lOut"></div>`;
   $('#lJ').onchange=()=>{ const j=$('#lJ').value;
+    $('#lKW').classList.toggle('hidden',j==='TREND');
     $('#lBW').classList.toggle('hidden',j!=='BULAN'); $('#lTW').classList.toggle('hidden',j!=='TAHUN');
     $('#lD1').classList.toggle('hidden',j!=='JULAT'); $('#lD2').classList.toggle('hidden',j!=='JULAT');
     $('#lC1').classList.toggle('hidden',j!=='BANDING'); $('#lC2').classList.toggle('hidden',j!=='BANDING'); };
@@ -2314,7 +2370,7 @@ async function genCompare(){
   const A=monthRange($('#lCA').value||today().slice(0,7)), B=monthRange($('#lCB').value||prevMonth(today().slice(0,7)));
   const out=$('#lOut'); out.innerHTML='<div class="card muted">Menjana perbandingan…</div>';
   try{
-    const [a,b]=await Promise.all([api('report',{dari:A.dari,hingga:A.hingga}),api('report',{dari:B.dari,hingga:B.hingga})]);
+    const [a,b]=await Promise.all([api('report',{dari:A.dari,hingga:A.hingga,kesalahan:rptKes()}),api('report',{dari:B.dari,hingga:B.hingga,kesalahan:rptKes()})]);
     if(!document.body.contains(out)) return;
     S.cmp={A,B,a,b};
     const row=(l,x,y)=>`<tr><td>${l}</td><td class="right"><b>${x}</b></td><td class="right">${y}</td><td class="right">${delta(x,y)}</td></tr>`;
@@ -2337,7 +2393,7 @@ function printCompare(){
   const dl=(x,y)=>{ if(!y) return x?'baharu':'-'; const p=Math.round((x-y)/y*100); return (p>0?'+':'')+p+'%'; };
   const row=(l,x,y)=>`<tr><td>${l}</td><td class="r">${x}</td><td class="r">${y}</td><td class="r">${dl(x,y)}</td></tr>`;
   const tb=(h,L)=>`<table class="pd-tbl"><thead><tr><th>${h}</th><th class="r">${esc(A.label)}</th><th class="r">${esc(B.label)}</th><th class="r">Perubahan</th></tr></thead><tbody>${L.map(x=>row(esc(x.label),x.a,x.b)).join('')||'<tr><td colspan="4" class="c">Tiada data.</td></tr>'}</tbody></table>`;
-  printDoc(pdHead('Laporan Perbandingan Disiplin',A.label+' berbanding '+B.label,[['Tempoh A',fmtD(A.dari)+' – '+fmtD(A.hingga)],['Tempoh B',fmtD(B.dari)+' – '+fmtD(B.hingga)]])+
+  printDoc(pdHead('Laporan Perbandingan Disiplin',A.label+' berbanding '+B.label,[['Tempoh A',fmtD(A.dari)+' – '+fmtD(A.hingga)],['Tempoh B',fmtD(B.dari)+' – '+fmtD(B.hingga)],...(rptKes()?[['Kesalahan',rptKes()]]:[])])+
     `<h4>A. Petunjuk Utama</h4><table class="pd-tbl"><thead><tr><th>Petunjuk</th><th class="r">${esc(A.label)}</th><th class="r">${esc(B.label)}</th><th class="r">Perubahan</th></tr></thead><tbody>
       ${row('Jumlah kesalahan',a.jumlah,b.jumlah)}${row('Murid terlibat',a.muridUnik,b.muridUnik)}${row('Tahap Ringan',a.tahap.Ringan,b.tahap.Ringan)}${row('Tahap Sederhana',a.tahap.Sederhana,b.tahap.Sederhana)}${row('Tahap Berat',a.tahap.Berat,b.tahap.Berat)}${row('Sesi pagi',a.sesi.Pagi,b.sesi.Pagi)}${row('Sesi petang',a.sesi.Petang,b.sesi.Petang)}</tbody></table>
     <h4>B. Mengikut Kelas</h4>${tb('Kelas',mergeLists(a.ikutKelas,b.ikutKelas))}
@@ -2356,7 +2412,7 @@ async function printRumusan(){
   else { const n=daysBetween(R.dari,R.hingga); pDari=addDays(R.dari,-n); pHingga=addDays(R.dari,-1); }
   try{
     toast('Menyediakan rumusan…');
-    const [d,p]=await Promise.all([api('report',{dari:R.dari,hingga:R.hingga}),api('report',{dari:pDari,hingga:pHingga})]);
+    const [d,p]=await Promise.all([api('report',{dari:R.dari,hingga:R.hingga,kesalahan:rptKes()}),api('report',{dari:pDari,hingga:pHingga,kesalahan:rptKes()})]);
     const dl=(x,y)=>{ if(!y) return x?'(baharu)':''; const q=Math.round((x-y)/y*100); return `(${q>0?'▲ +':q<0?'▼ ':''}${q}%)`; };
     const top=(L,k)=>L.slice(0,k).map((x,i)=>`<tr><td class="c">${i+1}</td><td>${esc(x.label||x.NamaPenuh)}${x.Kelas?` <small>(${esc(x.Kelas)})</small>`:''}</td><td class="r">${x.bil}</td></tr>`).join('')||'<tr><td colspan="3" class="c">Tiada data.</td></tr>';
     const puncak=d.ikutJam.slice().sort((a,b)=>b.bil-a.bil)[0], hariP=d.ikutHari.slice().sort((a,b)=>b.bil-a.bil)[0];
@@ -2373,7 +2429,9 @@ async function printRumusan(){
       pdSign([['Disediakan oleh',S.user.Nama,S.user.Jawatan||''],['Disahkan oleh','',S.set.JawatanPengesah||'Penolong Kanan HEM']])+`</div>`, true);
   }catch(e){ toast(e.message,'err'); }
 }
-function rptRange(){
+function rptKes(){ const e=$('#lKs'); return (e&&$('#lJ').value!=='TREND'&&e.value)||''; }
+function rptRange(){ const R=rptRange0(), k=rptKes(); if(k){ R.kesalahan=k; R.tajuk+=' · Kesalahan: '+k; } return R; }
+function rptRange0(){
   const j=$('#lJ').value;
   if(j==='BULAN'){ const m=$('#lB').value||today().slice(0,7); const [yy,mm]=m.split('-').map(Number);
     const last=new Date(yy,mm,0).getDate(); return {dari:m+'-01',hingga:m+'-'+String(last).padStart(2,'0'),tajuk:'Laporan Bulanan: '+BULAN_PENUH[mm-1]+' '+yy}; }
@@ -2499,8 +2557,8 @@ async function genReport(){
   if(!R.dari||!R.hingga||R.dari>R.hingga) return toast('Julat tarikh tidak sah.','err');
   const out=$('#lOut'); out.innerHTML='<div class="card muted">Menjana laporan…</div>';
   try{
-    const d=await api('report',{dari:R.dari,hingga:R.hingga});
-    d.tajuk=R.tajuk; S.rpt=d;
+    const d=await api('report',{dari:R.dari,hingga:R.hingga,kesalahan:rptKes()});
+    d.tajuk=R.tajuk; d.kesalahanTapis=rptKes(); S.rpt=d;
     if(!document.body.contains(out)) return;   // pengguna telah beralih halaman
     const pct=n=>d.jumlah?Math.round(n/d.jumlah*100)+'%':'0%';
     out.innerHTML=`
@@ -2662,6 +2720,21 @@ function tUmum(){
     <input type="range" id="bgOv" min="0" max="90" step="5" value="${esc(s.LoginOverlay||35)}" style="padding:0">
     <div class="muted" style="margin-top:6px">Gambar landskap beresolusi tinggi disyorkan. Gambar akan dikecilkan secara automatik (maks. 1920 piksel). Tekan <b>Simpan Tetapan</b> untuk menyimpan kegelapan lapisan.</div>
   </div>
+  <div class="card"><h3>Latar Belakang Sistem</h3>
+    <div class="muted" style="margin-bottom:8px">Gambar latar bagi semua halaman selepas log masuk (papan pemuka, senarai, tetapan dan lain-lain). Terpakai kepada semua pengguna.</div>
+    <div id="abPrev" style="height:170px;border-radius:14px;border:1px solid var(--glass-bd);position:relative;overflow:hidden;background:var(--glass)">
+      <div id="abPrevImg" style="position:absolute;inset:0;background-size:cover;background-position:center"></div>
+      <div style="position:absolute;left:18px;top:18px;right:40%;bottom:18px;border-radius:12px;background:var(--glass-hi);border:1px solid var(--glass-bd);padding:12px;backdrop-filter:blur(8px)">
+        <b>Contoh kad</b><div class="muted" style="margin-top:4px">Teks dalam kad mesti mudah dibaca di atas gambar.</div></div>
+    </div>
+    <div class="toolbar" style="margin-top:10px;align-items:center">
+      <input type="file" id="abIn" aria-label="Pilih gambar latar keseluruhan sistem" accept="image/png,image/jpeg,image/webp" style="flex:1;min-width:200px">
+      <button class="btn sec sm" id="abDel">Guna latar asal</button>
+    </div>
+    <label>Kekaburan lapisan di atas gambar (supaya teks mudah dibaca): <span id="abOvV">${esc(s.AppOverlay||60)}</span>%</label>
+    <input type="range" id="abOv" min="0" max="90" step="5" value="${esc(s.AppOverlay||60)}" style="padding:0">
+    <div class="muted" style="margin-top:6px">Lapisan cerah digunakan dalam mod cerah dan lapisan gelap dalam mod gelap. Nilai 60% atau lebih disyorkan bagi gambar yang sibuk. Tekan <b>Simpan Tetapan</b> untuk menyimpan nilai ini. Gambar latar tidak dicetak.</div>
+  </div>
   <div class="card"><h3>Peraturan Demerit</h3>
     <div class="row">
       <div><label>Bil. kesalahan tahap Ringan</label><input type="number" id="sA" min="1" max="50" value="${esc(s.HadRingan)}"></div>
@@ -2697,7 +2770,7 @@ function tUmum(){
     try{
       const r=await api('saveSettings',{NamaSekolah:$('#sSek').value,NamaSistem:$('#sSys').value,
         AlamatSekolah:$('#sAlm').value,NoTelefon:$('#sTel').value,Emel:$('#sEml').value,KodSekolah:$('#sKod').value,
-        JawatanPengesah:$('#sJwt').value,CetakSulit:$('#sSlt').value,MoeisSetiap:$('#sMN').value,MoeisSkop:$('#sMS').value,LoginOverlay:$('#bgOv').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,HadBerat:$('#sC').value,
+        JawatanPengesah:$('#sJwt').value,CetakSulit:$('#sSlt').value,MoeisSetiap:$('#sMN').value,MoeisSkop:$('#sMS').value,LoginOverlay:$('#bgOv').value,AppOverlay:$('#abOv').value,HadRingan:$('#sA').value,HadSederhana:$('#sB').value,HadBerat:$('#sC').value,
         SkopKiraan:$('#sSkop').value,PengawasRekod:$('#sPR').value,PengawasLihat:$('#sPL').value,PengesahanPengawas:$('#sPS').value});
       S.set=(r&&r.settings)||r||S.set; applyBrand(S.set.NamaSekolah,S.set.NamaSistem,S.logo); renderNav();
       toast('Tetapan disimpan.'+(r.berubah?` ${r.berubah} rekod dikira semula.`:''),'ok');
@@ -2730,6 +2803,28 @@ function tUmum(){
   $('#bgDel').onclick=async()=>{
     if(!await ask('Buang gambar latar dan guna latar asal?','Buang')) return;
     try{ await api('removeLoginBg'); S.set.LoginBgId=''; LS.del('dm_bg'); LS.del('dm_bg_id'); setLoginBg('',0); bgShow(); toast('Latar asal digunakan.','ok'); }
+    catch(e){ toast(e.message,'err'); }
+  };
+  // ---- latar belakang sistem
+  const abShow=()=>{ const d=LS.get('dm_abg_id')===S.set.AppBgId?LS.get('dm_abg'):''; const o=(+$('#abOv').value)/100, dark=document.documentElement.dataset.theme==='dark';
+    const c=dark?`rgba(6,13,32,${o})`:`rgba(232,238,252,${o})`;
+    $('#abPrevImg').style.backgroundImage=d?`linear-gradient(${c},${c}), url("${d}")`:'none'; };
+  if(S.set.AppBgId && LS.get('dm_abg_id')!==S.set.AppBgId){ applyAppBg(S.set.AppBgId,S.set.AppOverlay).then(abShow); } else abShow();
+  $('#abOv').oninput=()=>{ $('#abOvV').textContent=$('#abOv').value; abShow(); if(LS.get('dm_abg')&&S.set.AppBgId) setAppBg(LS.get('dm_abg'),$('#abOv').value); };
+  $('#abIn').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{
+      toast('Memuat naik gambar…');
+      const url=await resizeImage(f,1920,'image/jpeg',0.8);
+      const r=await api('uploadAppBg',{dataUrl:url});
+      S.set.AppBgId=r.id; try{ LS.set('dm_abg',url); LS.set('dm_abg_id',r.id); }catch(x){}
+      setAppBg(url,$('#abOv').value); abShow(); toast('Latar belakang sistem dikemas kini.','ok');
+    }catch(err){ toast(err.message,'err'); }
+    e.target.value='';
+  };
+  $('#abDel').onclick=async()=>{
+    if(!await ask('Buang gambar latar sistem dan guna latar asal?','Buang')) return;
+    try{ await api('removeAppBg'); S.set.AppBgId=''; LS.del('dm_abg'); LS.del('dm_abg_id'); setAppBg('',0); abShow(); toast('Latar asal sistem digunakan.','ok'); }
     catch(e){ toast(e.message,'err'); }
   };
   $('#sLogoDel').onclick=async()=>{
